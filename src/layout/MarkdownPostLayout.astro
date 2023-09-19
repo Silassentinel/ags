@@ -2,9 +2,11 @@
 const { frontmatter } = Astro.props;
 import "../styles/global.css";
 import BaseLayout from "./BaseLayout.astro";
+import BackBtn from "../components/BackBtn.astro";
 ---
 
 <BaseLayout pageTitle={frontmatter.title}>
+<BackBtn />
 <section>
     <p>{frontmatter.description}</p>
 </section>

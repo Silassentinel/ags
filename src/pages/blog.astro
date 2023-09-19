@@ -1,14 +1,17 @@
 ---
 const pageTitle = "Blog";
+import type { MarkdownInstance } from "astro";
+import BlogPost from "../components/BlogPost.astro";
 import BaseLayout from "../layout/BaseLayout.astro";
+const allPosts = await Astro.glob("../pages/posts/*.md");
 ---
 
-        <BaseLayout pageTitle={pageTitle} >
-        <ul>
-            <li><a href="/posts/bbq/">Post 1</a></li>
-            <li><a href="/posts/post1">Post 2</a></li>
-            <li><a href="/posts/post2/">Post 3</a></li>
-        </ul>
-    </BaseLayout >
-    </body>
-</html>
+<BaseLayout pageTitle={pageTitle}>
+    <ul>
+        {
+            allPosts.map((post  ) => (
+                <BlogPost url={post.url} title={post.frontmatter.title} />
+            ))
+        }
+    </ul>
+</BaseLayout>
