@@ -1,6 +1,7 @@
 ---
+layout: ../../layout/MarkdownPostLayout.astro
 title: My Second Blog Post
-author: Astro Learner
+author: Benjamin Degryse
 description: "After learning some Astro, I couldn't stop!"
 image:
     url: "https://docs.astro.build/assets/arc.webp"
