@@ -21,23 +21,23 @@ import BaseLayout from "../layout/BaseLayout.astro";
         </p>
     </section>
 
-    <section>
-        <h2>My Identity</h2>
-        <ul>
-            <li>First Name: {identity.firstName}</li>
-            <li>Country: {identity.country}</li>
-            <li>Occupation: {identity.occupation}</li>
-            {
-                identity.hobbies.length > 0 && (
-                    <li>Hobbies: {identity.hobbies.join(", ")}</li>
-                )
-            }
-        </ul>
-        <p>My skills are:</p>
-        <ul>
-            {skills.map((skill) => <li>{skill}</li>)}
-        </ul>
-    </section>
+        <section>
+            <h2>My Identity</h2>
+            <ul>
+                <li>First Name: {identity.firstName}</li>
+                <li>Country: {identity.country}</li>
+                <li>Occupation: {identity.occupation}</li>
+                {
+                    identity.hobbies.length > 0 && (
+                        <li>Hobbies: {identity.hobbies.join(", ")}</li>
+                    )
+                }
+            </ul>
+            <p>My skills are:</p>
+            <ul>
+                {skills.map((skill) => <li class="skill">{skill}</li>)}
+            </ul>
+        </section>
 
     <section>
         {happy && <p>I am happy to be learning Astro!</p>}

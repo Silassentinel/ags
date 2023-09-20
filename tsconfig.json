@@ -1,3 +1,9 @@
 {
-  "extends": "astro/tsconfigs/strict"
+  "compilerOptions": {
+    "moduleResolution": "Node"
+  },
+  "extends": "astro/tsconfigs/strict",
+  "strict": true,
+  "forceConsistentCasingInFileNames": true,
+  "resolveJsonModule": true,
 }
