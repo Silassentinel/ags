@@ -1,19 +1,21 @@
 ---
-const allPosts = await Astro.glob('../pages/posts/*.md');
+const allPosts = await Astro.glob("../pages/posts/*.md");
 ---
 
 {
     allPosts &&
-    allPosts.map((post) => {
-        const title = post.frontmatter.title;
-        return (
-            <div class="pull-left">
-                <h2>{post.frontmatter.title}</h2>
-                <p>{post.frontmatter.author}</p>
-                <p>{post.frontmatter.pubDate}</p>
-                <button><a href={post.url}>click me</a></button>
-            </div>
-            <br>
-        );
-    })
+        allPosts.map((post) => {
+            const title = post.frontmatter.title;
+            return (
+                <>
+                        <li>{post.frontmatter.title}</li>
+                        <li>{post.frontmatter.author}</li>
+                        <li>{post.frontmatter.pubDate}</li>
+                        <li>
+                            <a href={post.url}>click me</a>
+                        </li>
+                        <hr/>
+                </>
+            );
+        })
 }

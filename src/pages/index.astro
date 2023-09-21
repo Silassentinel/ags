@@ -1,11 +1,11 @@
 ---
 import BaseLayout from "../layout/BaseLayout.astro";
 const pageTitle = "Home";
-import BlogListLayout from "../layout/BlogListLayout.astro";
+import BlogListWrapper from '../Layout/BlogListWrapper.Astro'
 ---
 
 <BaseLayout pageTitle={pageTitle}>
 	<p>homepage</p>
 	<h2>My awesome blog subtitle</h2>
-	<BlogListLayout />
+	<BlogListWrapper />
 </BaseLayout>
