@@ -1,6 +1,21 @@
 ---
 import BaseLayout from "../../layout/BaseLayout.astro";
+
+const posts = await Astro.glob("../posts/*.md");
+
+const uniqueTags = [
+    ...new Set(posts?.map((post) => post.frontmatter.tags).flat()),
+];
 ---
 
 <BaseLayout pageTitle="Tags">
+    <ul>
+        {
+            uniqueTags.map((tag) => (
+                <li>
+                    <a href={`/tags/${tag}` }>{tag}</a>
+                </li>
+            ))
+        }
+    </ul>
 </BaseLayout>
