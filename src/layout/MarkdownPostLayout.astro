@@ -6,23 +6,24 @@ const { frontmatter } = Astro.props;
 ---
 
 <BaseLayout pageTitle={frontmatter.title}>
-<BackBtn />
-<section>
-    <p>{frontmatter.description}</p>
-</section>
-<slot />
-{
-    frontmatter.tags && (
-        <>
-            <p>Tags:</p>
-            <ul>
-                {frontmatter.tags.map((tag: string) => {
-                    return <li>{tag}</li>;
-                })}
-            </ul>
-        </>
-    )
-}
-<p>Written by {frontmatter.author}</p>
-<p>published on {frontmatter.pubDate}</p>
+    <BackBtn />
+    <section>
+        <p>{frontmatter.description}</p>
+    </section>
+    <slot />
+    {
+        frontmatter.tags && (
+            <>
+                <p>Tags:</p>
+                <ul>
+                    {frontmatter.tags.map((tag: string) => {
+                        return <li>
+                            <a href={`/tags/${tag}`}>{tag}</a></li>;
+                    })}
+                </ul>
+            </>
+        )
+    }
+    <p>Written by {frontmatter.author}</p>
+    <p>published on {frontmatter.pubDate}</p>
 </BaseLayout>
