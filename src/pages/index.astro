@@ -1,4 +1,5 @@
 ---
+import Greeting from "../components/Greeting";
 import BaseLayout from "../layout/BaseLayout.astro";
 const pageTitle = "Home";
 import BlogListWrapper from '../layout/BlogListWrapper.astro'
@@ -7,5 +8,6 @@ import BlogListWrapper from '../layout/BlogListWrapper.astro'
 <BaseLayout pageTitle={pageTitle}>
 	<p>homepage</p>
 	<h2>My awesome blog subtitle</h2>
+	<Greeting client:load messages={["Hej", "Hallo", "Hola", "Habari"]} />
 	<BlogListWrapper />
 </BaseLayout>

@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   },
   "extends": "astro/tsconfigs/strict",
   "strict": true,
   "forceConsistentCasingInFileNames": true,
-  "resolveJsonModule": true,
+  "resolveJsonModule": true
 }
