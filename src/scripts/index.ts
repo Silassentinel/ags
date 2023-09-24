@@ -9,6 +9,6 @@ export const skills = ["DotNet", 'SQL', "HTML", "CSS", "JavaScript", "React", "A
  
 export const happy : Boolean = true;
 
-export const finished : Boolean= false;
+export const finished : Boolean= true;
 
 export const goal : Number = 9000;
