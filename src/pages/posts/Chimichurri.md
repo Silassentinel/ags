@@ -1,0 +1,23 @@
+---
+layout: ../../layout/MarkdownPostLayout.astro
+title: 'Chimichurri Sauce'
+pubDate: 2023-08-19T00:00:00.000Z
+description: 'BBQ Dry Rub'
+author: 'Benjamin Degryse'
+image:
+    url: 'https://docs.astro.build/assets/full-logo-light.png'
+    alt: 'The full Astro logo.'
+tags: ["BBQ", "Dry Rub","smoked", burgers", "bacon", "USA","smoked"]
+---
+
+
+# Homemade Chimichurri Sauce:
+## Ingredients:
+- Lemon basil, thyme, rosemary, and oregano (fresh from the garden)
+- Salt and pepper
+
+## Instructions:
+- Finely chop the fresh herbs and mix them together.
+- Season the herbs with a pinch of salt and a dash of pepper.
+- Combine thoroughly and adjust seasoning as needed.
+- Drizzle the homemade chimichurri sauce over the dish before serving.

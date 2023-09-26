@@ -1,0 +1,21 @@
+---
+layout: ../../layout/MarkdownPostLayout.astro
+title: 'BBQ Dry Rub'
+pubDate: 2023-07-22T00:00:00.000Z
+description: 'BBQ Dry Rub'
+author: 'Benjamin Degryse'
+image:
+    url: 'https://docs.astro.build/assets/full-logo-light.png'
+    alt: 'The full Astro logo.'
+tags: ["BBQ", "Dry Rub", "USA"]
+---
+
+# BBQ Dry Rub
+
+# Ingredients:
+2 parts sugar
+1 part salt
+1/4 part paprika
+A small amount of chili flakes
+
+# Instructions:
