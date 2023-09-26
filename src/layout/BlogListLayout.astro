@@ -10,7 +10,7 @@ const allPosts = await Astro.glob("../pages/posts/*.md");
                 <>
                         <li>{post.frontmatter.title}</li>
                         <li>{post.frontmatter.author}</li>
-                        <li>{post.frontmatter.pubDate}</li>
+                        <li>{new Date(post.frontmatter.pubDate).toLocaleDateString('nl-BE')}</li>
                         <li>
                             <a href={post.url}>click me</a>
                         </li>

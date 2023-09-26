@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'BBQ Dry Rub'
-pubDate: 2023-07-22T00:00:00.000Z
+pubDate: '2023-07-22'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

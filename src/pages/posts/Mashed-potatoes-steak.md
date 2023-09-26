@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'White Cabbage Mash with Steak'
-pubDate: 2022-11-19T00:00:00.000Z
+pubDate: '2022-11-19'
 description: 'This is the first post of my new Astro Tutorial blog.'
 author: 'Benjamin Degryse'
 image:

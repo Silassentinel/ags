@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'A fresh and light summer platter with figs, smoked ham, and lemon sauce.'
-pubDate: 2023-08-01T00:00:00.000Z
+pubDate: '2023-08-01'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

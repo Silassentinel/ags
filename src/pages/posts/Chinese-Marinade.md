@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'Chinese Marinade'
-pubDate: 2023-02-01T00:00:00.000Z
+pubDate: '2023-02-01'
 description: 'This is the first post of my new Astro Tutorial blog.'
 author: 'Benjamin Degryse'
 image:

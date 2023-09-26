@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'Garlic Yoghurt sauce Middle Eastern style'
-pubDate: 2023-09-10T00:00:00.000Z
+pubDate: '2023-09-10'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

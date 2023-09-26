@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'Chimichurri Sauce'
-pubDate: 2023-08-19T00:00:00.000Z
+pubDate: '2023-08-19'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'Mustard Honey Vinaigrette'
-pubDate: 2023-08-27T00:00:00.000Z
+pubDate: '2023-08-27'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

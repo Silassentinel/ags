@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'Smoked Bacon Burgers'
-pubDate: 2023-07-26T00:00:00.000Z
+pubDate: '2023-07-26'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'BBQ Marinade with cacao and chili flakes'
-pubDate: 2023-08-01T00:00:00.000Z
+pubDate: '2023-08-01'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'Fish Broth'
-pubDate: 2023-08-17T00:00:00.000Z
+pubDate: '2023-08-17'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:

@@ -1,7 +1,7 @@
 ---
 layout: ../../layout/MarkdownPostLayout.astro
 title: 'Italian tomato salsa'
-pubDate: 2023-09-03T00:00:00.000Z
+pubDate: '2023-09-03'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:
