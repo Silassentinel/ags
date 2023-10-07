@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Mustard Honey Vinaigrette'
 pubDate: '2023-08-27'
 description: 'BBQ Dry Rub'

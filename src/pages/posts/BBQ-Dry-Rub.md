@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'BBQ Dry Rub'
 pubDate: '2023-07-22'
 description: 'BBQ Dry Rub'

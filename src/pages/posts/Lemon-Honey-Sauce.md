@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Lemon Honey Sauce'
 pubDate: '2023-09-03'
 description: 'BBQ Dry Rub'

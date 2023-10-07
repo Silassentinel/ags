@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'A fresh and light summer platter with figs, smoked ham, and lemon sauce.'
 pubDate: '2023-08-01'
 description: 'BBQ Dry Rub'

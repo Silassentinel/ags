@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Garam Masala Spice Mix'
 pubDate: '2023-09-10'
 description: 'BBQ Dry Rub'

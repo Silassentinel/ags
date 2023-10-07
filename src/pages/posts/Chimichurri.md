@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Chimichurri Sauce'
 pubDate: '2023-08-19'
 description: 'BBQ Dry Rub'

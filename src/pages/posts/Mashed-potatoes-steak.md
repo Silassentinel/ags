@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'White Cabbage Mash with Steak'
 pubDate: '2022-11-19'
 description: 'This is the first post of my new Astro Tutorial blog.'

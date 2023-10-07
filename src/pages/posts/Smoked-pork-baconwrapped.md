@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Dry Rub Cured Pork Roast with Smoked Bacon and Corn on the Cob'
 pubDate: '2023-07-22'
 description: 'BBQ Dry Rub'

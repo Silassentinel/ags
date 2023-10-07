@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Garlic Yoghurt sauce Middle Eastern style'
 pubDate: '2023-09-10'
 description: 'BBQ Dry Rub'

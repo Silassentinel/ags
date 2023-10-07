@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Fish Broth'
 pubDate: '2023-08-17'
 description: 'BBQ Dry Rub'

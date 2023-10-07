@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'JalaPeno Poppers'
 pubDate: '2023-02-01'
 description: 'This is the first post of my new Astro Tutorial blog.'

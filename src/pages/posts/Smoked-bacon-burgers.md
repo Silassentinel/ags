@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/MarkdownPostLayout.astro
+layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Smoked Bacon Burgers'
 pubDate: '2023-07-26'
 description: 'BBQ Dry Rub'
