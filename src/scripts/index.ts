@@ -25,12 +25,16 @@ class Skill {
 
 class SoftSKill extends Skill {
   //#region CTOR
-  constructor(name: string, experience: number) {
+  constructor(name: string, level : number) {
     super(name);
-    this.experience = experience;
+    this.level = level;
   }
   //#endregion
   //#region Props
+  /**
+   * Postif or negatif level
+   */
+  level: number;
   //#endregion
 }
 
