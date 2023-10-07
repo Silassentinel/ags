@@ -5,7 +5,7 @@ pubDate: '2023-07-26'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:
-    url: 'https://docs.astro.build/assets/full-logo-light.png'
+    url: ''
     alt: 'The full Astro logo.'
 tags: ["BBQ", "Dry Rub","smoked", burgers", "bacon", "USA","smoked"]
 ---

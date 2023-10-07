@@ -5,7 +5,7 @@ pubDate: '2023-09-10'
 description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:
-    url: 'https://docs.astro.build/assets/full-logo-light.png'
+    url: ''
     alt: 'The full Astro logo.'
 tags: ["Greek", "Sauce", "Yoghurt", "Middle Eastern"]
 ---

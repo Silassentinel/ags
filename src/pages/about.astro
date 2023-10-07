@@ -1,55 +1,47 @@
 ---
 const pageTitle = "About Me";
 
-import { identity, skills, happy, finished, goal } from "../scripts/index.js";
-
+import { identity} from "../scripts/index.js";
 import BaseLayout from "../layout/BaseLayout.astro";
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-    <h2>... and my new Astro site!</h2>
-
     <section>
-        <p>
-            I am working through Astro's introductory tutorial. This is the
-            second page on my website, and it's the first one I built myself!
-        </p>
-
-        <p>
-            This site will update as I complete more of the tutorial, so keep
-            checking back and see how my journey is going!
-        </p>
+        <p>Welcome to my website</p>
     </section>
 
-        <section>
-            <h2>My Identity</h2>
-            <ul>
-                <li>First Name: {identity.firstName}</li>
-                <li>Country: {identity.country}</li>
-                <li>Occupation: {identity.occupation}</li>
-                {
-                    identity.hobbies.length > 0 && (
-                        <li>Hobbies: {identity.hobbies.join(", ")}</li>
-                    )
-                }
-            </ul>
-            <p>My skills are:</p>
-            <ul>
-                {skills.map((skill) => <li class="skill">{skill}</li>)}
-            </ul>
-        </section>
+    <section>
+        <h2>Whoami</h2>
+        <ul>
+            <li>Name: {identity.firstName}</li>
+            <li>Country: {identity.country}</li>
+            <li>Occupation: {identity.occupation}</li>
+            {
+                identity.hobbies.length > 0 && (
+                    <li>Hobbies: {identity.hobbies.join(", ")}</li>
+                )
+            }
+        </ul>
+    </section>
 
     <section>
-        {happy && <p>I am happy to be learning Astro!</p>}
+        <h2>Skills</h2>
+        <blockquote>
+            <p>SoftSkills</p>
+            <p>Negatives</p>
+            <p>positives</p>
+        </blockquote>
 
-        {finished && <p>I finished this tutorial!</p>}
-
-        {
-            goal === 3 ? (
-                <p>My goal is to finish in 3 days.</p>
-            ) : (
-                <p>My goal is not 3 days.</p>
-            )
-        }
+        <blockquote>
+            <p>TechSkills</p>
+            <p>FrontEnd</p>
+            <p>BackEnd</p>
+            <p>DevOps</p>
+            <p>Database</p>
+            <p>DesktopApplicationDevelopment</p>
+            <p>MobileDevelopment</p>
+            <p>Testing</p>
+            <p>Automation</p>
+        </blockquote>
     </section>
 </BaseLayout>

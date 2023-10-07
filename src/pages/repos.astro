@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../layout/BaseLayout.astro";
+const pageTitle = "Repos";
+import GetAllRepos from "../scripts/GetAllRepos";
+const repos = await GetAllRepos("silassentinel");
+---
+
+<BaseLayout pageTitle={pageTitle}>
+    {
+        repos &&
+            repos.sort((firstRepo,nextRepo )=> {
+                return Date.parse(firstRepo.update_at) - Date.parse(nextRepo.update_at);
+            } ).map((repo) => (
+                <section>
+                    <p>name: {repo.name}</p>
+                    <button>
+                        <a  target="blank" href={repo.svn_url}>Go To Repo</a>
+                    </button>
+                </section>
+            ))
+    }
+</BaseLayout>

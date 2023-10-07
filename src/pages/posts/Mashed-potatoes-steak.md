@@ -5,7 +5,7 @@ pubDate: '2022-11-19'
 description: 'This is the first post of my new Astro Tutorial blog.'
 author: 'Benjamin Degryse'
 image:
-    url: 'https://docs.astro.build/assets/full-logo-light.png'
+    url: ''
     alt: 'The full Astro logo.'
 tags: ["cabbage", "potatoes", "steak"]
 ---
