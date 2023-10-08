@@ -6,5 +6,5 @@ import preact from "@astrojs/preact";
 export default defineConfig({
   site: 'https://astrogettingstarted.netlify.app/',
   integrations: [preact()],
-  ourDir: "../silassentinel.github.io"
+  ourDir: "../silassentinel.github.io/"
 });
