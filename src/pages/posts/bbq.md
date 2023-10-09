@@ -7,7 +7,7 @@ author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["BBQ", "Dry Rub","smoked", burgers", "bacon", "USA","smoked"]
+tags: ["BBQ", "Dry Rub","smoked", "burgers", "bacon", "USA","smoked"]
 ---
 
 First blog post about bbq!
