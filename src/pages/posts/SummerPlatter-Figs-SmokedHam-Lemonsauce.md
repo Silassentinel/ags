@@ -7,7 +7,11 @@ author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
+<<<<<<< HEAD
 tags: ["Summer", "Figs", "Smoked ham", "Lemon sauce"]
+=======
+tags: ["BBQ", "Dry Rub","smoked", "burgers", "bacon", "USA","smoked"]
+>>>>>>> 3386504dfa07733415e4da97c694ac18f18e26f9
 ---
 
 # A fresh and light summer platter with figs, smoked ham, and lemon sauce.
