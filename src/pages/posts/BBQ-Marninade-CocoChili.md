@@ -7,11 +7,7 @@ author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-<<<<<<< HEAD
 tags: ["BBQ", "Marinade","USA",]
-=======
-tags: ["BBQ", "Dry Rub","smoked", "burgers", "bacon", "USA","smoked"]
->>>>>>> 3386504dfa07733415e4da97c694ac18f18e26f9
 ---
 
 # BBQ Marinade with cacao and chili flakes
