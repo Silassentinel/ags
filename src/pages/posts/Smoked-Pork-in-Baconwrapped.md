@@ -2,7 +2,7 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Dry Rub Cured Pork Roast with Smoked Bacon'
 pubDate: '2023-07-22'
-description: 'BBQ Dry Rub'
+description: 'Dry Rub Cured Pork Roast with Smoked Bacon'
 author: 'Benjamin Degryse'
 image:
     url: ''

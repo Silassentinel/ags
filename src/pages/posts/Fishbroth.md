@@ -2,12 +2,12 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Fish Broth'
 pubDate: '2023-08-17'
-description: 'BBQ Dry Rub'
+description: 'Fishbroth'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["Broth", "Fish"]
+tags: ["Broth", "Fish", "Stock"]
 ---
 
 # Fish Broth

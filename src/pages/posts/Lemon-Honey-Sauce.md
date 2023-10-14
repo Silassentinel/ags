@@ -2,12 +2,12 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Lemon Honey Sauce'
 pubDate: '2023-09-03'
-description: 'BBQ Dry Rub'
+description: 'A dressing perfect for summer salads.'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["Salad dressing"]
+tags: ["Salad dressing", "Lemon", "Honey", "Olive oil"]
 ---
 
 # Lemon honey sauce

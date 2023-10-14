@@ -2,12 +2,12 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Chimichurri Pasta Salad'
 pubDate: '2023-02-01'
-description: 'This is the first post of my new Astro Tutorial blog.'
+description: 'A pasta salad with Chimichurri sauce, crispy bacon, and toasted nuts.'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["Chicken", "Peanut buttersauce", "Asian", "Rice"]
+tags: ["Roasted meat saus", "Chimichurri", "Pasta", "Salad"]
 ---
 
 # Chimichurri Pasta Salad

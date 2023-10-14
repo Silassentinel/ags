@@ -1,13 +1,13 @@
 ---
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
-title: 'JalaPeno Poppers'
+title: 'Jalapeno Poppers'
 pubDate: '2023-02-01'
-description: 'This is the first post of my new Astro Tutorial blog.'
+description: 'Jaapeno Poppers, a spicy appetizer.'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["Chicken", "Peanut buttersauce", "Asian", "Rice"]
+tags: ["Jalapenos", "USA", "Peppers"]
 ---
 
 # Jalapeño Poppers

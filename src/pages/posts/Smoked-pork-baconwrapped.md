@@ -2,7 +2,7 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Dry Rub Cured Pork Roast with Smoked Bacon and Corn on the Cob'
 pubDate: '2023-07-22'
-description: 'BBQ Dry Rub'
+description: 'Smoked pork roast wrapped in bacon, served with corn on the co'
 author: 'Benjamin Degryse'
 image:
     url: ''

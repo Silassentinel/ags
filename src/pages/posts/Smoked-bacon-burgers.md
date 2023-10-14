@@ -2,7 +2,7 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Smoked Bacon Burgers'
 pubDate: '2023-07-26'
-description: 'BBQ Dry Rub'
+description: 'Smoked Bacon Burgers'
 author: 'Benjamin Degryse'
 image:
     url: ''

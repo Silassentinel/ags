@@ -2,7 +2,7 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'ChickenSkewers peanutbutter sauce veggies and rice'
 pubDate: '2023-02-01'
-description: 'This is the first post of my new Astro Tutorial blog.'
+description: 'Chicken on a stick with peanutbutter sauce, veggies and rice.'
 author: 'Benjamin Degryse'
 image:
     url: ''

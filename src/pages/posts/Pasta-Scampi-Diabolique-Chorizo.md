@@ -2,12 +2,12 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'Pasta with Spicy Chorizo Scampi'
 pubDate: '2023-08-27'
-description: 'BBQ Dry Rub'
+description: 'Scampi with chorizo and pasta'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["BBQ", "Dry Rub","smoked", burgers", "bacon", "USA","smoked"]
+tags: ["Pasta", "Scampi", "Chorizo", "Spicy"]
 ---
 
 

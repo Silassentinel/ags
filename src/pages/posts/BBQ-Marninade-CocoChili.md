@@ -2,12 +2,12 @@
 layout: ../../layout/Blogs/MarkdownPostLayout.astro
 title: 'BBQ Marinade with cacao and chili flakes'
 pubDate: '2023-08-01'
-description: 'BBQ Dry Rub'
+description: 'BBQ marinade'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["BBQ", "Dry Rub","smoked", burgers", "bacon", "USA","smoked"]
+tags: ["BBQ", "Marinade","USA",]
 ---
 
 # BBQ Marinade with cacao and chili flakes
