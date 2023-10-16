@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Garam Masala Spice Mix'
 pubDate: '2023-09-10'
 description: 'A middle eastern spice mix.'

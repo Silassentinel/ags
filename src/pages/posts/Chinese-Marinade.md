@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Chinese Marinade'
 pubDate: '2023-02-01'
 description: 'A chinese marinade for chicken.'

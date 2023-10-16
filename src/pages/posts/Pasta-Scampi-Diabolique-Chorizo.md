@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Pasta with Spicy Chorizo Scampi'
 pubDate: '2023-08-27'
 description: 'Scampi with chorizo and pasta'

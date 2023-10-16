@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Meat Gravy with Cream'
 pubDate: '2023-10-14'
 description: 'A delicious meat gravy with cream.'

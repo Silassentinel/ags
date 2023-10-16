@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Dry Rub Cured Pork Roast with Smoked Bacon'
 pubDate: '2023-07-22'
 description: 'Dry Rub Cured Pork Roast with Smoked Bacon'

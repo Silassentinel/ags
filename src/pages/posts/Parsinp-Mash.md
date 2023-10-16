@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Parsnip Mash'
 pubDate: '2023-10-14'
 description: 'A parsnip mash - in Belgium we call it "Pastinaak Stoemp".'

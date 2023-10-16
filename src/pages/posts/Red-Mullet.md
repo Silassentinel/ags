@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Grilled Red Mullet'
 pubDate: '2023-08-19'
 description: 'A Fishy Dish'
@@ -7,11 +7,7 @@ author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-<<<<<<< HEAD
 tags: ["Fish", "Red Mullet", "Rice", "Mushrooms", "Chimichurri", "Eggplants"]
-=======
-tags: ["BBQ", "Dry Rub","smoked", "burgers", "bacon", "USA","smoked"]
->>>>>>> 3386504dfa07733415e4da97c694ac18f18e26f9
 ---
 
 # GRILLED RED MULLET

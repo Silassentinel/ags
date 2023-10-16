@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'ChickenSkewers peanutbutter sauce veggies and rice'
 pubDate: '2023-02-01'
 description: 'Chicken on a stick with peanutbutter sauce, veggies and rice.'

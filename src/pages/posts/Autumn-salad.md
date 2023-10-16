@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Autumn Salad'
 pubDate: '2023-10-14'
 description: 'A cripsy savory autumn salad.'

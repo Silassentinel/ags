@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'BBQ Marinade with cacao and chili flakes'
 pubDate: '2023-08-01'
 description: 'BBQ marinade'

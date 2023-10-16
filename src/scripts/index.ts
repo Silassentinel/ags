@@ -1,4 +1,4 @@
-import type { MarkdownInstance } from "astro";
+// import type { MarkdownInstance } from "astro";
 
 /**
  * A class to represent a skill

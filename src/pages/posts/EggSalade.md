@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'EggSalade'
 pubDate: '2023-09-03'
 description: 'A tasty EggSalade to spread on your delicious homemade bread.'

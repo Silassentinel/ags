@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'A stuffed pumpkin'
 pubDate: '2023-08-01'
 description: 'Stuffed pumpkin'

@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Chimichurri Sauce'
 pubDate: '2023-08-19'
 description: 'A dressing best used for roasted meats but good on anything.'
@@ -17,7 +17,7 @@ tags: ["Dessing", "Parsley", "Roasted meats"]
 - Salt and pepper
 
 ## Instructions:
-- Finely chop the fresh herbs and mix them together.
-- Season the herbs with a pinch of salt and a dash of pepper.
-- Combine thoroughly and adjust seasoning as needed.
-- Drizzle the homemade chimichurri sauce over the dish before serving.
+1. Finely chop the fresh herbs and mix them together.
+2. Season the herbs with a pinch of salt and a dash of pepper.
+3. Combine thoroughly and adjust seasoning as needed.
+4. Drizzle the homemade chimichurri sauce over the dish before serving.

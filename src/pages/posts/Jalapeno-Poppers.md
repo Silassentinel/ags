@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Jalapeno Poppers'
 pubDate: '2023-02-01'
 description: 'Jaapeno Poppers, a spicy appetizer.'

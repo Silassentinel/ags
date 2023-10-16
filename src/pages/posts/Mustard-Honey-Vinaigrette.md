@@ -1,5 +1,5 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Mustard Honey Vinaigrette'
 pubDate: '2023-08-27'
 description: 'A spicy yet sweet dressing for a summer salad.'
