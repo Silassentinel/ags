@@ -1,8 +1,8 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Home made BBQ sauce'
 pubDate: '2023-08-17'
-description: 'BBQ Dry Rub'
+description: 'BBQ sauce'
 author: 'Benjamin Degryse'
 image:
     url: ''

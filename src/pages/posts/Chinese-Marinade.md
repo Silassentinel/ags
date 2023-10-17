@@ -1,8 +1,8 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Chinese Marinade'
 pubDate: '2023-02-01'
-description: 'This is the first post of my new Astro Tutorial blog.'
+description: 'A chinese marinade for chicken.'
 author: 'Benjamin Degryse'
 image:
     url: ''

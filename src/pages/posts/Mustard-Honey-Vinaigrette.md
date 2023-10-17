@@ -1,13 +1,13 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Mustard Honey Vinaigrette'
 pubDate: '2023-08-27'
-description: 'BBQ Dry Rub'
+description: 'A spicy yet sweet dressing for a summer salad.'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["BBQ", "Dry Rub","smoked", "burgers", "bacon", "USA","smoked"]
+tags: ["Mustard", "Honey", "Vinaigrette", "Salad dressing"]
 ---
 
 # Mustard Honey Vinaigrette

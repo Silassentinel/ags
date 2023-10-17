@@ -8,9 +8,9 @@ const repos = await GetAllRepos("silassentinel");
 <BaseLayout pageTitle={pageTitle}>
     {
         repos &&
-            repos.sort((firstRepo,nextRepo )=> {
+            repos.sort((firstRepo: { update_at: string; },nextRepo: { update_at: string; } )=> {
                 return Date.parse(firstRepo.update_at) - Date.parse(nextRepo.update_at);
-            } ).map((repo) => (
+            } ).map((repo: { name: unknown; svn_url: string | URL | null | undefined; }) => (
                 <section>
                     <p>name: {repo.name}</p>
                     <button>

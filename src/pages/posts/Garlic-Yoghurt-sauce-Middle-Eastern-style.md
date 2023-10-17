@@ -1,8 +1,8 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'Garlic Yoghurt sauce Middle Eastern style'
 pubDate: '2023-09-10'
-description: 'BBQ Dry Rub'
+description: 'A yoghurt based sauce with garlic and parsley, perfect for dipping or as a sauce for grilled meats.'
 author: 'Benjamin Degryse'
 image:
     url: ''

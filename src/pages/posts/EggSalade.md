@@ -1,13 +1,13 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'EggSalade'
 pubDate: '2023-09-03'
-description: 'BBQ Dry Rub'
+description: 'A tasty EggSalade to spread on your delicious homemade bread.'
 author: 'Benjamin Degryse'
 image:
     url: ''
     alt: 'The full Astro logo.'
-tags: ["Eggs", "spread"]
+tags: ["Eggs", "spread","bread"]
 ---
 
 # EggSalade

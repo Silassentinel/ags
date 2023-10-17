@@ -1,0 +1,18 @@
+---
+import { Skills, TechSkill } from "../../scripts/index";
+---
+
+<div>
+    <h3>
+        {Skills[0].Name}
+    </h3>
+    
+    <ul>
+        {
+            (Skills[0] as TechSkill).Tools &&
+                (Skills[0] as TechSkill).Tools.map((tool: string) => {
+                    return <li>{tool}</li>;
+                })
+        }
+    </ul>
+</div>

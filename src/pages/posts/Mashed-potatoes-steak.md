@@ -1,8 +1,8 @@
 ---
-layout: ../../layout/Blogs/MarkdownPostLayout.astro
+layout: ../../layout/Post/MarkdownPostLayout.astro
 title: 'White Cabbage Mash with Steak'
 pubDate: '2022-11-19'
-description: 'This is the first post of my new Astro Tutorial blog.'
+description: 'A delicious and healthy alternative to mashed potatoes. - Wittekool Stoemp'
 author: 'Benjamin Degryse'
 image:
     url: ''
