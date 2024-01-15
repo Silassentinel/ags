@@ -1,0 +1,27 @@
+---
+const { title, subtitle, text, image, buttons, style, id } = Astro.props;
+{
+  /// <summary>
+  /// General purpopse card component
+  /// </summary>
+  /// <param name="title">Title of the card</param>
+  /// <param name="subtitle">Subtitle of the card<Optional></param>
+  /// <param name="text">Text of the card</param>
+  /// <param name="image">Image of the card <Optional></param>
+  /// <param name="buttons">Buttons of the card <Optional></param>
+  /// <param name="style">Style of the card <Optional></param>
+  /// <param name="id">Id of the card <Optional></param>
+}
+---
+
+<div class="card" id={id} style={style}>
+  <div class="card-body">
+    <h5 class="card-title">{title}</h5>
+    <h6 class="card-subtitle mb-2 text-muted">{subtitle}</h6>
+    <p class="card-text">{text}</p>
+    <img src={image} class="card-img-top" alt="..." />
+    <div class="card-buttons">
+      {buttons}
+    </div>
+  </div>
+</div>
