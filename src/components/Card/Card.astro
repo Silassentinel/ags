@@ -1,5 +1,5 @@
 ---
-const { title, subtitle, text, image, buttons, style, id } = Astro.props;
+const { title, subtitle, text, image, BtnUrl, BtnText, id } = Astro.props;
 {
   /// <summary>
   /// General purpopse card component
@@ -12,16 +12,57 @@ const { title, subtitle, text, image, buttons, style, id } = Astro.props;
   /// <param name="style">Style of the card <Optional></param>
   /// <param name="id">Id of the card <Optional></param>
 }
+
+
+import Btn from "../Buttons/Btn.astro";
 ---
 
-<div class="card" id={id} style={style}>
+<div class="card" id={id}>
   <div class="card-body">
     <h5 class="card-title">{title}</h5>
-    <h6 class="card-subtitle mb-2 text-muted">{subtitle}</h6>
+    {subtitle && <h6 class="card-subtitle mb-2 text-muted">{subtitle}</h6>}
     <p class="card-text">{text}</p>
-    <img src={image} class="card-img-top" alt="..." />
-    <div class="card-buttons">
-      {buttons}
-    </div>
+    {image && <img src={image} class="card-img-top" alt="..." />}
+<Btn url={BtnUrl} text={BtnText} />
   </div>
 </div>
+
+<style>
+  .card {
+    width: 18rem;
+    margin: 1rem;
+    border: 1px solid #ccc;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+
+  }
+
+  .card-body {
+    background-color: rgb(69, 65, 65);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+  }
+
+  .card-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .card-text {
+    font-size: 1rem;
+  }
+
+  .card-img-top:hover {
+    cursor: crosshair;
+  }
+
+  .card-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+</style>

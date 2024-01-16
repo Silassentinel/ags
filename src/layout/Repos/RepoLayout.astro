@@ -3,22 +3,17 @@ import BaseLayout from "../BaseLayout.astro";
 const title = "Repos"
 import GetAllRepos from "../../scripts/GetAllRepos";
 const repos = await GetAllRepos("silassentinel");
-import RepoBtn from "../../components/Buttons/Btn.astro"
-
 import Card from "../../components/Card/Card.astro"
+import { renderEndpoint } from "astro/dist/runtime/server";
 ---
 
 <BaseLayout pageTitle={title}>
-    <Card title="Repos" subtitle="sub test"  />
   {
       repos &&
           repos.sort((firstRepo: { update_at: string; },nextRepo: { update_at: string; } )=> {
               return Date.parse(firstRepo.update_at) - Date.parse(nextRepo.update_at);
-          } ).map((repo: { name: unknown; svn_url: string | URL | null | undefined; }) => (
-              <section>
-                  <p>name: {repo.name}</p>
-                  <RepoBtn url="{repo.svn_url}" text="View Repo" />
-              </section>
+          } ).map((repo: { id: number; name: unknown; svn_url: string | URL | null | undefined;  }) => (
+            <Card id={repo.id} title={repo.name} subtitle="sub test" text="this is text" BtnUrl={repo.svn_url} BtnText="View Repo" />
           ))
   }
 </BaseLayout>
