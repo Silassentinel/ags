@@ -13,7 +13,6 @@ const { title, subtitle, text, image, BtnUrl, BtnText, id } = Astro.props;
   /// <param name="id">Id of the card <Optional></param>
 }
 
-
 import Btn from "../Buttons/Btn.astro";
 ---
 
@@ -23,19 +22,19 @@ import Btn from "../Buttons/Btn.astro";
     {subtitle && <h6 class="card-subtitle mb-2 text-muted">{subtitle}</h6>}
     <p class="card-text">{text}</p>
     {image && <img src={image} class="card-img-top" alt="..." />}
-<Btn url={BtnUrl} text={BtnText} />
+    <Btn url={BtnUrl} text={BtnText} />
   </div>
 </div>
 
 <style>
   .card {
+    float: left;
     width: 18rem;
     margin: 1rem;
     border: 1px solid #ccc;
     align-content: center;
     justify-content: center;
     text-align: center;
-
   }
 
   .card-body {

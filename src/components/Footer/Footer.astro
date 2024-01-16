@@ -1,18 +1,22 @@
 ---
-import Social from './Social.astro';
+import Social from "./Social.astro";
 ---
 
 <style>
-    footer {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-      align-content: center;
-    }
-  </style>
+  footer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    align-content: center;
+    position: absolute;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+  }
+</style>
 
 <footer>
-    <Social platform="LinkedIn" username="in/benjamin-degryse/" />
-    <Social platform="Github" username="silassentinel" />
-    <Social platform="Soundcloud" username="akusoundsystem" />
+  <Social platform="LinkedIn" username="in/benjamin-degryse/" />
+  <Social platform="Github" username="silassentinel" />
+  <Social platform="Soundcloud" username="akusoundsystem" />
 </footer>
