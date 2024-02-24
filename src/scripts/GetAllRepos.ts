@@ -2,8 +2,9 @@
 import fs from 'fs';
 import dotenv from 'dotenv';
 import type { Repo } from './types/Repo';
+
 dotenv.config();
-const jsonData = fs.readFileSync(".\\data\\ghuserRepo.json", "utf-8");
+const jsonData = fs.readFileSync("./data/ghuserRepo.json", "utf8");
 
 const GetAllRepos = async (username: string): Promise<Array<Repo>> => {
     // if in dev use local json file else call api

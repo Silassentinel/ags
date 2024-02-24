@@ -10,10 +10,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.2.1",
-    "@astrojs/preact": "^3.0.0",
-    "@astrojs/rss": "^3.0.0",
-    "astro": "^3.0.12",
+    "@astrojs/check": "^0.5.5",
+    "@astrojs/preact": "^3.1.1",
+    "@astrojs/rss": "^4.0.5",
+    "astro": "^4.4.4",
     "dotenv": "^16.3.1",
     "preact": "^10.17.1",
     "typescript": "^5.2.2"
