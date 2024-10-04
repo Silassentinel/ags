@@ -1,3 +1,12 @@
+/**
+ * @typedef {Object} Repo
+ * @property {number} id
+ * @property {string} name
+ * @property {string} description
+ * @property {string} update_at
+ * @property {string} svn_url
+ * Represents a github repo
+ */
 export type Repo = {
     id: number;
     name: string;

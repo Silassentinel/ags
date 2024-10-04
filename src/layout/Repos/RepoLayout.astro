@@ -11,8 +11,14 @@ import Card from "../../components/Card/Card.astro"
       repos &&
           repos.sort((firstRepo ,nextRepo )=> {
               return Date.parse(firstRepo.update_at) - Date.parse(nextRepo.update_at);
-          } ).map((repo) => (
-            <Card id={repo.id} title={repo.name} subtitle="sub test" text={repo.description} BtnUrl={repo.svn_url} BtnText="View Repo" />
+          } )
+          .map((repo) => (
+            <Card id={repo.id} 
+            title={repo.name} 
+            subtitle="" 
+            text={repo.description} 
+            BtnUrl={repo.svn_url} 
+            BtnText="View Repo" />
           ))
   }
 </BaseLayout>
