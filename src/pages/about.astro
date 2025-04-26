@@ -27,21 +27,34 @@ import BaseLayout from "../layout/BaseLayout.astro";
     <section>
         <h2>Skills</h2>
         <blockquote>
-            <p>SoftSkills</p>
-            <p>Negatives</p>
-            <p>positives</p>
+            <h3>SoftSkills</h3>
+            {
+                identity.softSkills.length > 0 && 
+                identity.softSkills.map((skill, index) => (
+                    <p>{skill.Name}</p>
+                ))
+            }
         </blockquote>
 
         <blockquote>
-            <p>TechSkills</p>
-            <p>FrontEnd</p>
-            <p>BackEnd</p>
-            <p>DevOps</p>
-            <p>Database</p>
-            <p>DesktopApplicationDevelopment</p>
-            <p>MobileDevelopment</p>
-            <p>Testing</p>
-            <p>Automation</p>
+            <h3>TechSkills</h3>
+            {
+                identity.techSkills.length > 0 && 
+                identity.techSkills.map(
+                    (skill, index) => (
+                    <p>{skill.Name}</p>
+                    <p>Years of exp: {skill.experience}</p>
+                    <ul>
+                        {
+                            skill.Tools.length > 0 && 
+                            skill.Tools.map((tech, index) => (
+                                <li>{tech}</li>
+                            ))
+                        }
+                    </ul>
+                )
+            )
+            }
         </blockquote>
     </section>
 </BaseLayout>

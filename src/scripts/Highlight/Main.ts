@@ -1,5 +1,7 @@
-const  {screenX,screenY} = GetScreenDimensions();
+const GetScreenDimensions = (): { horizontal: number, vertical: number } => {
+    const horizontal = window.innerWidth;
+    const vertical = window.innerHeight;
+    return { horizontal, vertical };
+};
 
-const GetScreenDimensions: { screenX: number, screenY; } = () => {
-    let Window.
-}
+const { horizontal, vertical } = GetScreenDimensions();

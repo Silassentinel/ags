@@ -1,9 +1,10 @@
 // import type { MarkdownInstance } from "astro";
-
+import type { Identity } from "./Interface/IIdentity";
 /**
+ * @class Skill
  * A class to represent a skill
  */
-class Skill {
+export class Skill {
   //#region CTOR
   /**
    * CTOR
@@ -23,8 +24,16 @@ class Skill {
   Name: string;
   //#endregion
 
+  toString() {
+    return this.Name;
+  }
 }
 
+/**
+ * @class SoftSkill
+ * @extends Skill
+ * A class to represent a soft skill
+ */
 export class SoftSKill extends Skill {
   //#region CTOR
   /**
@@ -65,23 +74,18 @@ export class TechSkill extends Skill {
   //#endregion
 }
 
-
-export const identity: Identity = {
-  firstName: "Benjamin",
-  country: "Belgium",
-  occupation: "Software automation engineer",
-  hobbies: ["Learning new tech", "cooking", "gardening", "family"],
-};
-
-export const Skills: Skill[] = [
-  new TechSkill("FrontEnd Development", 3, ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Astro", "JQuery", "Bootstrap",]),
-  new TechSkill("BackEnd Development", 3, ["ASP", "node", "express"]),
-  new TechSkill("Database Development", 3, ["SQL", "MYSQL", "MSSQL", "Firebase"]),
-  new TechSkill("Desktop Application Development", 3, ["C#", "VB.Net", "Entity Framework", "Ado.Net", "WPF"]),
-  new TechSkill("Mobile Development", 3, ["React Native"]),
-  new TechSkill("Testing", 3, ["Jest", "mocha", "chai", "MSTest", "NUnit"]),
-  new TechSkill("DevOps", 3, ["Azure DevOps", "GitHub", "YAML"]),
-  new TechSkill("Automation", 3, ["PowerShell", "Python", "Bash", "UIPath", "BluePrism", "PowerAutomate"]),
+/**
+ * List of TechSkills
+ */
+export const techSkills: TechSkill[] = [
+  new TechSkill("FrontEnd Development", 4, ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Astro", "JQuery", "Bootstrap",]),
+  new TechSkill("BackEnd Development", 5, ["ASP", "Node", "express"]),
+  new TechSkill("Database Development", 4, ["SQL", "MYSQL", "MSSQL", "Firebase"]),
+  new TechSkill("Desktop Application Development", 4, ["C#", "VB.Net", "Entity Framework", "Ado.Net", "WPF"]),
+  new TechSkill("Mobile Development", 4, ["React Native"]),
+  new TechSkill("Testing", 4, ["Jest", "mocha", "chai", "MSTest", "NUnit"]),
+  new TechSkill("DevOps", 4, ["Azure DevOps", "CICD" ,"GitHub", "YAML"]),
+  new TechSkill("Automation", 4, ["PowerShell", "Ansible", "Python", "Bash", "UIPath", "BluePrism", "PowerAutomate"]),
 ];
 
 
@@ -94,16 +98,52 @@ export const Skills: Skill[] = [
   JQuery, Javascript, Typescript, Appsscript
   React-Web, React-Native, Astro, Vite, Turbo
 */
+
+export const softSkills: SoftSKill[] = [
+  new SoftSKill("Eager to learn", 10),
+  new SoftSKill("Team & soloplayer", 10),
+  new SoftSKill("Training, guiding, evaluating team(s)", 7),
+  new SoftSKill("Challenging status quo", 10),
+  new SoftSKill("Problem solver There are no problems only solutions", 10),
+  new SoftSKill("Security enthusiast", 10),
+  new SoftSKill("Detail-oriented", 2),
+];
+
 /* softskills
 Eager to learn
 Team & soloplayer
 Training, guiding, evaluating team(s)
-Social
 Problem solver There are no problems only solution
+Security enthusiast
+Unhappy to cut corners
 */
 
+
+/**
+ * State of mind
+ */
 export const happy: Boolean = true;
 
+/**
+ * Finished
+ */
 export const finished: Boolean = true;
 
+/**
+ * Goal
+ */
 export const goal: Number = 9000;
+
+
+/**
+ * Identity interface
+ */
+export const identity: Identity = {
+  firstName: "Benjamin",
+  country: "Belgium",
+  occupation: "Software automation engineer",
+  hobbies: ["Learning new tech", "cooking", "gardening", "family"],
+  softSkills,
+  techSkills,
+};
+
