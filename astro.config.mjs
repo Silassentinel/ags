@@ -1,10 +1,11 @@
 import { defineConfig } from 'astro/config';
-
 import preact from "@astrojs/preact";
+
+import compress from "astro-compress";
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://astrogettingstarted.netlify.app/',
-  integrations: [preact()],
+  integrations: [preact(), compress()],
   ourDir: "../silassentinel.github.io/"
 });
