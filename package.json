@@ -10,11 +10,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.5.5",
-    "@astrojs/preact": "^4.0.10",
-    "@astrojs/rss": "^4.0.5",
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/preact": "^4.0.11",
+    "@astrojs/rss": "^4.0.11",
     "@preact/preset-vite": "^2.10.1",
-    "astro": "^5.7.5",
+    "astro": "^5.7.10",
     "astro-compress": "^2.3.8",
     "dotenv": "^16.3.1",
     "preact": "^10.17.1",

@@ -5,6 +5,7 @@
     "jsxImportSource": "preact"
   },
   "extends": "astro/tsconfigs/strict",
+  "exclude": ["src/components/Main/*"],
   "strict": true,
   "forceConsistentCasingInFileNames": true,
   "resolveJsonModule": true

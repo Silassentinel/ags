@@ -1,10 +1,12 @@
-// Screen dimension utility function
-export const GetScreenDimensions = (): { horizontal: number, vertical: number } => {
+/**
+ * Screen dimension utility functions
+ * @returns Object containing horizontal (width) and vertical (height) screen dimensions
+ */
+export const getScreenDimensions = (): { horizontal: number, vertical: number } => {
     const horizontal = window.innerWidth;
     const vertical = window.innerHeight;
     return { horizontal, vertical };
 };
 
-export const getScreenSize = (): { horizontal: number, vertical: number } => {
-    return GetScreenDimensions();
-};
+// Export getScreenSize as an alias for backward compatibility
+export const getScreenSize = getScreenDimensions;

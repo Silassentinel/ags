@@ -1,18 +1,9 @@
-export const Stylez = {
-    /*
-            h1 {
-          color: purple;
-          font-size: 4rem;
-        }
-        .skill {
-          color: green;
-          font-weight: bold;
-    */
-};
+/**
+ * This file is a compatibility layer that imports style utilities from the ui folder.
+ * It's maintained for backward compatibility with any existing code that references this file.
+ */
 
+// Import and re-export from ui/Stylez.ts
+import { Stylez, skillColor, fontWeight, textCase } from './ui/Stylez';
 
-export const skillColor = [0, 255, 0];
-
-export const fontWeight: string = "bold";
-
-export const textCase: string = "2rem";
+export { Stylez, skillColor, fontWeight, textCase };

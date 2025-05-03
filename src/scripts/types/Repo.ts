@@ -5,6 +5,7 @@
  * @property {string} description
  * @property {string} update_at
  * @property {string} svn_url
+ * @property {string} html_url
  * Represents a github repo
  */
 export type Repo = {
@@ -14,6 +15,7 @@ export type Repo = {
     update_at: string;
     svn_url: string;
     pushed_at: string;
+    html_url?: string; // Added as optional property
 };
 /* 
 { description: string | null; id: number; name: unknown; svn_url: string | URL | null | undefined; }

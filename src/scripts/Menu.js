@@ -1,10 +1,14 @@
-const navLinks = document.querySelector('.nav-links');
-navLinks?.classList.toggle('expanded');
+/**
+ * This file is a compatibility layer that imports the menu functionality from the ui folder.
+ * It's maintained for backward compatibility with any existing code that references this file.
+ */
 
-document.querySelector('.hamburger').addEventListener('click', () => {
-    document.querySelector('.nav-links').classList.toggle('expanded');
-  });
+// Import and re-export from ui/Menu.js
+import { initNavMenu, toggleNavMenu } from './ui/Menu.js';
 
-  
-// 
-document.querySelector(".goBack").addEventListener('click', () => window.history.back());
+export { initNavMenu, toggleNavMenu };
+
+// Initialize navigation menu
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', initNavMenu);
+}

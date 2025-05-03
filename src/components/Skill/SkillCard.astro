@@ -1,18 +1,7 @@
 ---
-import { Skills, TechSkill } from "../../scripts/index";
+// This file forwards the request to the SkillCard component in the Resume directory.
+// It's maintained for backward compatibility with any code that references this path.
+import { default as SkillCardComponent } from "../Resume/SkillCard.astro";
 ---
 
-<div>
-    <h3>
-        {Skills[0].Name}
-    </h3>
-    
-    <ul>
-        {
-            (Skills[0] as TechSkill).Tools &&
-                (Skills[0] as TechSkill).Tools.map((tool: string) => {
-                    return <li>{tool}</li>;
-                })
-        }
-    </ul>
-</div>
+<SkillCardComponent {...Astro.props} />

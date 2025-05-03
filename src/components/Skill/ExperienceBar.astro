@@ -1,8 +1,8 @@
 ---
-const {experience}  = Astro.props
+// This file forwards the request to the ExperienceBar component in the Resume directory.
+// It's maintained for backward compatibility with any code that references this path.
+import { default as ExperienceBarComponent } from "../Resume/ExperienceBar.astro";
 ---
 
-<style>
-    
-</style>
+<ExperienceBarComponent {...Astro.props} />
 
