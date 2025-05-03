@@ -25,7 +25,7 @@ const { frontmatter } = Astro.props;
         )
     }
     <p>Written by {frontmatter.author}</p>
-    <p>published on {frontmatter.pubDate}</p>
+    <p>Published on <span class="date">{frontmatter.pubDate}</span></p>
 </BaseLayout>
 <style>
     a {

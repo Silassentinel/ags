@@ -13,6 +13,7 @@ export type Repo = {
     description: string;
     update_at: string;
     svn_url: string;
+    pushed_at: string;
 };
 /* 
 { description: string | null; id: number; name: unknown; svn_url: string | URL | null | undefined; }

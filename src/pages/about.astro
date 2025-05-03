@@ -26,7 +26,7 @@ import BaseLayout from "../layout/BaseLayout.astro";
 
     <section>
         <h2>Skills</h2>
-        <blockquote>
+        <blockquote class="skills-blockquote">
             <h3>SoftSkills</h3>
             {
                 identity.softSkills.length > 0 && 
@@ -36,25 +36,69 @@ import BaseLayout from "../layout/BaseLayout.astro";
             }
         </blockquote>
 
-        <blockquote>
+        <blockquote class="skills-blockquote">
             <h3>TechSkills</h3>
             {
                 identity.techSkills.length > 0 && 
                 identity.techSkills.map(
                     (skill, index) => (
-                    <p>{skill.Name}</p>
-                    <p>Years of exp: {skill.experience}</p>
-                    <ul>
-                        {
-                            skill.Tools.length > 0 && 
-                            skill.Tools.map((tech, index) => (
-                                <li>{tech}</li>
-                            ))
-                        }
-                    </ul>
+                    <div class="tech-skill">
+                        <p class="skill-name">{skill.Name}</p>
+                        <p class="experience">Years of exp: {skill.experience}</p>
+                        <ul class="tools-list">
+                            {
+                                skill.Tools.length > 0 && 
+                                skill.Tools.map((tech, index) => (
+                                    <li>{tech}</li>
+                                ))
+                            }
+                        </ul>
+                    </div>
                 )
             )
             }
         </blockquote>
     </section>
 </BaseLayout>
+
+<style>
+    .skills-blockquote h3 {
+        color: inherit;
+        border-bottom: 1px solid currentColor;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .tech-skill {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed currentColor;
+    }
+
+    .tech-skill:last-child {
+        border-bottom: none;
+    }
+
+    .skill-name {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .experience {
+        margin: 0.25rem 0;
+    }
+
+    .tools-list {
+        margin-top: 0.5rem;
+        list-style-type: square;
+    }
+
+    /* Ensure all content inherits colors in dark mode */
+    :global(.dark) .skills-blockquote, 
+    :global(.dark) .skills-blockquote h3,
+    :global(.dark) .skills-blockquote p,
+    :global(.dark) .skills-blockquote ul,
+    :global(.dark) .skills-blockquote li {
+        color: #ffffff;
+    }
+</style>

@@ -1,0 +1,200 @@
+---
+export interface Props {
+  title: string;
+  subtitle?: string;
+  text: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  id?: string;
+  styleClass?: string;
+}
+
+const { 
+  title, 
+  subtitle, 
+  text, 
+  imageUrl, 
+  imageAlt, 
+  buttonText, 
+  buttonUrl, 
+  id,
+  styleClass = ""
+} = Astro.props;
+
+// Limit text to 3 lines for initial view
+const limitedText = text.length > 150 ? text.substring(0, 150) + "..." : text;
+
+// Check if subtitle contains date information
+const hasDate = subtitle && (subtitle.includes('updated') || subtitle.includes('Published') || subtitle.includes('Date'));
+---
+
+<div class={`brutalist-card ${styleClass}`} id={id}>
+  <div class="card-front">
+    <h2>{title}</h2>
+    {subtitle && <h3 class={hasDate ? "date-subtitle" : ""}>{subtitle}</h3>}
+    <p class="card-text">{limitedText}</p>
+    
+    {imageUrl && (
+      <img src={imageUrl} alt={imageAlt || title} class="card-image" />
+    )}
+    
+    {buttonText && buttonUrl && (
+      <a href={buttonUrl} class="card-button">{buttonText}</a>
+    )}
+    
+    {text.length > 150 && (
+      <button class="read-more-btn">READ MORE</button>
+    )}
+  </div>
+  
+  {text.length > 150 && (
+    <div class="card-back">
+      <h2>{title}</h2>
+      <p class="card-text-full">{text}</p>
+      <button class="back-btn">BACK</button>
+    </div>
+  )}
+</div>
+
+<style>
+  .brutalist-card {
+    position: relative;
+    border: 2px solid #000;
+    padding: 15px;
+    margin: 20px 0;
+    background-color: #fff;
+    max-width: 100%;
+    font-family: monospace;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+  }
+  
+  .card-front, .card-back {
+    backface-visibility: hidden;
+    width: 100%;
+  }
+  
+  .card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotateY(180deg);
+    height: 100%;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f0f0f0;
+    border: 2px solid #000;
+  }
+  
+  .brutalist-card.flipped {
+    transform: rotateY(180deg);
+  }
+  
+  h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+  }
+  
+  h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+    font-weight: normal;
+    border-bottom: 1px solid #000;
+    padding-bottom: 5px;
+  }
+  
+  .date-subtitle {
+    color: #ff0000;
+    font-weight: bold;
+  }
+  
+  .card-text, .card-text-full {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 15px;
+  }
+  
+  .card-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border: 1px solid #000;
+  }
+  
+  .card-button, .read-more-btn, .back-btn {
+    display: inline-block;
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #000;
+    padding: 8px 12px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: monospace;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .card-button:hover, .read-more-btn:hover, .back-btn:hover {
+    background-color: #000;
+    color: #fff;
+  }
+  
+  /* Dark mode styles */
+  :global(.dark) .brutalist-card {
+    background-color: #000;
+    border-color: #fff;
+    color: #fff;
+  }
+  
+  :global(.dark) h2, :global(.dark) h3 {
+    border-color: #fff;
+  }
+  
+  :global(.dark) .date-subtitle {
+    color: #ff5555;
+  }
+  
+  :global(.dark) .card-back {
+    background-color: #222;
+    border-color: #fff;
+  }
+  
+  :global(.dark) .card-button, :global(.dark) .read-more-btn, :global(.dark) .back-btn {
+    background-color: #000;
+    color: #fff;
+    border-color: #fff;
+  }
+  
+  :global(.dark) .card-button:hover, :global(.dark) .read-more-btn:hover, :global(.dark) .back-btn:hover {
+    background-color: #fff;
+    color: #000;
+  }
+</style>
+
+<script>
+  // Card flip functionality
+  document.querySelectorAll('.read-more-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const card = button.closest('.brutalist-card');
+      if (card) {
+        card.classList.add('flipped');
+      }
+    });
+  });
+  
+  document.querySelectorAll('.back-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const card = button.closest('.brutalist-card');
+      if (card) {
+        card.classList.remove('flipped');
+      }
+    });
+  });
+</script>

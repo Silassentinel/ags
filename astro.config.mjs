@@ -7,5 +7,5 @@ import compress from "astro-compress";
 export default defineConfig({
   site: 'https://astrogettingstarted.netlify.app/',
   integrations: [preact(), compress()],
-  ourDir: "../silassentinel.github.io/"
+  outDir: "../silassentinel.github.io/"
 });

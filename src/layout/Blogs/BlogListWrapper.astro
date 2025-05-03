@@ -1,23 +1,74 @@
 ---
 import BlogListLayout from "./BlogList.astro";
+import DynamicSubMenu from "../../components/DynamicSubMenu.astro";
+
+// Menu items for blog categories - you can modify these or make them dynamic
+const menuItems = [
+  { title: "Recipes", id: "recipes-section", subtitle: "Food & Cooking" },
+  { title: "BBQ", id: "bbq-section", subtitle: "Grilling & Smoking" },
+  { title: "Seasonal", id: "seasonal-section", subtitle: "Seasonal Dishes" }
+];
 ---
 
-<ul>
-    <BlogListLayout />
-</ul>
+<div class="brutalist-blog-wrapper">
+  <DynamicSubMenu items={menuItems} />
+  
+  <div class="blog-list-container">
+    <div id="recipes-section" class="darkable">
+      <h2 class="brutalist-section-title">RECIPES</h2>
+      <div class="brutalist-divider"></div>
+      <ul>
+        <BlogListLayout />
+      </ul>
+    </div>
+  </div>
+</div>
 
 <style>
-    ul {
-        height: 21rem;
-        color: #53aa4b;
-        font-weight: bold;
-        border: 1px solid green;
-        overflow: auto;
+    .brutalist-blog-wrapper {
+      margin: 3rem 0;
     }
-    hr {
-        /*
-        make the hr dotted
-        */
-        border: 1px dotted green;
+
+    .blog-list-container {
+      margin-top: 2rem;
+    }
+
+    ul {
+      height: 21rem;
+      font-weight: bold;
+      border: 2px solid #000;
+      overflow: auto;
+      padding: 1rem;
+      list-style-type: none;
+      background-color: #f0f0f0;
+      font-family: monospace;
+    }
+
+    .brutalist-section-title {
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid #000;
+      padding-bottom: 0.5rem;
+    }
+
+    .brutalist-divider {
+      border-top: 1px solid #000;
+      margin: 1rem 0;
+    }
+
+    /* Dark mode styles */
+    :global(.dark) ul {
+      border-color: #fff;
+      background-color: #222;
+    }
+
+    :global(.dark) .brutalist-section-title {
+      border-color: #fff;
+    }
+
+    :global(.dark) .brutalist-divider {
+      border-color: #fff;
     }
 </style>

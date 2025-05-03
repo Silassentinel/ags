@@ -3,22 +3,74 @@ import BaseLayout from "../BaseLayout.astro";
 const title = "Repos"
 import GetAllRepos from "../../scripts/GetAllRepos";
 const repos = await GetAllRepos("silassentinel");
-import Card from "../../components/Card/Card.astro"
+import BrutalistCard from "../../components/BrutalistCard.astro"
 ---
 
 <BaseLayout pageTitle={title}>
-  {
+  <section class="brutalist-intro highlight-in-viewport">
+    <h2>GITHUB REPOSITORIES</h2>
+    <div class="brutalist-divider"></div>
+    <p>
+      A collection of public repositories from GitHub. Each card represents a project with its description.
+      Click the "READ MORE" button to see the full description or view the repository directly on GitHub.
+    </p>
+  </section>
+
+  <div class="brutalist-grid">
+    {
       repos &&
-          repos.sort((firstRepo ,nextRepo )=> {
-              return Date.parse(firstRepo.update_at) - Date.parse(nextRepo.update_at);
-          } )
-          .map((repo) => (
-            <Card id={repo.id} 
-            title={repo.name} 
-            subtitle="" 
-            text={repo.description} 
-            BtnUrl={repo.svn_url} 
-            BtnText="View Repo" />
-          ))
-  }
+        repos.sort((firstRepo, nextRepo) => {
+          return Date.parse(nextRepo.update_at) - Date.parse(firstRepo.update_at);
+        })
+        .map((repo) => (
+          <BrutalistCard
+            id={repo.id.toString()}
+            title={repo.name}
+            subtitle={`Last updated: ${new Date(repo.update_at || repo.pushed_at).toLocaleDateString()}`}
+            text={repo.description || "No description available for this repository."}
+            buttonText="VIEW REPO"
+            buttonUrl={repo.svn_url || repo.html_url}
+            styleClass="highlight-in-viewport"
+          />
+        ))
+    }
+  </div>
 </BaseLayout>
+
+<style>
+  .brutalist-intro {
+    margin: 2rem 0;
+    padding: 1rem;
+    border: 2px solid #000;
+    background-color: #f0f0f0;
+  }
+  
+  .brutalist-intro h2 {
+    font-family: 'Courier New', monospace;
+    margin-top: 0;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+  
+  .brutalist-divider {
+    border-top: 1px solid #000;
+    margin: 1rem 0;
+  }
+  
+  .brutalist-intro p {
+    font-family: monospace;
+    line-height: 1.6;
+  }
+  
+  /* Dark mode styles */
+  :global(.dark) .brutalist-intro {
+    border-color: #fff;
+    background-color: #222;
+  }
+  
+  :global(.dark) .brutalist-intro h2,
+  :global(.dark) .brutalist-divider {
+    border-color: #fff;
+  }
+</style>

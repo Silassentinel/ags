@@ -2,7 +2,25 @@
 const pageTitle = "Blog";
 import BlogPost from "../components/Blog/BlogPost.astro";
 import BaseLayout from "../layout/BaseLayout.astro";
-const allPosts = await Astro.glob("../pages/posts/*.md");
+
+// Define the type for the frontmatter
+interface Frontmatter {
+  title: string;
+  // Add other frontmatter properties as needed
+}
+
+// Define the type for the post
+interface Post {
+  frontmatter: Frontmatter;
+  url?: string;
+  // Add other post properties as needed
+}
+
+const posts = await Promise.all(
+  Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("../pages/posts/*.md"))
+    .map(([_, resolver]) => resolver())
+);
+const allPosts = posts as Post[];
 ---
 
 <BaseLayout pageTitle={pageTitle}>
@@ -31,13 +49,6 @@ const allPosts = await Astro.glob("../pages/posts/*.md");
     <p>To be completed:</p>
     <p>
         To be added:
-        <br />
-         pastinaak wortel schelvis tomateerde roomsaus met rijst
-        <br />
-        scampi's met romanesco kool , spinazie saus met ricotta en tagiatelle
-        <br>
-        nieuwjaar dinner:
-          - eend met citroen zest en rozemarijn met kroketten witloof en vleesjus saus.
     </p>
     <p>Recipes</p>
 

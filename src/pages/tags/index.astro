@@ -1,7 +1,24 @@
 ---
 import BaseLayout from "../../layout/BaseLayout.astro";
 
-const posts = await Astro.glob("../posts/*.md");
+// Define interfaces for our data structure
+interface Frontmatter {
+    title: string;
+    tags: string[];
+    // Add other frontmatter properties as needed
+}
+
+interface Post {
+    frontmatter: Frontmatter;
+    url?: string;
+    // Add other post properties as needed
+}
+
+const postsData = await Promise.all(
+  Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("../posts/*.md"))
+    .map(([_, resolver]) => resolver())
+);
+const posts = postsData as Post[];
 
 const uniqueTags = [
     ...new Set(posts?.map((post) => post.frontmatter.tags).flat()),

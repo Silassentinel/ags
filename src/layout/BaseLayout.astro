@@ -15,10 +15,26 @@ const { pageTitle } = Astro.props;
     </head>
     <body>
         <Header />
-        <h1>{pageTitle}</h1>
-        <slot />
+        <h1 class="brutalist-title">{pageTitle}</h1>
+        <main>
+            <slot />
+        </main>
         <Footer />
-        <script>
-        </script>
+        <script src="../scripts/Theme.js"></script>
+        <script src="../scripts/Menu.js"></script>
+        <script src="../scripts/ContentHighlight.js"></script>
     </body>
 </html>
+
+<style>
+    .brutalist-title {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: monospace;
+        border-bottom: 3px solid #000;
+    }
+    
+    :global(.dark) .brutalist-title {
+        border-color: #fff;
+    }
+</style>

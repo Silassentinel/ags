@@ -2,8 +2,25 @@
 import BaseLayout from "../../layout/BaseLayout.astro";
 import BlogPost from "../../components/Blog/BlogPost.astro";
 
+// Define interfaces for our data structure
+interface Frontmatter {
+    title: string;
+    tags: string[];
+    // Add other frontmatter properties as needed
+}
+
+interface Post {
+    frontmatter: Frontmatter;
+    url?: string;
+    // Add other post properties as needed
+}
+
 export async function getStaticPaths() {
-    const allPosts = await Astro.glob("../posts/*.md");
+    const postsData = await Promise.all(
+        Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("../posts/*.md"))
+            .map(([_, resolver]) => resolver())
+    );
+    const allPosts = postsData as Post[];
     const uniqueTags = [
         ...new Set(allPosts.map((post) => post.frontmatter.tags).flat()),
     ];
@@ -19,10 +36,7 @@ export async function getStaticPaths() {
 }
 
 const { tag } = Astro.params;
-const { posts } = Astro.props;
-// const filteredPosts = posts?.filter(
-// (post: { frontmatter: { tags: (string | undefined)[]; }; }) => post.frontmatter.tags?.includes(tag)
-// );
+const { posts } = Astro.props as { posts: Post[] };
 ---
 
 <BaseLayout pageTitle={tag}>
@@ -30,7 +44,7 @@ const { posts } = Astro.props;
     <ul>
         {
             posts &&
-                posts.map((post: { url: any; frontmatter: { title: any } }) => (
+                posts.map((post) => (
                     <BlogPost url={post.url} title={post.frontmatter.title} />
                 ))
         }
