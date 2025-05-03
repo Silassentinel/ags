@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build --config astro.config.mjs",
+    "build": "node scripts/preserve-build.js",
+    "build:standard": "astro build --config astro.config.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
