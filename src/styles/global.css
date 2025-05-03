@@ -147,13 +147,31 @@ blockquote {
 }
 
 :global(.dark) blockquote {
-  border-color: #fff;
-  background-color: #222;
-  color: #fff;
+  border-left: 5px solid #ff0000;
+  border-right: 5px solid #0066ff;
+  background-color: #ffffff;
+  color: #000000 !important;
+  font-weight: bold;
+  box-shadow: 0 0 0 2px #ff0000, 0 0 0 4px #0066ff;
 }
 
 :global(.dark) blockquote * {
-  color: #fff;
+  color: #000000 !important;
+}
+
+:global(.dark) blockquote p,
+:global(.dark) blockquote h1,
+:global(.dark) blockquote h2,
+:global(.dark) blockquote h3,
+:global(.dark) blockquote h4,
+:global(.dark) blockquote h5,
+:global(.dark) blockquote h6,
+:global(.dark) blockquote a,
+:global(.dark) blockquote ul,
+:global(.dark) blockquote ol,
+:global(.dark) blockquote li,
+:global(.dark) blockquote span {
+  color: #000000 !important;
 }
 
 /* Brutalist code style */
@@ -309,4 +327,77 @@ span.date {
 :global(.dark) .brutalist-card h3:contains("Published:"),
 :global(.dark) .brutalist-card h3:contains("Date:") {
   color: #ff5555 !important; /* A brighter red for dark mode to ensure readability */
+}
+
+/* Chaos Mode Styles */
+.chaos-mode {
+  transition: font-size 0.2s ease;
+}
+
+.chaos-mode * {
+  transition: font-size 0.2s ease;
+}
+
+.chaos-mode a, 
+.chaos-mode button {
+  position: relative;
+  z-index: 1000; /* Keep navigation elements accessible */
+}
+
+/* Ultra Chaos Mode Styles */
+.ultra-chaos-mode * {
+  transition: all 0.3s ease;
+}
+
+/* Brutalist overlay with marquee text */
+.brutalist-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: #000;
+  color: #fff;
+  z-index: 9999;
+  overflow: hidden;
+  border-bottom: 5px solid #ff0000;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.brutalist-marquee {
+  display: flex;
+  width: fit-content;
+  animation: marquee 20s linear infinite;
+  padding: 12px 0;
+}
+
+.brutalist-marquee span {
+  margin-right: 50px;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.glitch-text {
+  position: relative;
+  animation: glitch 1s infinite;
+}
+
+.glitch-effect * {
+  opacity: 0.8 !important;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes glitch {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-2px); }
+  40% { transform: translateX(2px); }
+  60% { transform: skewX(10deg); }
+  80% { transform: skewX(-10deg); }
+  100% { transform: translateX(0); }
 }
