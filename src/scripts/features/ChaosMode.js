@@ -2,6 +2,9 @@
  * ChaosMode.js - A script to create chaos when users click on the page too much
  */
 
+// Import obfuscator functionality
+import { obfuscateElements, restoreElements } from './Obfuscator.js';
+
 // Initialize click counter from localStorage
 let clickCount = parseInt(localStorage.getItem('chaosClickCount') || '0');
 
@@ -16,6 +19,9 @@ let mouseY = 0;
 // Track rotation for ultra chaos mode
 let rotation = 0;
 let hueRotation = 0;
+
+// Track for text obfuscation
+let lastObfuscationTime = 0;
 
 /**
  * Initialize the chaos mode functionality
@@ -81,8 +87,28 @@ const handleGlobalClick = (event) => {
     document.body.classList.add('ultra-chaos-mode');
     startUltraChaosAnimation();
     
-    // Add brutalist glitch effect text
+    // Add brutalist glitch text
     addBrutalistGlitchText();
+  }
+  
+  // Apply obfuscation on click in ultra chaos mode
+  if (ultraChaosMode && !isNavigationElement) {
+    const now = Date.now();
+    // Limit obfuscation to once per second to prevent overload
+    if (now - lastObfuscationTime > 1000) {
+      lastObfuscationTime = now;
+      
+      // Apply random obfuscation to nearby text
+      const nearbyElements = findElementsNearMouse(mouseX, mouseY, 300);
+      if (nearbyElements.length > 0) {
+        obfuscateElements(nearbyElements.join(', '));
+        
+        // Restore original text after a delay
+        setTimeout(() => {
+          restoreElements(nearbyElements.join(', '));
+        }, 1500);
+      }
+    }
   }
 };
 
@@ -246,6 +272,43 @@ const addBrutalistGlitchText = () => {
       setTimeout(() => document.body.classList.toggle('glitch-effect'), 100);
     }
   }, 1000);
+};
+
+/**
+ * Find elements near the mouse position
+ * @param {number} x - Mouse X position
+ * @param {number} y - Mouse Y position
+ * @param {number} radius - Radius to search within
+ * @returns {string[]} - Array of selectors for elements near the mouse
+ */
+const findElementsNearMouse = (x, y, radius) => {
+  const elements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, li');
+  const nearbyElements = [];
+  
+  elements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const distance = Math.sqrt(
+      Math.pow(x - centerX, 2) + 
+      Math.pow(y - centerY, 2)
+    );
+    
+    if (distance < radius) {
+      // Get a unique selector for this element
+      if (el.id) {
+        nearbyElements.push(`#${el.id}`);
+      } else if (el.classList.length > 0) {
+        nearbyElements.push(`.${Array.from(el.classList).join('.')}`);
+      } else {
+        // If no id or class, we'll just use the tag
+        nearbyElements.push(el.tagName.toLowerCase());
+      }
+    }
+  });
+  
+  return nearbyElements;
 };
 
 // Initialize chaos mode when the document is ready

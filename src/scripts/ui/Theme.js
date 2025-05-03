@@ -29,12 +29,21 @@ export const initTheme = () => {
     document.documentElement.classList.add('dark');
   }
 
-  window.localStorage.setItem('theme', theme);
+  window.localStorage.setItem('theme', theme || 'light');
 
   // Add event listener to theme toggle button if it exists
   const themeToggle = document.getElementById("themeToggle");
   if (themeToggle) {
-    themeToggle.addEventListener("click", handleToggleClick);
+    // Use both click and touchend events for better mobile support
+    themeToggle.addEventListener("click", function(e) {
+      e.preventDefault();
+      handleToggleClick();
+    });
+    
+    themeToggle.addEventListener("touchend", function(e) {
+      e.preventDefault();
+      handleToggleClick();
+    });
   }
 };
 

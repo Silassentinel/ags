@@ -2,7 +2,7 @@
 
 ---
 
-<button id="themeToggle">
+<button id="themeToggle" aria-label="Toggle dark mode">
   <svg width="30px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path
       class="sun"
@@ -21,6 +21,9 @@
   #themeToggle {
     border: 0;
     background: none;
+    cursor: pointer;
+    padding: 0;
+    touch-action: manipulation;
   }
   .sun {
     fill: black;
@@ -37,4 +40,4 @@
   }
 </style>
 
-<script src="../../scripts/Theme.js"></script>
+<script src="../../scripts/ui/Theme.js"></script>

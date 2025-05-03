@@ -1,5 +1,5 @@
 // import type { MarkdownInstance } from "astro";
-import type { Identity } from "./Interface/IIdentity";
+import type { Identity } from "../Interface/IIdentity";
 /**
  * @class Skill
  * A class to represent a skill
