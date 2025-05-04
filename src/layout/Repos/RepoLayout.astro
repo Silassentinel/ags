@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../BaseLayout.astro";
 const title = "Repos"
-import GetAllRepos from "../../scripts/api/GitHubRepos";
+import GetAllRepos from "../../scripts/ContentBuilder/Identity/api/GitHubRepos";
 const repos = await GetAllRepos("silassentinel");
 import BrutalistCard from "../../components/BrutalistCard.astro"
 ---

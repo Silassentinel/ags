@@ -33,7 +33,7 @@ export const compareSkillsByLevel = (a: SkillType, b: SkillType): number => {
 };
 
 // import type { MarkdownInstance } from "astro";
-import type { Identity } from "../interfaces/IIdentity";
+import type { Identity } from "../Interface/IIdentity";
 /**
  * @class Skill
  * A class to represent a skill

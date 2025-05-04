@@ -1,7 +1,6 @@
 ---
 import Greeting from "../components/Greeting";
 import BaseLayout from "../layout/BaseLayout.astro";
-import BrutalistCard from "../components/BrutalistCard.astro";
 const pageTitle = "Home";
 import BlogListWrapper from '../layout/Blogs/BlogListWrapper.astro'
 ---
@@ -12,37 +11,6 @@ import BlogListWrapper from '../layout/Blogs/BlogListWrapper.astro'
 	</div>
 	
 	<section class="brutalist-intro highlight-in-viewport">
-		<h2>BRUTALIST WEB DESIGN</h2>
-		<p>
-			Brutalism in web design is a crude, plain, and transparent style that prioritizes functionality over form. 
-			It's characterized by its raw appearance and extremely simplistic and minimalist approach.
-		</p>
-		
-		<blockquote>
-			"While brutalist websites might not have the megalithic and severe presences that brutalist buildings do, 
-			they are constructed in a similar fashion using the raw materials of the web."
-		</blockquote>
-	</section>
-	
-	<section class="brutalist-grid">
-		<BrutalistCard 
-			title="Raw Structure" 
-			text="Brutalism showcases the raw structure of a website, similar to how brutalist architecture exposes structural elements. The design strips away decorative elements to reveal the underlying framework."
-			styleClass="highlight-in-viewport"
-		/>
-		
-		<BrutalistCard 
-			title="Monospace Fonts" 
-			text="System fonts and monospaced typography are hallmarks of brutalist design. They emphasize the raw, unpolished aesthetic that brutalism embraces."
-			styleClass="highlight-in-viewport"
-		/>
-		
-		<BrutalistCard 
-			title="High Contrast" 
-			text="Bold, high-contrast designs with sharp edges and geometric components help create the industrial feel of brutalist websites."
-			styleClass="highlight-in-viewport"
-		/>
-	</section>
 	
 	<BlogListWrapper />
 </BaseLayout>

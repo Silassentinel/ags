@@ -5,9 +5,9 @@
 /**
  * Detects the initial theme based on localStorage or system preference
  */
-const detectInitialTheme = () => {
+const detectInitialTheme = (): string => {
   if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-    return localStorage.getItem('theme');
+    return localStorage.getItem('theme') || 'light';
   }
   
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -20,7 +20,7 @@ const detectInitialTheme = () => {
 /**
  * Initializes the theme on page load
  */
-export const initTheme = () => {
+export const initTheme = (): void => {
   const theme = detectInitialTheme();
   
   if (theme === 'light') {
@@ -50,7 +50,7 @@ export const initTheme = () => {
 /**
  * Handles the theme toggle button click
  */
-export const handleToggleClick = () => {
+export const handleToggleClick = (): void => {
   const element = document.documentElement;
   element.classList.toggle("dark");
 

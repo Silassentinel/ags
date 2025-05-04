@@ -1,7 +1,7 @@
 ---
 const pageTitle = "About Me";
 
-import { identity} from "../scripts/index.js";
+import { identity, SoftSKill, TechSkill } from "../scripts/ContentBuilder/Identity/core";
 import BaseLayout from "../layout/BaseLayout.astro";
 ---
 
@@ -30,7 +30,7 @@ import BaseLayout from "../layout/BaseLayout.astro";
             <h3>SoftSkills</h3>
             {
                 identity.softSkills.length > 0 && 
-                identity.softSkills.map((skill, index) => (
+                identity.softSkills.map((skill: SoftSKill, index: number) => (
                     <p>{skill.Name}</p>
                 ))
             }
@@ -41,14 +41,14 @@ import BaseLayout from "../layout/BaseLayout.astro";
             {
                 identity.techSkills.length > 0 && 
                 identity.techSkills.map(
-                    (skill, index) => (
+                    (skill: TechSkill, index: number) => (
                     <div class="tech-skill">
                         <p class="skill-name">{skill.Name}</p>
                         <p class="experience">Years of exp: {skill.experience}</p>
                         <ul class="tools-list">
                             {
                                 skill.Tools.length > 0 && 
-                                skill.Tools.map((tech, index) => (
+                                skill.Tools.map((tech: string, index: number) => (
                                     <li>{tech}</li>
                                 ))
                             }

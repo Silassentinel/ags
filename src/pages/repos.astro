@@ -1,7 +1,7 @@
 ---
 import RepoLayout from "../layout/Repos/RepoLayout.astro";
 const pageTitle = "Repos";
-import GetAllRepos from "../scripts/api/GitHubRepos";
+import GetAllRepos from "../scripts/ContentBuilder/Identity/api/GitHubRepos";
 const repos = await GetAllRepos("silassentinel");
 ---
 
