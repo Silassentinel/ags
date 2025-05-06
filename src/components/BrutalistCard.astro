@@ -178,23 +178,4 @@ const hasDate = subtitle && (subtitle.includes('updated') || subtitle.includes('
   }
 </style>
 
-<script>
-  // Card flip functionality
-  document.querySelectorAll('.read-more-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      const card = button.closest('.brutalist-card');
-      if (card) {
-        card.classList.add('flipped');
-      }
-    });
-  });
-  
-  document.querySelectorAll('.back-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      const card = button.closest('.brutalist-card');
-      if (card) {
-        card.classList.remove('flipped');
-      }
-    });
-  });
-</script>
+<!-- Card flip functionality is handled by CardFlip.tsx through ClientScripts.tsx component -->
