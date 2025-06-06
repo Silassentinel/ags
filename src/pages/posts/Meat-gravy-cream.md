@@ -6,7 +6,7 @@ description: 'A delicious meat gravy with cream.'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Cream", "Gravy", "Meat saus"]
 ---
 

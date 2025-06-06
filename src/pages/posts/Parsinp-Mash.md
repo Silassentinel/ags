@@ -6,7 +6,7 @@ description: 'A parsnip mash - in Belgium we call it "Pastinaak Stoemp".'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Parsnip", "Mash", "Belgium"]
 ---
 

@@ -6,8 +6,8 @@ description: 'A yoghurt based sauce with garlic and parsley, perfect for dipping
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["Greek", "Sauce", "Yoghurt", "Middle Eastern"]
+    alt: 'there is no image'
+tags: ["Greek", "Sauce", "Yoghurt", "Middle Eastern", "Garlic", "Parsley", "Dip", "Easy", "Quick", "Condiment", "Mediterranean", "Garam Masala", "No-Cook", "Healthy"]
 ---
 
 

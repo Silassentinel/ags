@@ -5,7 +5,7 @@ import ObfuscatorUtil from '../src/components/features/ChaosMode/ObfuscatorUtil'
 
 describe('ObfuscatorUtil Component', () => {
   it('should render without crashing', () => {
-    const { container } = render(<ObfuscatorUtil />);
+    const { container } = render(h(ObfuscatorUtil, {}));
     expect(container).toBeInTheDocument();
   });
 });

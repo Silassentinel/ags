@@ -6,7 +6,7 @@ description: 'A spicy yet sweet dressing for a summer salad.'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Mustard", "Honey", "Vinaigrette", "Salad dressing"]
 ---
 

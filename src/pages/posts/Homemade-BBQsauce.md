@@ -6,8 +6,8 @@ description: 'BBQ sauce'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["BBQ", "Sauce"]
+    alt: 'there is no image'
+tags: ["BBQ", "Sauce", "Condiment", "Sweet", "Tangy", "USA", "American", "Grilling", "Apple Cider", "Honey", "Easy", "Homemade", "Sugar", "Summer"]
 ---
 
 

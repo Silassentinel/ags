@@ -6,7 +6,7 @@ import ChaosMode from '../src/components/features/ChaosMode/ChaosMode';
 
 describe('ChaosMode Component Rendering', () => {
   it('should render without crashing', () => {
-    const { container } = render(<ChaosMode />);
+    const { container } = render(h(ChaosMode, {}));
     expect(container).toBeInTheDocument();
   });
 });

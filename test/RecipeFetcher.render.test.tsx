@@ -6,7 +6,19 @@ import RecipeFetcher from '../src/components/ContentBuilder/RecipeFetcher/Recipe
 
 describe('RecipeFetcher Component Rendering', () => {
   it('should render without crashing', () => {
-    const { container } = render(<RecipeFetcher />);
+    // Mock onFetchComplete callback
+    const onFetchComplete = jest.fn();
+    
+    // RecipeFetcher expects these props
+    const props = {
+      repoOwner: 'TestOwner',
+      repoName: 'TestRepo',
+      branch: 'main',
+      onFetchComplete
+    };
+    
+    // The component doesn't render anything visible, so we're just testing that it doesn't crash
+    const { container } = render(h(RecipeFetcher, props));
     expect(container).toBeInTheDocument();
   });
 });

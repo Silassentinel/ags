@@ -78,17 +78,17 @@ export class TechSkill extends Skill {
  * List of TechSkills
  */
 export const techSkills: TechSkill[] = [
-  new TechSkill("FrontEnd Development", 4, ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Astro", "JQuery", "Bootstrap",]),
-  new TechSkill("BackEnd Development", 5, ["ASP.NET", "Node", "express"]),
-  new TechSkill("Database Development", 4, ["SQL", "MYSQL", "MSSQL", "Firebase"]),
   new TechSkill("Desktop Application Development", 4, ["C#", "VB.Net", "Entity Framework", "ADO.Net", "WPF"]),
-  new TechSkill("Mobile Development", 4, ["React Native"]),
-  new TechSkill("Testing", 4, ["Jest", "mocha", "chai", "MSTest", "NUnit"]),
-  new TechSkill("DevOps", 4, ["Azure DevOps", "CICD" ,"GitHub", "YAML" , "Docker", " Terraform" , "Ansible" ]),
+  new TechSkill("BackEnd Development", 4, ["ASP.NET", "Node", "express"]),
+  new TechSkill("Database Development", 2, ["SQL", "MYSQL", "MSSQL", "Firebase"]),
+  new TechSkill("FrontEnd Development", 1, ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Astro", "JQuery", "Bootstrap",]),
+  new TechSkill("Mobile Development", 1, ["React Native"]),
+  new TechSkill("Testing", 2, ["Jest", "mocha", "chai", "MSTest", "NUnit"]),
+  new TechSkill("DevOps", 2, ["Azure DevOps", "CICD" ,"GitHub", "YAML" , "Docker", " Terraform" , "Ansible" ]),
   new TechSkill("Automation", 4, ["UIPath", "BluePrism", "PowerAutomate"]),
+  new TechSkill("Security", 4, ["OWASP", "NIST - RMF", "NIS II",]),
   new TechSkill("Scripting", 4, ["PowerShell", "Python", "Bash"]),
   new TechSkill("Cloud", 4, ["Azure", "AWS"]),
-  new TechSkill("Security", 4, ["OWASP", "NIST - RMF", "NIS II",]),
 ];
 
 /**

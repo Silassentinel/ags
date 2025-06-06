@@ -6,8 +6,8 @@ description: 'Smoked Bacon Burgers'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["BBQ", "Dry Rub","smoked", "burgers", "bacon", "USA","smoked"]
+    alt: 'there is no image'
+tags: ["BBQ", "Dry Rub","smoked", burgers", "bacon", "USA","smoked"]
 ---
 
 # Smoked Bacon Burgers

@@ -5,6 +5,7 @@ import Theme from './Theme';
 import CardFlip from './CardFlip';
 import SubMenu from './SubMenu';
 import ContentHighlight from '../features/ContentHighlight/ContentHighlight';
+import Settings from './Settings';
 
 /**
  * ClientScripts component that includes all client-side functionality
@@ -33,6 +34,9 @@ export function ClientScripts() {
       
       {/* Chaos mode easter egg */}
       <ChaosMode />
+      
+      {/* Settings panel for toggling features */}
+      <Settings />
     </>
   );
 }

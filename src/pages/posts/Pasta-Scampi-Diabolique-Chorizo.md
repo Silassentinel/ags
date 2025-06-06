@@ -6,8 +6,8 @@ description: 'Scampi with chorizo and pasta'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["Pasta", "Scampi", "Chorizo", "Spicy"]
+    alt: 'there is no image'
+tags: ["Pasta", "Scampi", "Chorizo", "Spicy", "Seafood", "Spanish", "Curry", "Paprika", "Cardamom", "Tomato", "Bell Pepper", "Medium", "Fusion"]
 ---
 
 

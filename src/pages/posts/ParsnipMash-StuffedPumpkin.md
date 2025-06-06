@@ -6,7 +6,7 @@ description: 'Parsnip mash with Stuffed pumpkin'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Pumpkin", "Stuffed", "Meat"]
 ---
 

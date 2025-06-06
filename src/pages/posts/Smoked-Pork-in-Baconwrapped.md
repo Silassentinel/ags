@@ -6,7 +6,7 @@ description: 'Dry Rub Cured Pork Roast with Smoked Bacon'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["BBQ", "Dry Rub","cured", pork, "USA","smoked"]
 ---
 

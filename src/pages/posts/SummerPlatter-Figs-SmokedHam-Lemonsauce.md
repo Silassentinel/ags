@@ -6,7 +6,7 @@ description: 'A fresh and light summer platter with figs, smoked ham, and lemon 
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Summer", "Figs", "Smoked ham", "Lemon sauce"]
 ---
 

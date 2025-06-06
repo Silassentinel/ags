@@ -6,7 +6,7 @@ description: 'A chinese marinade for chicken.'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Marinade", "Chinese", "Asian"]
 ---
 

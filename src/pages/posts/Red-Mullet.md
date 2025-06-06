@@ -6,7 +6,7 @@ description: 'A Fishy Dish'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Fish", "Red Mullet", "Rice", "Mushrooms", "Chimichurri", "Eggplants"]
 ---
 

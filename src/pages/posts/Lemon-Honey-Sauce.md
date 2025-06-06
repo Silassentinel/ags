@@ -6,8 +6,8 @@ description: 'A dressing perfect for summer salads.'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["Salad dressing", "Lemon", "Honey", "Olive oil"]
+    alt: 'there is no image'
+tags: ["Salad Dressing", "Lemon", "Honey", "Olive Oil", "Sauce", "Sweet", "Tangy", "Citrus", "Summer", "Quick", "Easy", "No-Cook", "Versatile", "Healthy", "Light"]
 ---
 
 # Lemon honey sauce

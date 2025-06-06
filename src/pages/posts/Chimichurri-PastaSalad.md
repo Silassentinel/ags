@@ -6,7 +6,7 @@ description: 'A pasta salad with Chimichurri sauce, crispy bacon, and toasted nu
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Roasted meat saus", "Chimichurri", "Pasta", "Salad"]
 ---
 

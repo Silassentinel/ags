@@ -3,60 +3,61 @@ import BaseLayout from "../../layout/BaseLayout.astro";
 
 // Define interfaces for our data structure
 interface Frontmatter {
-    title: string;
-    tags: string[];
-    // Add other frontmatter properties as needed
+  title: string;
+  tags: string[];
+  // Add other frontmatter properties as needed
 }
 
 interface Post {
-    frontmatter: Frontmatter;
-    url?: string;
-    // Add other post properties as needed
+  frontmatter: Frontmatter;
+  url?: string;
+  // Add other post properties as needed
 }
 
 const postsData = await Promise.all(
-  Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("../posts/*.md"))
-    .map(([_, resolver]) => resolver())
+  Object.entries(
+    import.meta.glob<{ frontmatter: Frontmatter; url?: string }>(
+      "../posts/*.md",
+    ),
+  ).map(([_, resolver]) => resolver()),
 );
 const posts = postsData as Post[];
 
 const uniqueTags = [
-    ...new Set(posts?.map((post) => post.frontmatter.tags).flat()),
+  ...new Set(posts?.map((post) => post.frontmatter.tags).flat()),
 ];
 ---
 
 <BaseLayout pageTitle="Tags">
-    <div class="tags">
-
-        <ul>
-            {
-                uniqueTags.map((tag) => (
-                    <li class="tags">
-                        <a href={`/tags/${tag}` }>{tag}</a>
-                        </li>
-                        ))
-                    }
+  <div class="tags">
+    <ul>
+      {
+        uniqueTags.map((tag) => (
+          <li class="tags">
+            <a href={`/tags/${tag}`}>{tag}</a>
+          </li>
+        ))
+      }
     </ul>
-</div>
+  </div>
 </BaseLayout>
 
-
 <style>
-    a {
-      color: #00539F;
-    }
-  
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-    }
-  
-    .tag {
-      margin: 0.25em;
-      border: dotted 1px #a1a1a1;
-      border-radius: .5em;
-      padding: .5em 1em;
-      font-size: 1.15em;
-      background-color: #F8FCFD;
-    }
-  </style>
+  a {
+    color: #00539f;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    margin: 0.25em;
+    border: dotted 1px #a1a1a1;
+    border-radius: 0.5em;
+    padding: 0.5em 1em;
+    font-size: 1.15em;
+    background-color: #f8fcfd;
+  }
+</style>

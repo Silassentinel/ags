@@ -6,18 +6,16 @@ description: 'BBQ Dry Rub'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["BBQ", "Dry Rub", "USA"]
 ---
 
 # BBQ Dry Rub
 
 # Ingredients:
-- 2 parts sugar
-- 1 part salt
-- 1/4 part paprika
-- A small amount of chili flakes
+2 parts sugar
+1 part salt
+1/4 part paprika
+A small amount of chili flakes
 
 # Instructions:
-1. Toast the paprika and chili flakes in a pan until fragrant. 
-2. Mix all ingredients together and store in an airtight container.

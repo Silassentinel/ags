@@ -5,6 +5,7 @@ import '@testing-library/jest-dom';
 import RecipeFetcher from '../src/components/ContentBuilder/RecipeFetcher/RecipeFetcher';
 
 // Mock fetch API
+// @ts-ignore - mockImplementation doesn't exist on the regular fetch type
 global.fetch = jest.fn();
 
 describe('RecipeFetcher Component', () => {
@@ -25,6 +26,7 @@ describe('RecipeFetcher Component', () => {
     const mockRecipe2Content = '# Recipe 2\nIngredients: Ingredient 2';
     
     // Setup fetch mock implementation
+    // @ts-ignore - mockImplementation doesn't exist on the regular fetch type
     global.fetch.mockImplementation((url) => {
       if (url.includes('/contents')) {
         return Promise.resolve({
@@ -76,6 +78,7 @@ describe('RecipeFetcher Component', () => {
   
   test('handles API errors gracefully', async () => {
     // Mock failed API response
+    // @ts-ignore - mockImplementation doesn't exist on the regular fetch type
     global.fetch.mockImplementation(() => {
       return Promise.resolve({
         ok: false,
@@ -106,6 +109,7 @@ describe('RecipeFetcher Component', () => {
   
   test('respects custom repository parameters', async () => {
     // Mock successful API response
+    // @ts-ignore - mockImplementation doesn't exist on the regular fetch type
     global.fetch.mockImplementation(() => {
       return Promise.resolve({
         ok: true,
@@ -141,6 +145,7 @@ describe('RecipeFetcher Component', () => {
     ];
     
     // Setup fetch mock
+    // @ts-ignore - mockImplementation doesn't exist on the regular fetch type
     global.fetch.mockImplementation((url) => {
       if (url.includes('/contents')) {
         return Promise.resolve({

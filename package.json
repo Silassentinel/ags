@@ -9,7 +9,15 @@
     "build:standard": "astro build --config astro.config.mjs",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules node ./node_modules/jest/bin/jest.js"
+    "test": "npx jest --no-cache --detectOpenHandles --verbose",
+    "test:tsx": "npx jest --no-cache --detectOpenHandles --verbose --testMatch=\"**/test/**/*.test.tsx\"",
+    "test:ts": "npx jest --no-cache --detectOpenHandles --verbose --testMatch=\"**/test/ts/**/*.test.ts\"",
+    "test:all": "npx jest --no-cache --detectOpenHandles --verbose",
+    "test:ci": "npx jest --no-cache --detectOpenHandles --ci",
+    "test:report": "npx jest --no-cache --detectOpenHandles --verbose --json --outputFile=test-results.json || true",
+    "test:report:html": "npx jest --no-cache --detectOpenHandles --reporters=default --reporters=jest-html-reporter || true",
+    "test:json": "npx jest --no-cache --detectOpenHandles --json > test-results.json || true",
+    "test:html": "npx jest --no-cache --detectOpenHandles"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

@@ -6,8 +6,8 @@ description: 'Italian tomato salsa'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["Salsa", "Tomatoes","Summer", "Italian","smoked"]
+    alt: 'there is no image'
+tags: ["Salsa", "Tomatoes", "Summer", "Italian", "Smoked", "San Marzano", "Cherry Tomatoes", "Garlic", "Shallots", "Balsamic", "Fresh", "No-Cook", "Appetizer", "Bruschetta", "Easy", "Quick"]
 ---
 
 # Italian tomato salsa

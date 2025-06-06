@@ -6,7 +6,7 @@ description: 'Chicken on a stick with peanutbutter sauce, veggies and rice.'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Chicken", "Peanut buttersauce", "Asian", "Rice"]
 ---
 

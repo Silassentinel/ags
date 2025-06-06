@@ -25,12 +25,15 @@ const config = {
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   setupFilesAfterEnv: ['./jest.setup.ts'],
   testMatch: [
-    '**/test/**/*.test.tsx',
-    '**/src/**/*.test.tsx',
-    '**/components/**/*.test.tsx'
+    '**/test/**/*.test.{ts,tsx}',
+    '**/src/**/*.test.{ts,tsx}',
+    '**/components/**/*.test.{ts,tsx}'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  verbose: true
+  verbose: true,
+  testPathIgnorePatterns: [
+    '/node_modules/'
+  ]
 };
 
 export default config;

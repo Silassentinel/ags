@@ -6,8 +6,8 @@ description: 'BBQ marinade'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["BBQ", "Marinade","USA",]
+    alt: 'there is no image'
+tags: ["BBQ", "Marinade", "USA", "Cacao", "Chili", "Spicy", "Sweet", "Condiment", "Sauce", "Grilling", "Savory", "Easy", "Paprika", "Honey"]
 ---
 
 # BBQ Marinade with cacao and chili flakes

@@ -6,8 +6,8 @@ description: 'A tasty EggSalade to spread on your delicious homemade bread.'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["Eggs", "spread","bread"]
+    alt: 'there is no image'
+tags: ["Eggs", "Spread", "Bread", "Quick", "Easy", "Lunch", "Sandwich", "Mustard", "Pickles", "Curry", "Turmeric", "Cold", "Appetizer", "Party Food"]
 ---
 
 # EggSalade

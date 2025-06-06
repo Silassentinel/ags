@@ -6,7 +6,7 @@ description: 'Fishbroth'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["Broth", "Fish", "Stock"]
 ---
 

@@ -6,8 +6,8 @@ description: 'Jaapeno Poppers, a spicy appetizer.'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
-tags: ["Jalapenos", "USA", "Peppers"]
+    alt: 'there is no image'
+tags: ["Jalapenos", "USA", "Peppers", "Appetizer", "Spicy", "Cheese", "Bacon", "BBQ", "Smoked", "Party Food", "Snack", "Hot", "Grilled", "Beer", "Stuffed"]
 ---
 
 # Jalapeño Poppers

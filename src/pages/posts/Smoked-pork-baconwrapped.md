@@ -6,7 +6,7 @@ description: 'Smoked pork roast wrapped in bacon, served with corn on the co'
 author: 'Benjamin Degryse'
 image:
     url: ''
-    alt: 'The full Astro logo.'
+    alt: 'there is no image'
 tags: ["BBQ", "Dry Rub","Pork", Bacon, "USA","smoked"]
 ---
 

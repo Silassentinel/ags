@@ -60,7 +60,7 @@ async function fetchRecipes() {
     
     // Filter for markdown files (recipes)
     const markdownFiles = contents.filter((file) => 
-      file.type === 'file' && file.name.endsWith('.md') && file.name !== '1ATEMPLATE.MD'
+      file.type === 'file' && file.name.endsWith('.md') && file.name !== '1ATEMPLATE.MD' && file.name !== 'README.md'
     );
     
     console.log(`📚 Found ${markdownFiles.length} recipe files in repository`);
