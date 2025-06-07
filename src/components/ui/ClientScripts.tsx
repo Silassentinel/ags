@@ -1,4 +1,3 @@
-import { h } from 'preact';
 import ChaosMode from '../features/ChaosMode/ChaosMode';
 import Menu from './Menu';
 import Theme from './Theme';

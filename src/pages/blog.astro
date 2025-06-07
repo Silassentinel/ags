@@ -1,26 +1,40 @@
 ---
 const pageTitle = "Blog";
-import BlogPost from "../components/Blog/BlogPost.astro";
 import BaseLayout from "../layout/BaseLayout.astro";
 
 // Define the type for the frontmatter
 interface Frontmatter {
   title: string;
-  // Add other frontmatter properties as needed
+  author?: string;
+  pubDate?: string;
+  description?: string;
+  image?: {
+    url: string;
+    alt: string;
+  };
+  tags?: string[];
 }
 
 // Define the type for the post
 interface Post {
   frontmatter: Frontmatter;
   url?: string;
-  // Add other post properties as needed
 }
 
+// Use Astro's native glob import to get all markdown files
 const posts = await Promise.all(
-  Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("../pages/posts/*.md"))
+  Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("./posts/*.md"))
     .map(([_, resolver]) => resolver())
 );
 const allPosts = posts as Post[];
+
+// Sort posts by date if available
+const sortedPosts = allPosts.sort((a, b) => {
+  if (a.frontmatter.pubDate && b.frontmatter.pubDate) {
+    return new Date(b.frontmatter.pubDate).getTime() - new Date(a.frontmatter.pubDate).getTime();
+  }
+  return 0;
+});
 ---
 
 <BaseLayout pageTitle={pageTitle}>
@@ -46,17 +60,128 @@ const allPosts = posts as Post[];
         gastronomy starts now. Note: Almost all receipes are variations on well
         or lesser known recipes.
     </p>
-    <p>To be completed:</p>
-    <p>
-        To be added:
-    </p>
     <p>Recipes</p>
 
-    <ul>
-        {
-            allPosts.map((post) => (
-                <BlogPost url={post.url} title={post.frontmatter.title} />
-            ))
-        }
-    </ul>
+    <!-- Use server-side rendering with Astro for blog posts -->
+    <div class="blog-list">
+        {sortedPosts.map((post) => (
+            <article class="post">
+                <a href={post.url}>
+                    <h2>{post.frontmatter.title}</h2>
+                </a>
+                {post.frontmatter.pubDate && (
+                    <p class="date">{new Date(post.frontmatter.pubDate).toLocaleDateString()}</p>
+                )}
+                {post.frontmatter.author && (
+                    <p class="author">By: {post.frontmatter.author}</p>
+                )}
+                {post.frontmatter.description && (
+                    <p class="description">{post.frontmatter.description}</p>
+                )}
+                {post.frontmatter.tags && post.frontmatter.tags.length > 0 && (
+                    <div class="tags">
+                        {post.frontmatter.tags.map(tag => (
+                            <a href={`/tags/${tag}`} class="tag">
+                                {tag}
+                            </a>
+                        ))}
+                    </div>
+                )}
+            </article>
+        ))}
+    </div>
 </BaseLayout>
+
+<style>
+    .blog-list {
+        margin: 2rem 0;
+    }
+    
+    .post {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 2px solid #000;
+        background-color: #f8f8f8;
+        list-style-type: none;
+    }
+    
+    .post h2 {
+        margin-top: 0;
+    }
+    
+    .date {
+        font-style: italic;
+        color: #555;
+    }
+    
+    .tags {
+        margin-top: 1rem;
+    }
+    
+    .tag {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        margin-right: 0.5rem;
+        background-color: #333;
+        color: white;
+        font-size: 0.8rem;
+        border-radius: 3px;
+        text-decoration: none;
+    }
+    
+    :global(.dark) .post {
+        background-color: #333;
+        border-color: #fff;
+    }
+    
+    :global(.dark) .tag {
+        background-color: #555;
+    }
+</style>
+
+<style>
+    .blog-list {
+        margin: 2rem 0;
+    }
+    
+    .post {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 2px solid #000;
+        background-color: #f8f8f8;
+        list-style-type: none;
+    }
+    
+    .post h2 {
+        margin-top: 0;
+    }
+    
+    .date {
+        font-style: italic;
+        color: #555;
+    }
+    
+    .tags {
+        margin-top: 1rem;
+    }
+    
+    .tag {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        margin-right: 0.5rem;
+        background-color: #333;
+        color: white;
+        font-size: 0.8rem;
+        border-radius: 3px;
+        text-decoration: none;
+    }
+    
+    :global(.dark) .post {
+        background-color: #333;
+        border-color: #fff;
+    }
+    
+    :global(.dark) .tag {
+        background-color: #555;
+    }
+</style>

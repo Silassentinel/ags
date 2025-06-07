@@ -3,61 +3,111 @@ import BaseLayout from "../../layout/BaseLayout.astro";
 
 // Define interfaces for our data structure
 interface Frontmatter {
-  title: string;
-  tags: string[];
-  // Add other frontmatter properties as needed
+    title: string;
+    tags: string[];
+    // Add other frontmatter properties as needed
 }
 
 interface Post {
-  frontmatter: Frontmatter;
-  url?: string;
-  // Add other post properties as needed
+    frontmatter?: Frontmatter;
+    url?: string;
+    tags?: string[];
+    // Add other post properties as needed
 }
 
+// Use import.meta.glob instead of deprecated Astro.glob
 const postsData = await Promise.all(
-  Object.entries(
-    import.meta.glob<{ frontmatter: Frontmatter; url?: string }>(
-      "../posts/*.md",
-    ),
-  ).map(([_, resolver]) => resolver()),
+    Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("../posts/*.md"))
+        .map(([_, resolver]) => resolver())
 );
-const posts = postsData as Post[];
 
-const uniqueTags = [
-  ...new Set(posts?.map((post) => post.frontmatter.tags).flat()),
-];
+// Process the posts to ensure they have the right properties
+const allPosts: Post[] = postsData.map((post: any) => ({
+    frontmatter: post.frontmatter,
+    url: post.url,
+}));
+
+// Extract all unique tags
+const uniqueTags = [...new Set(
+    allPosts.map((post) => post.frontmatter?.tags || []).flat()
+)];
+
+// Sort tags alphabetically
+const sortedTags = uniqueTags.sort();
 ---
 
 <BaseLayout pageTitle="Tags">
-  <div class="tags">
-    <ul>
-      {
-        uniqueTags.map((tag) => (
-          <li class="tags">
-            <a href={`/tags/${tag}`}>{tag}</a>
-          </li>
-        ))
-      }
-    </ul>
+  <div class="brutalist-tags-wrapper">
+    <h2>All Recipe Tags</h2>
+    <div class="menu-container">
+      {sortedTags.map((tag) => (
+        <a href={`/tags/${tag}`} class="menu-item">
+          <span class="item-title">{tag}</span>
+        </a>
+      ))}
+    </div>
   </div>
 </BaseLayout>
 
 <style>
-  a {
-    color: #00539f;
+  .brutalist-tags-wrapper {
+    position: relative;
+    z-index: 10;
+    margin: 2rem 0;
   }
-
-  .tags {
+  
+  .menu-container {
     display: flex;
     flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background-color: #fff;
+    border: 2px solid #000;
   }
-
-  .tag {
-    margin: 0.25em;
-    border: dotted 1px #a1a1a1;
-    border-radius: 0.5em;
-    padding: 0.5em 1em;
-    font-size: 1.15em;
-    background-color: #f8fcfd;
+  
+  .menu-item {
+    display: block;
+    padding: 10px;
+    border: 1px solid #000;
+    text-decoration: none;
+    color: #000;
+    font-family: monospace;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+  
+  .menu-item:hover {
+    background-color: #000;
+    color: #fff;
+    transform: scale(1.05);
+  }
+  
+  .item-title {
+    display: block;
+    font-weight: bold;
+  }
+  
+  /* Dark mode styles */
+  :global(.dark) .menu-container {
+    background-color: #000;
+    border-color: #fff;
+  }
+  
+  :global(.dark) .menu-item {
+    border-color: #fff;
+    color: #fff;
+  }
+  
+  :global(.dark) .menu-item:hover {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  @media (min-width: 768px) {
+    .menu-item {
+      min-width: calc(25% - 10px);
+      text-align: center;
+      flex-grow: 1;
+    }
   }
 </style>

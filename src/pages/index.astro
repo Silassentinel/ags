@@ -7,7 +7,7 @@ import BlogListWrapper from '../layout/Blogs/BlogListWrapper.astro'
 
 <BaseLayout pageTitle={pageTitle}>
 	<div class="highlight-in-viewport">
-		<Greeting client:load messages={["Hej", "Hallo", "Hola", "Habari"]} />
+		<Greeting client:only="preact" messages={["Hej", "Hallo", "Hola", "Habari"]} />
 	</div>
 	
 	<section class="brutalist-intro highlight-in-viewport">

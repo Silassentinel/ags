@@ -1,9 +1,31 @@
 ---
-import RepoLayout from "../layout/Repos/RepoLayout.astro";
+import BaseLayout from "../layout/BaseLayout.astro";
+import RepoFetcher from "../components/ContentBuilder/RepoFetcher/RepoFetcher";
 const pageTitle = "Repos";
-import GetAllRepos from "../scripts/ContentBuilder/Identity/api/GitHubRepos";
-const repos = await GetAllRepos("silassentinel");
 ---
 
-<RepoLayout pageTitle={pageTitle} repos={repos} />
+<BaseLayout pageTitle={pageTitle}>
+  <section class="brutalist-intro highlight-in-viewport">
+    <h2>GITHUB REPOSITORIES</h2>
+    <div class="brutalist-divider"></div>
+    <p>
+      A collection of public repositories from GitHub. Each card represents a project with its description.
+      Click the repository link to view the repository directly on GitHub.
+    </p>
+  </section>
+  
+  <RepoFetcher client:only="preact" username="silassentinel" />
+</BaseLayout>
+
+<style>
+  .brutalist-divider {
+    height: 3px;
+    background-color: #000;
+    margin: 1rem 0;
+  }
+
+  :global(.dark) .brutalist-divider {
+    background-color: #fff;
+  }
+</style>
 

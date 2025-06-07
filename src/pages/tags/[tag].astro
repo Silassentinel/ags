@@ -15,22 +15,39 @@ interface Post {
     // Add other post properties as needed
 }
 
-export async function getStaticPaths() {
+export async function getStaticPaths(): Promise<Array<{ params: { tag: string }, props: { posts: Post[] } }>> {
+    // Use import.meta.glob instead of deprecated Astro.glob
     const postsData = await Promise.all(
         Object.entries(import.meta.glob<{ frontmatter: Frontmatter; url?: string }>("../posts/*.md"))
             .map(([_, resolver]) => resolver())
     );
-    const allPosts = postsData as Post[];
-    const uniqueTags = [
-        ...new Set(allPosts
-            .filter(post => post.frontmatter && post.frontmatter.tags) // Ensure tags exist
-            .map((post) => post.frontmatter.tags)
-            .flat()),
-    ];
-    return uniqueTags.map((tag) => {
-        const filteredPosts = allPosts.filter((post) =>
-            post.frontmatter && post.frontmatter.tags && post.frontmatter.tags.includes(tag),
+    
+    // Process the posts to ensure they have the right properties
+    const allPosts: Post[] = postsData.map((post: any) => {
+        return {
+            frontmatter: post.frontmatter,
+            url: post.url,
+            // Add other properties as needed
+        };
+    });
+    
+    // Log for debugging
+    // console.log("All posts:", allPosts.map((p: Post) => ({title: p.frontmatter.title, url: p.url, tags: p.frontmatter.tags})));
+    
+    // Extract all unique tags
+    const uniqueTags: string[] = [...new Set(
+        allPosts.map((post: Post) => post.frontmatter.tags || []).flat()
+    )];
+    
+    // Create paths for each tag with filtered posts as props
+    return uniqueTags.map((tag: string) => {
+        const filteredPosts = allPosts.filter((post: Post) => 
+            post.frontmatter.tags && post.frontmatter.tags.includes(tag)
         );
+        
+        // // Log for debugging
+        // console.log(`Posts for tag "${tag}":`, filteredPosts.map((p: Post) => ({title: p.frontmatter.title, url: p.url})));
+        
         return {
             params: { tag },
             props: { posts: filteredPosts },
@@ -43,13 +60,60 @@ const { posts } = Astro.props as { posts: Post[] };
 ---
 
 <BaseLayout pageTitle={tag}>
-    <p>Posts tagged with {tag}</p>
-    <ul>
-        {
-            posts &&
-                posts.map((post) => (
+    <div class="tag-posts">
+        <h1>Posts tagged with {tag}</h1>
+        {posts && posts.length > 0 ? (
+            <ul class="post-list">
+                {posts.map((post) => (
                     <BlogPost url={post.url} title={post.frontmatter.title} />
-                ))
-        }
-    </ul>
+                ))}
+            </ul>
+        ) : (
+            <p>No posts found with this tag.</p>
+        )}
+    </div>
 </BaseLayout>
+
+<style>
+  .tag-posts {
+    margin-top: 2rem;
+  }
+  
+  .post-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .post {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 2px solid #000;
+    background-color: #f8f8f8;
+  }
+  
+  .post h3 {
+    margin-top: 0;
+  }
+  
+  .date {
+    font-style: italic;
+    color: #555;
+  }
+  
+  :global(.dark) .post {
+    background-color: #333;
+    border-color: #fff;
+  }
+  
+  .debug-info {
+    margin-top: 2rem;
+    padding: 1rem;
+    border: 2px dashed #ccc;
+    background-color: #f9f9f9;
+  }
+  
+  :global(.dark) .debug-info {
+    background-color: #222;
+    border-color: #444;
+  }
+</style>

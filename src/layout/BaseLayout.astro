@@ -22,8 +22,8 @@ const { pageTitle } = Astro.props;
         </main>
         <Footer />
         
-        <!-- Client-side scripts as Preact components -->
-        <ClientScripts client:load />
+        <!-- Client-side scripts as Preact components (client-only rendering) -->
+        <ClientScripts client:only="preact" />
     </body>
 </html>
 
