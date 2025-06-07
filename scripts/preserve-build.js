@@ -79,7 +79,8 @@ function filterRecipeFiles(contents) {
     file.type === 'file' && 
     file.name.endsWith('.md') && 
     file.name !== '1ATEMPLATE.MD' && 
-    file.name !== 'README.md'
+    file.name !== 'README.md' &&
+    file.name !== "test-recipe.md" // Exclude test recipe file
   );
 }
 
@@ -238,14 +239,14 @@ function backupFilesToPreserve(config) {
 function runAstroBuild() {
   console.log('🚀 Running Astro build...');
   // Commented out to avoid circular reference in build process
-  // try {
-  //   execSync('npm run build:standard', { stdio: 'inherit' });
-  //   console.log('✅ Build completed successfully');
-  //   return true;
-  // } catch (error) {
-  //   console.error('❌ Build failed:', error);
-  //   process.exit(1);
-  // }
+  try {
+    execSync('npm run build:standard', { stdio: 'inherit' });
+    console.log('✅ Build completed successfully');
+    return true;
+  } catch (error) {
+    console.error('❌ Build failed:', error);
+    process.exit(1);
+  }
   console.log('ℹ️ Build step skipped since this script is part of the build process');
   return true;
 }
@@ -405,7 +406,7 @@ async function main() {
     
     // Build step is handled by the calling process, no need to run it here
     // The runAstroBuild function is now commented out to avoid circular references
-    //runAstroBuild(); // This will now just log a message indicating it was skipped
+    runAstroBuild(); // This will now just log a message indicating it was skipped
     
     // Clean up excluded directories
     cleanupExcludedDirectories(config);
