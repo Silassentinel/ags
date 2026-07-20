@@ -60,6 +60,10 @@ export class ChaosMode {
     // Set up event listeners
     document.addEventListener('click', this.handleGlobalClick.bind(this));
     document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+
+    // Touch equivalents so proximity effects work on mobile (click already fires on tap)
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+    document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true });
     
     // Apply appropriate chaos mode immediately based on click count
     if (this.state.ultraChaosMode) {
@@ -189,19 +193,60 @@ export class ChaosMode {
   /**
    * Handle mouse movement to update font sizes in chaos mode
    * Side effects: Updates state and potentially modifies DOM
-   * 
+   *
    * @param {MouseEvent} event - The mouse move event
    * @returns {void}
    */
   private handleMouseMove = (event: MouseEvent): void => {
+    this.updatePointerPosition(event.clientX, event.clientY);
+  };
+
+  /**
+   * Handle touch move to drive the same proximity effects as mousemove on touch devices
+   * Side effects: Updates state and potentially modifies DOM
+   *
+   * @param {TouchEvent} event - The touch move event
+   * @returns {void}
+   */
+  private handleTouchMove = (event: TouchEvent): void => {
+    const touch = event.touches[0];
+    if (!touch) return;
+
+    this.updatePointerPosition(touch.clientX, touch.clientY);
+  };
+
+  /**
+   * Handle touch start so a tap registers a pointer position before the
+   * click handler runs its proximity-based obfuscation effect
+   * Side effects: Updates state and potentially modifies DOM
+   *
+   * @param {TouchEvent} event - The touch start event
+   * @returns {void}
+   */
+  private handleTouchStart = (event: TouchEvent): void => {
+    const touch = event.touches[0];
+    if (!touch) return;
+
+    this.updatePointerPosition(touch.clientX, touch.clientY);
+  };
+
+  /**
+   * Shared pointer-position update used by both mouse and touch input
+   * Side effects: Updates state and potentially modifies DOM
+   *
+   * @param {number} x - Pointer X coordinate
+   * @param {number} y - Pointer Y coordinate
+   * @returns {void}
+   */
+  private updatePointerPosition(x: number, y: number): void {
     if (!this.state.chaosMode) return;
-    
-    this.state.mouseX = event.clientX;
-    this.state.mouseY = event.clientY;
-    
+
+    this.state.mouseX = x;
+    this.state.mouseY = y;
+
     // Only run the font resizing when in chaos mode
     requestAnimationFrame(() => this.updateChaosFontSizes());
-  };
+  }
 
   /**
    * Update font sizes based on mouse position in chaos mode
