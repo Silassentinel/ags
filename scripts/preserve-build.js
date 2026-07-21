@@ -21,7 +21,7 @@ async function initializeConfig() {
     tempDir: path.resolve(process.cwd(), '.temp-preserve'),
     recipePostsDir: path.resolve(process.cwd(), 'src/pages/posts'),
     publicDataDir: path.resolve(process.cwd(), 'public/data'),
-    itemsToPreserve: ['.git', 'CNAME'],
+    itemsToPreserve: ['.git', 'CNAME', '.nojekyll'],
     directoriesToExclude: ['scripts'], // Exclude scripts directory as it's only for local development
     recipeRepo: {
       owner: 'Silassentinel',
