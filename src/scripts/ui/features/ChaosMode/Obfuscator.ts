@@ -5,7 +5,7 @@
  * Can be used independently or with ChaosMode for enhanced chaos.
  */
 
-import { isElementVisible } from './Utils/utilities';
+import { isElementVisible, isChaosDisabledByUser } from './Utils/utilities';
 
 // Type definitions
 export type ObfuscationMethod = 
@@ -281,6 +281,8 @@ export class Obfuscator {
       // Check if we're in chaos mode
       const checkChaosState = (): void => {
         try {
+          if (isChaosDisabledByUser()) return;
+
           const clickCount = parseInt(localStorage.getItem('chaosClickCount') || '0');
           
           // When in ultra chaos mode, occasionally obfuscate all text
@@ -308,6 +310,8 @@ export class Obfuscator {
       // Check on document click
       document.addEventListener('click', () => {
         try {
+          if (isChaosDisabledByUser()) return;
+
           // Higher chance of obfuscation on click
           const clickCount = parseInt(localStorage.getItem('chaosClickCount') || '0');
           if (clickCount >= 25 && Math.random() < 0.5) {
