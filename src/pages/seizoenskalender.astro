@@ -1,0 +1,315 @@
+---
+import BaseLayout from "../layout/BaseLayout.astro";
+const pageTitle = "Seizoenskalender";
+
+const months = [
+  {
+    name: "Januari",
+    groenten: ["aardappel","aardpeer","boerenkool","groene selderij","knolselderij","koolraap","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","waterkers","winterpostelein","witlof","wittekool","wortel"],
+    fruit: ["appel","peer"]
+  },
+  {
+    name: "Februari",
+    groenten: ["aardappel","boerenkool","groene selderij","knolselderij","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","winterpostelein","witlof","wittekool","wortel"],
+    fruit: ["appel","peer"]
+  },
+  {
+    name: "Maart",
+    groenten: ["aardappel","bloemkool","boerenkool","groene selderij","knolselderij","paddenstoelen","pastinaak","pompoen","prei","raap","radijs","rammenas","rode biet","rodekool","roodlof","savooikool","schorseneer","spinazie","spruiten","ui","veldsla","warmoes","winterpostelein","witlof","wittekool","wortel"],
+    fruit: ["appel","rabarber"]
+  },
+  {
+    name: "April",
+    groenten: ["aardappel","andijvie","bloemkool","groene selderij","paddenstoelen","paksoi","pompoen","prei","raap","raapsteel","radijs","rode biet","roodlof","spinazie","ui","warmoes","waterkers","wortel","witlof"],
+    fruit: ["aardbei","rabarber"]
+  },
+  {
+    name: "Mei",
+    groenten: ["aardappel","andijvie","asperge","bloemkool","doperwt","groene selderij","koolrabi","kropsla","paddenstoelen","paksoi","peultjes","prei","raap","raapsteel","radijs","rode biet","roodlof","spinazie","spitskool","ui","warmoes","waterkers","wortel"],
+    fruit: ["aardbei","rabarber"]
+  },
+  {
+    name: "Juni",
+    groenten: ["aardappel","andijvie","artisjok","asperge","bloemkool","broccoli","doperwt","groene selderij","koolrabi","kropsla","paddenstoelen","paksoi","peultjes","prei","prinsessenboon","raap","radijs","rode biet","savooikool","spinazie","spitskool","tomaat","tuinboon","ui","venkel","warmoes","waterkers","wortel"],
+    fruit: ["aardbei","abrikoos","blauwe bes","framboos","kers","nectarine","perzik","rabarber","rode bes","zwarte bes"]
+  },
+  {
+    name: "Juli",
+    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","bloemkool","broccoli","chinese kool","courgette","doperwt","groene selderij","komkommer","koolrabi","kropsla","paddenstoelen","paksoi","paprika","peultjes","prei","prinsessenboon","radijs","rode biet","rodekool","savooikool","snijboon","spinazie","spitskool","tomaat","tuinboon","ui","venkel","warmoes","waterkers","wittekool","wortel"],
+    fruit: ["aardbei","abrikoos","blauwe bes","braam","framboos","kers","nectarine","perzik","rabarber","rode bes","zwarte bes"]
+  },
+  {
+    name: "Augustus",
+    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","bloemkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","komkommer","koolrabi","kropsla","mais","paddenstoelen","paksoi","paprika","pompoen","prei","prinsessenboon","raapsteel","radijs","rode biet","rodekool","savooikool","snijboon","spinazie","spitskool","tomaat","ui","venkel","warmoes","waterkers","wittekool","wortel"],
+    fruit: ["aardbei","abrikoos","appel","blauwe bes","braam","druif","framboos","kers","meloen","nectarine","peer","perzik","pruim","vijg","zwarte bes"]
+  },
+  {
+    name: "September",
+    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","bloemkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","komkommer","koolrabi","kropsla","mais","paddenstoelen","paksoi","paprika","pompoen","prei","prinsessenboon","raap(steel)","radijs","rammenas","rode biet","rodekool","savooikool","snijboon","spinazie","spitskool","tomaat","ui","venkel","warmoes","waterkers","wittekool","wortel"],
+    fruit: ["appel","blauwe bes","braam","druif","framboos","kiwibes","meloen","nectarine","peer","perzik","pruim","vijg"]
+  },
+  {
+    name: "Oktober",
+    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","boerenkool","bloemkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","komkommer","koolrabi","kropsla","paddenstoelen","paksoi","paprika","pastinaak","pompoen","prei","prinsessenboon","raap(steel)","radijs","rammenas","rode biet","rodekool","roodlof","savooikool","schorseneer","snijboon","spinazie","spitskool","spruiten","tomaat","ui","veldsla","venkel","warmoes","waterkers","winterpostelein","witlof","wittekool","wortel"],
+    fruit: ["appel","braam","druif","framboos","kiwibes","meloen","peer"]
+  },
+  {
+    name: "November",
+    groenten: ["aardappel","aardpeer","andijvie","bleekselderij","bloemkool","boerenkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","koolraap","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","venkel","warmoes","waterkers","winterpostelein","witlof","wittekool","wortel"],
+    fruit: ["appel","druif","meloen","peer"]
+  },
+  {
+    name: "December",
+    groenten: ["aardappel","aardpeer","andijvie","boerenkool","groene selderij","knolselderij","koolraap","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","waterkers","winterpostelein","witlof","wittekool","wortel"],
+    fruit: ["appel","peer"]
+  }
+];
+
+const now = new Date();
+const currentMonth = now.getMonth();
+---
+
+<BaseLayout pageTitle={pageTitle}>
+  <section class="cal-intro">
+    <p>Seizoensgroenten & fruit voor <strong>Belgi&euml;</strong> — volle grond / onverwarmde serres.</p>
+    <nav class="month-nav">
+      {months.map((m, i) => (
+        <a href={`#${m.name.toLowerCase()}`} class:list={["month-link", { active: i === currentMonth }]}>
+          {m.name.substring(0, 3)}
+        </a>
+      ))}
+    </nav>
+  </section>
+
+  {months.map((month, i) => (
+    <section id={month.name.toLowerCase()} class:list={["month-card", { "current-month": i === currentMonth }]}>
+      <h2 class="month-title">
+        {month.name}
+        {i === currentMonth && <span class="now-badge">nu</span>}
+      </h2>
+
+      <div class="produce-section">
+        <h3 class="produce-label">Groenten <span class="count">{month.groenten.length}</span></h3>
+        <div class="tag-cloud">
+          {month.groenten.map(g => <span class="tag tag-groente">{g}</span>)}
+        </div>
+      </div>
+
+      <div class="produce-section">
+        <h3 class="produce-label">Fruit <span class="count">{month.fruit.length}</span></h3>
+        <div class="tag-cloud">
+          {month.fruit.map(f => <span class="tag tag-fruit">{f}</span>)}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <footer class="cal-sources">
+    <h3>Bronnen</h3>
+    <ul>
+      <li>Velt vzw seizoenskalender (groentekalender.be)</li>
+      <li>mijnspar.be seizoensgroenten</li>
+      <li>Lekker van bij ons (VLAM)</li>
+    </ul>
+  </footer>
+</BaseLayout>
+
+<style>
+  .cal-intro {
+    margin-bottom: 2rem;
+    font-family: monospace;
+  }
+
+  .month-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 1rem;
+  }
+
+  .month-link {
+    padding: 4px 8px;
+    border: 1px solid #000;
+    text-decoration: none;
+    font-family: monospace;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+
+  .month-link:hover {
+    color: #fff;
+    background-color: #000;
+  }
+
+  .month-link.active {
+    color: #fff;
+    background-color: #000;
+    border-color: #000;
+    font-weight: bold;
+  }
+
+  :global(.dark) .month-link {
+    border-color: #fff;
+    color: #fff;
+  }
+
+  :global(.dark) .month-link:hover {
+    color: #000;
+    background-color: #fff;
+  }
+
+  :global(.dark) .month-link.active {
+    color: #000;
+    background-color: #fff;
+    border-color: #fff;
+  }
+
+  .month-card {
+    border: 2px solid #000;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .month-card.current-month {
+    border-width: 3px;
+    box-shadow: 4px 4px 0 #000;
+  }
+
+  :global(.dark) .month-card {
+    border-color: #fff;
+  }
+
+  :global(.dark) .month-card.current-month {
+    box-shadow: 4px 4px 0 #fff;
+  }
+
+  .month-title {
+    font-family: monospace;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin: 0 0 1rem;
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  :global(.dark) .month-title {
+    border-color: #fff;
+  }
+
+  .now-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border: 2px solid #000;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  :global(.dark) .now-badge {
+    border-color: #fff;
+  }
+
+  .produce-section {
+    margin-bottom: 1rem;
+  }
+
+  .produce-label {
+    font-family: monospace;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin: 0 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .count {
+    font-size: 0.75rem;
+    border: 1px solid #888;
+    padding: 0 5px;
+    color: #888;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-family: monospace;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border: 1px solid;
+    display: inline-block;
+  }
+
+  .tag-groente {
+    border-color: #2d6a2e;
+    color: #2d6a2e;
+  }
+
+  .tag-groente:hover {
+    background-color: #2d6a2e;
+    color: #fff;
+  }
+
+  .tag-fruit {
+    border-color: #8b2252;
+    color: #8b2252;
+  }
+
+  .tag-fruit:hover {
+    background-color: #8b2252;
+    color: #fff;
+  }
+
+  :global(.dark) .tag-groente {
+    border-color: #5cb85c;
+    color: #5cb85c;
+  }
+
+  :global(.dark) .tag-groente:hover {
+    background-color: #5cb85c;
+    color: #000;
+  }
+
+  :global(.dark) .tag-fruit {
+    border-color: #e77;
+    color: #e77;
+  }
+
+  :global(.dark) .tag-fruit:hover {
+    background-color: #e77;
+    color: #000;
+  }
+
+  .cal-sources {
+    border-top: 2px solid #000;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    font-family: monospace;
+    font-size: 0.85rem;
+  }
+
+  .cal-sources h3 {
+    text-transform: uppercase;
+    margin: 0 0 0.5rem;
+  }
+
+  .cal-sources ul {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .cal-sources li {
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.dark) .cal-sources {
+    border-color: #fff;
+  }
+</style>
