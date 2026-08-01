@@ -60,6 +60,7 @@ async function fetchRepositoryContents(repoConfig) {
   const { owner, name, branch } = repoConfig;
   const repoUrl = `https://api.github.com/repos/${owner}/${name}/contents?ref=${branch}`;
   
+  console.log(`🔍 Fetching repository contents from: ${repoUrl}`);
   const response = await fetch(repoUrl);
   
   if (!response.ok) {
@@ -93,7 +94,7 @@ function filterRecipeFiles(contents) {
 async function fetchRecipeContent(file, repoConfig) {
   const { owner, name, branch } = repoConfig;
   const rawUrl = `https://raw.githubusercontent.com/${owner}/${name}/${branch}/${file.name}`;
-  
+   
   console.log(`📥 Fetching recipe: ${file.name} from ${rawUrl}`);
   
   const rawResponse = await fetch(rawUrl);
@@ -129,7 +130,6 @@ async function fetchRecipes(config) {
   try {
     // First, fetch the repository contents to get all files
     const contents = await fetchRepositoryContents(recipeRepo);
-    
     // Filter for markdown files (recipes)
     const markdownFiles = filterRecipeFiles(contents);
     

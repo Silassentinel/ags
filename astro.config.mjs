@@ -8,5 +8,8 @@ export default defineConfig({
   base: '/',
   output: 'static', // Ensure static mode is used (no SSR)
   integrations: [preact(), compress()],
-  outDir: "../silassentinel.github.io/"
+  outDir: "../silassentinel.github.io/",
+  branch: "main",
+  owner: "Silassentinel",
+  recipePostsDir: "./src/pages/posts/"
 });

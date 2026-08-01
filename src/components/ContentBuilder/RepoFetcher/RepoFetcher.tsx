@@ -19,11 +19,16 @@ export function RepoFetcher({ username }: RepoFetcherProps) {
     const fetchRepos = async () => {
       try {
         // First try to fetch from the local static file
-        let response = await fetch(`https://api.github.com/users/${username}/repos`)
+        let response = await fetch('/data/ghuserRepo.json');
         
-        // If local file fetch fails, get from GitHub API
+        // If local file fetch fails, try GitHub API as a fallback
         if (!response.ok) {
-          response = await fetch('/data/ghuserRepo.json');;
+          console.log("Local data file not found, trying GitHub API...");
+          response = await fetch(`https://api.github.com/users/${username}/repos`, {
+            headers: {
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
           
           if (!response.ok) {
             throw new Error(`Failed to fetch repos: ${response.statusText}`);
