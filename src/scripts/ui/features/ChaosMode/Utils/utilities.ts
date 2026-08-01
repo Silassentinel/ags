@@ -47,6 +47,18 @@ export const isElementVisible = (element: Element): boolean => {
 };
 
 /**
+ * Check whether the user has explicitly disabled Chaos Mode via the Settings panel
+ * @returns Whether Chaos Mode is disabled
+ */
+export const isChaosDisabledByUser = (): boolean => {
+  try {
+    return localStorage.getItem('chaosMode') === 'disabled';
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
  * Toggle between light and dark theme
  */
 export const toggleTheme = (): void => {

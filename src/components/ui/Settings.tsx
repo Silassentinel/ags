@@ -181,7 +181,7 @@ const Settings = () => {
                   <label class="feature-label" htmlFor={feature.id}>
                     {feature.name}
                   </label>
-                  <div class="toggle-switch">
+                  <label class="toggle-switch" htmlFor={feature.id}>
                     <input
                       type="checkbox"
                       id={feature.id}
@@ -189,7 +189,7 @@ const Settings = () => {
                       onChange={() => toggleFeature(feature.id)}
                     />
                     <span class="toggle-slider"></span>
-                  </div>
+                  </label>
                 </div>
                 <p class="feature-description">{feature.description}</p>
               </li>

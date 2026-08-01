@@ -15,7 +15,8 @@ import {
   safelyModifyClass,
   calculateDistance,
   toggleTheme,
-  findElementsNearPosition
+  findElementsNearPosition,
+  isChaosDisabledByUser
 } from './Utils/utilities';
 
 // Import types
@@ -40,33 +41,115 @@ import {
 export class ChaosMode {
   /** Current state of chaos mode */
   private state: ChaosState;
-  
+
+  /** Interval id for the ultra chaos glitch-effect flicker, so it can be stopped on disable */
+  private glitchIntervalId: number | null = null;
+
   /**
    * Creates a new ChaosMode instance
    */
   constructor() {
     this.state = createInitialState();
   }
-  
+
   /**
    * Initializes the chaos mode functionality
    * This should be called when the DOM is ready
-   * 
+   *
    * @returns {void}
    */
   public initialize(): void {
     if (typeof window === 'undefined') return;
-    
-    // Set up event listeners
-    document.addEventListener('click', this.handleGlobalClick.bind(this));
-    document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    
-    // Apply appropriate chaos mode immediately based on click count
-    if (this.state.ultraChaosMode) {
+
+    // Respect the user's "Chaos Mode" setting: if disabled, clean up any
+    // leftover state from a previous session and stay dormant
+    if (isChaosDisabledByUser()) {
+      this.resetAndCleanup();
+    } else if (this.state.ultraChaosMode) {
       this.applyUltraChaosMode();
     } else if (this.state.chaosMode) {
       this.applyChaosMode();
     }
+
+    // Set up event listeners
+    document.addEventListener('click', this.handleGlobalClick.bind(this));
+    document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+
+    // Touch equivalents so proximity effects work on mobile (click already fires on tap)
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+    document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true });
+
+    // React immediately when the user flips the Settings panel toggle
+    document.addEventListener('feature-toggle', this.handleFeatureToggle.bind(this) as EventListener);
+  }
+
+  /**
+   * Handle the Settings panel's "Chaos Mode" toggle being switched off
+   * Side effects: Removes chaos classes/styles and resets click count
+   *
+   * @param {Event} event - The feature-toggle CustomEvent
+   * @returns {void}
+   */
+  private handleFeatureToggle(event: Event): void {
+    const detail = (event as CustomEvent<{ id: string; enabled: boolean }>).detail;
+    if (!detail || detail.id !== 'chaos-mode') return;
+
+    if (!detail.enabled) {
+      this.resetAndCleanup();
+    }
+  }
+
+  /**
+   * Fully disables chaos mode: resets click count, removes all applied
+   * classes/inline styles, and stops any running animations
+   * Side effects: Modifies DOM, clears localStorage counter
+   *
+   * @returns {void}
+   */
+  private resetAndCleanup(): void {
+    this.state.clickCount = 0;
+    this.state.chaosMode = false;
+    this.state.ultraChaosMode = false;
+    this.state.rotation = 0;
+    this.state.hueRotation = 0;
+
+    try {
+      localStorage.setItem('chaosClickCount', '0');
+    } catch (error) {
+      console.error('Error resetting chaosClickCount in localStorage:', error);
+    }
+
+    if (this.glitchIntervalId !== null) {
+      clearInterval(this.glitchIntervalId);
+      this.glitchIntervalId = null;
+    }
+
+    if (document.body) {
+      safelyModifyClass(document.body, 'chaos-mode', false);
+      safelyModifyClass(document.body, 'ultra-chaos-mode', false);
+      safelyModifyClass(document.body, 'glitch-effect', false);
+      document.body.style.transform = '';
+    }
+
+    if (document.documentElement) {
+      document.documentElement.style.filter = '';
+    }
+
+    document.querySelectorAll(SELECTORS.TEXT_ELEMENTS).forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.style.fontSize = '';
+        el.style.transform = '';
+      }
+    });
+
+    document.querySelectorAll(SELECTORS.BRUTALIST_ELEMENTS).forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.style.borderWidth = '';
+      }
+    });
+
+    const overlay = document.querySelector('.brutalist-overlay');
+    if (overlay) overlay.remove();
   }
 
   /**
@@ -116,6 +199,9 @@ export class ChaosMode {
    * @returns {void}
    */
   private handleGlobalClick = (event: MouseEvent): void => {
+    // Respect the user's "Chaos Mode" setting from the Settings panel
+    if (isChaosDisabledByUser()) return;
+
     // Check if click target is a navigation element to avoid breaking navigation
     const target = event.target as Element;
     const isNavigationElement = 
@@ -189,19 +275,60 @@ export class ChaosMode {
   /**
    * Handle mouse movement to update font sizes in chaos mode
    * Side effects: Updates state and potentially modifies DOM
-   * 
+   *
    * @param {MouseEvent} event - The mouse move event
    * @returns {void}
    */
   private handleMouseMove = (event: MouseEvent): void => {
+    this.updatePointerPosition(event.clientX, event.clientY);
+  };
+
+  /**
+   * Handle touch move to drive the same proximity effects as mousemove on touch devices
+   * Side effects: Updates state and potentially modifies DOM
+   *
+   * @param {TouchEvent} event - The touch move event
+   * @returns {void}
+   */
+  private handleTouchMove = (event: TouchEvent): void => {
+    const touch = event.touches[0];
+    if (!touch) return;
+
+    this.updatePointerPosition(touch.clientX, touch.clientY);
+  };
+
+  /**
+   * Handle touch start so a tap registers a pointer position before the
+   * click handler runs its proximity-based obfuscation effect
+   * Side effects: Updates state and potentially modifies DOM
+   *
+   * @param {TouchEvent} event - The touch start event
+   * @returns {void}
+   */
+  private handleTouchStart = (event: TouchEvent): void => {
+    const touch = event.touches[0];
+    if (!touch) return;
+
+    this.updatePointerPosition(touch.clientX, touch.clientY);
+  };
+
+  /**
+   * Shared pointer-position update used by both mouse and touch input
+   * Side effects: Updates state and potentially modifies DOM
+   *
+   * @param {number} x - Pointer X coordinate
+   * @param {number} y - Pointer Y coordinate
+   * @returns {void}
+   */
+  private updatePointerPosition(x: number, y: number): void {
     if (!this.state.chaosMode) return;
-    
-    this.state.mouseX = event.clientX;
-    this.state.mouseY = event.clientY;
-    
+
+    this.state.mouseX = x;
+    this.state.mouseY = y;
+
     // Only run the font resizing when in chaos mode
     requestAnimationFrame(() => this.updateChaosFontSizes());
-  };
+  }
 
   /**
    * Update font sizes based on mouse position in chaos mode
@@ -363,7 +490,9 @@ export class ChaosMode {
       document.body.appendChild(brutalistOverlay);
       
       // Randomly toggle content visibility for glitch effect
-      setInterval(() => {
+      this.glitchIntervalId = window.setInterval(() => {
+        if (!this.state.ultraChaosMode) return;
+
         if (Math.random() < 0.1 && document.body) {
           safelyModifyClass(document.body, 'glitch-effect', true);
           setTimeout(() => safelyModifyClass(document.body, 'glitch-effect', false), 100);

@@ -1,6 +1,7 @@
 html {
-  background-color: #ffffff;
+  background-color: #fff;
   font-family: monospace;
+  scroll-behavior: smooth;
 }
 
 body {
