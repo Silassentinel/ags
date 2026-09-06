@@ -12,6 +12,9 @@
  *  - RT-2026-07-30-01: stored XSS via unsanitised recipe markdown.
  *  - RT-2026-07-30-02: a build failure permanently deleting the deploy
  *    repo's .git/CNAME/.nojekyll.
+ *  - RT-2026-09-06-06: unvalidated markdown body image destinations letting
+ *    a hostile Recipes-repo commit read/publish arbitrary local files off
+ *    the build machine, or permanently break the build.
  */
 
 import { execFileSync } from 'child_process';
@@ -185,6 +188,44 @@ describe('validateRecipeFrontmatter (RT-2026-07-30-02)', () => {
     expect(result.reason).toMatch(/size/i);
     // Rejected on a fast length check, not after an expensive parse attempt.
     expect(result.elapsedMs).toBeLessThan(1000);
+  });
+
+  test('rejects the exact path-traversal image destination from the RT-2026-09-06-06 repro', () => {
+    const bad =
+      goodFrontmatter + '\n![p](../../../../../../../../home/victim/Pictures/private.png)\n';
+    const result = validate(bad);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toMatch(/image destination/i);
+  });
+
+  test('rejects an unresolvable relative image path (the DoS half of RT-2026-09-06-06)', () => {
+    const bad = goodFrontmatter + '\n![x](./photo.png)\n';
+    const result = validate(bad);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toMatch(/image destination/i);
+  });
+
+  test('rejects a protocol-relative or data: image destination', () => {
+    expect(validate(goodFrontmatter + '\n![x](//evil.example/x.png)\n').valid).toBe(false);
+    expect(
+      validate(goodFrontmatter + '\n![x](data:image/png;base64,AAAA)\n').valid
+    ).toBe(false);
+  });
+
+  test('still accepts a legitimate remote http(s) image destination', () => {
+    const good = goodFrontmatter + '\n![p](https://example.com/photo.png)\n';
+    const result = validate(good);
+    expect(result.valid).toBe(true);
+  });
+
+  test('still accepts a legitimate remote image destination with a title', () => {
+    const good = goodFrontmatter + '\n![p](https://example.com/photo.png "a title")\n';
+    const result = validate(good);
+    expect(result.valid).toBe(true);
+  });
+
+  test('accepts recipe content with no images at all (matches all 34 real published recipes)', () => {
+    expect(validate(goodFrontmatter).valid).toBe(true);
   });
 
   test('an !!omap YAML payload no longer shows quadratic parse time', () => {

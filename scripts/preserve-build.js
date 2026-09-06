@@ -208,6 +208,57 @@ function validateRecipeFrontmatter(content, fileName) {
     }
   }
 
+  const imageValidation = validateMarkdownImageDestinations(parsed.content);
+  if (!imageValidation.valid) {
+    return imageValidation;
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Reject any markdown image destination that is not a fully-qualified
+ * http:/https: URL. See RT-2026-09-06-06: Astro/Sätteri's `collect-images`
+ * mdast plugin turns every non-remote, non-`/`-prefixed markdown image
+ * destination into a real Vite `import` of that file path with no
+ * project-root confinement, before this script's build ever runs and
+ * before the AST URL-scheme plugin (scripts/sanitize-url-schemes.mjs,
+ * which only inspects the already-rendered `<a>`/`<img>` HTML and cannot
+ * see or stop the earlier import) gets a chance to run. Concretely, a
+ * hostile commit in the untrusted Recipes repo can use a relative image
+ * destination such as `![p](../../../../../../../../home/<user>/Pictures/
+ * private.png)` to make the build read an arbitrary local file off the
+ * maintainer's machine, convert it with sharp, and publish it into the
+ * public deploy repo — or use an unresolvable relative path to
+ * permanently break `npx astro build` with `[UNRESOLVED_IMPORT]`.
+ *
+ * None of the 34 currently published recipes use markdown image syntax at
+ * all (checked directly against every real file in src/pages/posts/), so
+ * this is calibrated as a strict allow-list rather than a path-containment
+ * check: only a fully-qualified `http:`/`https:` image destination is
+ * accepted. Anything else — a relative path, a protocol-relative URL, a
+ * `data:`/`javascript:` URI, or a reference-style image (whose destination
+ * lives in a separate `[label]: url` definition elsewhere in the document,
+ * which this line-local check cannot see) — causes the whole recipe to be
+ * rejected, matching the "not in real use today, so disallow" calibration
+ * used elsewhere in this file (e.g. `isSafeLayout`).
+ * @param {String} content Markdown body (frontmatter already stripped)
+ * @returns {{valid: boolean, reason?: string}}
+ */
+function validateMarkdownImageDestinations(content) {
+  const imageMarkerRegex = /!\[[^\]]*\]/g;
+  let match;
+  while ((match = imageMarkerRegex.exec(content)) !== null) {
+    const rest = content.slice(match.index + match[0].length);
+    const destinationMatch = /^\(\s*<?(https?:\/\/[^\s)>]+)>?(?:\s+"[^"]*")?\s*\)/i.exec(rest);
+    if (!destinationMatch) {
+      return {
+        valid: false,
+        reason:
+          'Markdown image destination must be a fully-qualified http(s) URL (relative/reference-style image paths are not supported)',
+      };
+    }
+  }
   return { valid: true };
 }
 
@@ -607,6 +658,7 @@ if (isMainModule) {
 export {
   sanitizeMarkdownContent,
   validateRecipeFrontmatter,
+  validateMarkdownImageDestinations,
   isSafeTag,
   isSafeLayout,
   MAX_RECIPE_FILE_SIZE_BYTES,

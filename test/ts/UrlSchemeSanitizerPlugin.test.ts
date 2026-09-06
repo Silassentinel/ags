@@ -157,10 +157,22 @@ describe('createUrlSchemeSanitizerPlugin via a real @astrojs/markdown-satteri re
 });
 
 describe('end-to-end: a real `astro build` blocks every bypass payload (RT-2026-09-06-04 / RT-2026-09-06-05)', () => {
+  // RT-2026-09-06-07: this suite used to write a real
+  // src/pages/posts/URL-SANITIZER-PLUGIN-TEST-TEMP.md into the tracked
+  // (albeit gitignored) source tree and only removed it in `afterAll` — if
+  // the process were killed mid-build, the file would survive, `git
+  // status` would show nothing (RT-2026-07-30-03 made the directory
+  // untracked), and the next real `npm run build` would publish it. Instead
+  // of touching the real posts directory at all, build an isolated,
+  // throwaway copy of the whole project (root override, matching the
+  // pattern in test/ts/PreserveBuild.test.ts's end-to-end suite) with the
+  // test post written only inside that copy, so there is nothing to leak
+  // into the real tree even under a hard kill.
   jest.setTimeout(60000);
 
   const tempPostName = 'URL-SANITIZER-PLUGIN-TEST-TEMP.md';
-  const tempPostPath = path.join(projectRoot, 'src/pages/posts', tempPostName);
+  const realPostsDir = path.join(projectRoot, 'src/pages/posts');
+  let scratchProjectDir: string;
   let scratchOutDir: string;
 
   const body = [
@@ -195,29 +207,82 @@ describe('end-to-end: a real `astro build` blocks every bypass payload (RT-2026-
     '---\n\n';
 
   beforeAll(() => {
-    // Defensive cleanup, matching the existing pattern in
-    // test/ts/CspBuild.test.ts: a stale test-recipe.md from another suite
-    // (or a previous failed run of this one) must not break this build.
-    fs.rmSync(path.join(projectRoot, 'src/pages/posts/test-recipe.md'), { force: true });
-    fs.rmSync(tempPostPath, { force: true });
+    // Build a fully isolated, throwaway copy of the project: its own root
+    // (so `.astro` cache / `srcDir` / `outDir` all resolve underneath it,
+    // rather than mixing an out-of-root srcDir into the real root — the
+    // latter breaks Astro's Vite integration with an unrelated "No cached
+    // compile metadata found" error), with `node_modules` symlinked to
+    // avoid duplicating it. The real src/pages/posts/ is only ever *read*
+    // (copied), never written to.
+    scratchProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ags-url-sanitizer-root-'));
+    fs.cpSync(path.join(projectRoot, 'src'), path.join(scratchProjectDir, 'src'), {
+      recursive: true,
+    });
+    if (fs.existsSync(path.join(projectRoot, 'public'))) {
+      fs.cpSync(path.join(projectRoot, 'public'), path.join(scratchProjectDir, 'public'), {
+        recursive: true,
+      });
+    }
+    fs.symlinkSync(
+      path.join(projectRoot, 'node_modules'),
+      path.join(scratchProjectDir, 'node_modules'),
+      'dir'
+    );
+    fs.copyFileSync(
+      path.join(projectRoot, 'package.json'),
+      path.join(scratchProjectDir, 'package.json')
+    );
+    fs.copyFileSync(
+      path.join(projectRoot, 'tsconfig.json'),
+      path.join(scratchProjectDir, 'tsconfig.json')
+    );
 
-    fs.writeFileSync(tempPostPath, frontmatter + body);
+    // Defensive cleanup of the copy (mirrors the pre-existing
+    // test-recipe.md defensive cleanup pattern used elsewhere in this
+    // suite): a stale test-recipe.md must not break this build either.
+    fs.rmSync(path.join(scratchProjectDir, 'src/pages/posts/test-recipe.md'), { force: true });
+
+    fs.writeFileSync(
+      path.join(scratchProjectDir, 'src/pages/posts', tempPostName),
+      frontmatter + body
+    );
+
     scratchOutDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ags-url-sanitizer-build-'));
 
-    // Uses the real astro.config.mjs (which now wires up
-    // createUrlSchemeSanitizerPlugin via markdown.processor) with only the
-    // output directory overridden via CLI flag, so the deploy repo
-    // (outDir: ../silassentinel.github.io/) is never touched.
-    execFileSync(
-      path.join(projectRoot, 'node_modules/.bin/astro'),
-      ['build', '--outDir', scratchOutDir],
-      { cwd: projectRoot, stdio: 'pipe' }
+    // Config lives inside the scratch project root, but points back at the
+    // real scripts/sanitize-url-schemes.mjs via an absolute path (rather
+    // than copying scripts/ too) — otherwise identical to astro.config.mjs.
+    fs.writeFileSync(
+      path.join(scratchProjectDir, 'astro.config.mjs'),
+      `import { defineConfig } from 'astro/config';\n` +
+        `import preact from '@astrojs/preact';\n` +
+        `import { satteri } from '@astrojs/markdown-satteri';\n` +
+        `import { createUrlSchemeSanitizerPlugin } from ${JSON.stringify(pluginPath)};\n` +
+        `export default defineConfig({\n` +
+        `  site: 'https://benjamindegryse.be/',\n` +
+        `  base: '/',\n` +
+        `  output: 'static',\n` +
+        `  compressHTML: true,\n` +
+        `  integrations: [preact()],\n` +
+        `  outDir: ${JSON.stringify(scratchOutDir)},\n` +
+        `  markdown: { processor: satteri({ hastPlugins: [createUrlSchemeSanitizerPlugin] }) },\n` +
+        `  security: { csp: true }\n` +
+        `});\n`
     );
+
+    execFileSync(path.join(projectRoot, 'node_modules/.bin/astro'), ['build'], {
+      cwd: scratchProjectDir,
+      stdio: 'pipe',
+    });
   });
 
   afterAll(() => {
-    fs.rmSync(tempPostPath, { force: true });
+    fs.rmSync(scratchProjectDir, { recursive: true, force: true });
     fs.rmSync(scratchOutDir, { recursive: true, force: true });
+  });
+
+  test('the real src/pages/posts/ directory was never written to', () => {
+    expect(fs.existsSync(path.join(realPostsDir, tempPostName))).toBe(false);
   });
 
   test('the built page contains no live javascript:/data: href or src', () => {
