@@ -195,14 +195,14 @@ describe('validateRecipeFrontmatter (RT-2026-07-30-02)', () => {
       goodFrontmatter + '\n![p](../../../../../../../../home/victim/Pictures/private.png)\n';
     const result = validate(bad);
     expect(result.valid).toBe(false);
-    expect(result.reason).toMatch(/image destination/i);
+    expect(result.reason).toMatch(/images are not currently supported/i);
   });
 
   test('rejects an unresolvable relative image path (the DoS half of RT-2026-09-06-06)', () => {
     const bad = goodFrontmatter + '\n![x](./photo.png)\n';
     const result = validate(bad);
     expect(result.valid).toBe(false);
-    expect(result.reason).toMatch(/image destination/i);
+    expect(result.reason).toMatch(/images are not currently supported/i);
   });
 
   test('rejects a protocol-relative or data: image destination', () => {
@@ -212,20 +212,92 @@ describe('validateRecipeFrontmatter (RT-2026-07-30-02)', () => {
     ).toBe(false);
   });
 
-  test('still accepts a legitimate remote http(s) image destination', () => {
-    const good = goodFrontmatter + '\n![p](https://example.com/photo.png)\n';
-    const result = validate(good);
-    expect(result.valid).toBe(true);
+  // RT-2026-09-06-08: a "does this destination look like http(s)?" validator
+  // is bypassable because CommonMark's inline-image alt text can contain a
+  // nested image or a backslash-escaped `]`, making the validator read a
+  // decoy destination while the real parser resolves a different one. The
+  // fix (round 5) stops trying to validate destinations at all and instead
+  // rejects any body containing `![`, so even a syntactically legitimate
+  // remote image destination is now rejected — there is no allow-list left
+  // to bypass.
+  test('rejects a legitimate-looking remote http(s) image destination too (round 5: images are rejected outright)', () => {
+    const content = goodFrontmatter + '\n![p](https://example.com/photo.png)\n';
+    const result = validate(content);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toMatch(/images are not currently supported/i);
   });
 
-  test('still accepts a legitimate remote image destination with a title', () => {
-    const good = goodFrontmatter + '\n![p](https://example.com/photo.png "a title")\n';
-    const result = validate(good);
-    expect(result.valid).toBe(true);
+  test('rejects a legitimate-looking remote image destination with a title too', () => {
+    const content = goodFrontmatter + '\n![p](https://example.com/photo.png "a title")\n';
+    const result = validate(content);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toMatch(/images are not currently supported/i);
   });
 
   test('accepts recipe content with no images at all (matches all 34 real published recipes)', () => {
     expect(validate(goodFrontmatter).valid).toBe(true);
+  });
+
+  test('none of the 34 real recipes currently published under src/pages/posts/ are rejected for image reasons (confirms the "no real recipe uses images" premise for real, not just as claimed)', () => {
+    // This asserts against the image check specifically, not full
+    // validity: one real published file (Smoked-bacon-burgers.md) has a
+    // pre-existing, unrelated stray-quote tag that already fails the tag
+    // allow-list (see the "rejects a stray-quote tag (matches the
+    // committed `burgers"` bug)" test above) — that is a separate,
+    // out-of-scope data issue, not something this image fix should touch
+    // or mask.
+    const recipePostsDir = path.join(projectRoot, 'src/pages/posts');
+    const realRecipeFiles = fs
+      .readdirSync(recipePostsDir)
+      .filter((name) => name.endsWith('.md'));
+
+    expect(realRecipeFiles.length).toBeGreaterThanOrEqual(34);
+
+    for (const fileName of realRecipeFiles) {
+      const content = fs.readFileSync(path.join(recipePostsDir, fileName), 'utf8');
+      expect(content.includes('![')).toBe(false);
+    }
+  });
+
+  describe('RT-2026-09-06-08: all 8 confirmed bypass payloads are rejected outright', () => {
+    // Each of these previously satisfied the old "http(s) destination
+    // immediately follows the image marker" regex while the real CommonMark
+    // parser resolved a different, unvalidated destination (a nested image
+    // or backslash-escaped `]` inside the alt text). None of them can avoid
+    // containing the literal `![` sequence, so the round-5 fix rejects all
+    // of them trivially.
+    const bypassPayloads: Array<[string, string]> = [
+      [
+        'escaped-] with decoy http destination, traversal as real destination',
+        '![a\\](http://x/)](../EVIL.png)',
+      ],
+      [
+        'escaped-] with deep traversal path',
+        '![a\\](http://x/)](../../../../../../../../home/victim/Pictures/private.png)',
+      ],
+      ['nested image, decoy then traversal', '![z ![i](http://x/i.png)](../EVIL.png)'],
+      [
+        'nested image with deep traversal',
+        '![z ![i](http://x/i.png)](../../../../../../../../home/victim/Pictures/private.png)',
+      ],
+      [
+        'triple-nested images',
+        '![p ![q ![r](http://x/)](http://y/)](../EVIL.png)',
+      ],
+      ['escaped-] with a title on the decoy', '![a\\](http://x/ "t")](../EVIL.png)'],
+      [
+        'two escaped-] images on one line',
+        '![a\\](http://x/)](../EVIL1.png) ![b\\](http://y/)](../EVIL2.png)',
+      ],
+      ['http(s)-prefixed but unparseable destination', '![p](https://[/EVIL.png)'],
+    ];
+
+    test.each(bypassPayloads)('%s', (_label, payload) => {
+      const bad = goodFrontmatter + '\n' + payload + '\n';
+      const result = validate(bad);
+      expect(result.valid).toBe(false);
+      expect(result.reason).toMatch(/images are not currently supported/i);
+    });
   });
 
   test('an !!omap YAML payload no longer shows quadratic parse time', () => {

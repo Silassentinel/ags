@@ -217,47 +217,51 @@ function validateRecipeFrontmatter(content, fileName) {
 }
 
 /**
- * Reject any markdown image destination that is not a fully-qualified
- * http:/https: URL. See RT-2026-09-06-06: Astro/Sätteri's `collect-images`
- * mdast plugin turns every non-remote, non-`/`-prefixed markdown image
- * destination into a real Vite `import` of that file path with no
- * project-root confinement, before this script's build ever runs and
- * before the AST URL-scheme plugin (scripts/sanitize-url-schemes.mjs,
- * which only inspects the already-rendered `<a>`/`<img>` HTML and cannot
- * see or stop the earlier import) gets a chance to run. Concretely, a
- * hostile commit in the untrusted Recipes repo can use a relative image
- * destination such as `![p](../../../../../../../../home/<user>/Pictures/
- * private.png)` to make the build read an arbitrary local file off the
- * maintainer's machine, convert it with sharp, and publish it into the
- * public deploy repo — or use an unresolvable relative path to
- * permanently break `npx astro build` with `[UNRESOLVED_IMPORT]`.
+ * Reject any recipe body that contains markdown image syntax at all. See
+ * RT-2026-09-06-06 / -08: Astro/Sätteri's `collect-images` mdast plugin
+ * turns every non-remote, non-`/`-prefixed markdown image destination into
+ * a real Vite `import` of that file path with no project-root confinement,
+ * before this script's build ever runs and before the AST URL-scheme
+ * plugin (scripts/sanitize-url-schemes.mjs, which only inspects the
+ * already-rendered `<a>`/`<img>` HTML and cannot see or stop the earlier
+ * import) gets a chance to run. A hostile commit in the untrusted Recipes
+ * repo can use a relative image destination such as
+ * `![p](../../../../../../../../home/<user>/Pictures/private.png)` to make
+ * the build read an arbitrary local file off the maintainer's machine,
+ * convert it with sharp, and publish it into the public deploy repo — or
+ * use an unresolvable relative path to permanently break `npx astro build`
+ * with `[UNRESOLVED_IMPORT]`.
+ *
+ * Two previous attempts at this function tried to validate the image
+ * *destination* with a regex over markdown source (requiring a
+ * fully-qualified `http(s)://` URL immediately following an `![...]`
+ * marker). Both were bypassed because CommonMark's inline-image alt text
+ * can contain a nested image or a backslash-escaped `]`
+ * (`![a\](http://x/)](../EVIL.png)`), which makes a regex's `[^\]]*` stop
+ * at the wrong `]` — it reads a decoy destination while the real parser
+ * resolves a different, unvalidated one as the actual local image import
+ * (RT-2026-09-06-08, eight confirmed bypass payloads). Regexing markdown
+ * source to guess what a real parser will do is the root cause, not a
+ * fixable detail of the regex.
  *
  * None of the 34 currently published recipes use markdown image syntax at
  * all (checked directly against every real file in src/pages/posts/), so
- * this is calibrated as a strict allow-list rather than a path-containment
- * check: only a fully-qualified `http:`/`https:` image destination is
- * accepted. Anything else — a relative path, a protocol-relative URL, a
- * `data:`/`javascript:` URI, or a reference-style image (whose destination
- * lives in a separate `[label]: url` definition elsewhere in the document,
- * which this line-local check cannot see) — causes the whole recipe to be
- * rejected, matching the "not in real use today, so disallow" calibration
- * used elsewhere in this file (e.g. `isSafeLayout`).
+ * rather than attempt a fourth parser-agreement fix, this rejects any
+ * recipe body containing the literal two-character sequence `![` at all —
+ * there is nothing for a parser to disagree with the validator about if
+ * the validator never attempts to interpret the syntax. If recipe
+ * markdown images become a real, needed feature in the future, that is a
+ * separate feature-plus-proper-fix to be scoped deliberately, not a rule to
+ * relax here.
  * @param {String} content Markdown body (frontmatter already stripped)
  * @returns {{valid: boolean, reason?: string}}
  */
 function validateMarkdownImageDestinations(content) {
-  const imageMarkerRegex = /!\[[^\]]*\]/g;
-  let match;
-  while ((match = imageMarkerRegex.exec(content)) !== null) {
-    const rest = content.slice(match.index + match[0].length);
-    const destinationMatch = /^\(\s*<?(https?:\/\/[^\s)>]+)>?(?:\s+"[^"]*")?\s*\)/i.exec(rest);
-    if (!destinationMatch) {
-      return {
-        valid: false,
-        reason:
-          'Markdown image destination must be a fully-qualified http(s) URL (relative/reference-style image paths are not supported)',
-      };
-    }
+  if (content.includes('![')) {
+    return {
+      valid: false,
+      reason: 'Recipe images are not currently supported — remove any markdown image syntax',
+    };
   }
   return { valid: true };
 }

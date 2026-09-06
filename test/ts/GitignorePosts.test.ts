@@ -14,6 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const projectRoot = path.resolve(__dirname, '../..');
+const targetRelPath = 'src/pages/posts/__gitignore-regression-test.md';
 
 describe('.gitignore src/pages/posts rule', () => {
   test('.gitignore no longer uses the broken "./" relative prefix', () => {
@@ -22,23 +23,29 @@ describe('.gitignore src/pages/posts rule', () => {
     expect(gitignore).toMatch(/^src\/pages\/posts\/$/m);
   });
 
-  test('a new file under src/pages/posts is now ignored by git (repro from RT-2026-07-30-03)', () => {
-    const target = path.join(projectRoot, 'src/pages/posts', '__gitignore-regression-test.md');
-    fs.writeFileSync(target, '# temp file for gitignore regression test\n');
+  // RT-2026-09-06-09: this test used to `writeFileSync` a real,
+  // frontmatter-less file into the tracked `src/pages/posts/` directory
+  // (cleaned up only in a `finally`), so a process kill mid-test (or a
+  // busy-poll observing the directory during the window) could leave a
+  // stray, build-breaking file behind that `git status` can't see (the
+  // directory is gitignored). `git check-ignore` is a pure pattern check —
+  // it does not require the path to exist on disk — so the file never
+  // needs to be created at all to verify the ignore rule matches it.
+  test('a new file under src/pages/posts would be ignored by git (repro from RT-2026-07-30-03), without creating any real file', () => {
+    expect(fs.existsSync(path.join(projectRoot, targetRelPath))).toBe(false);
 
-    try {
-      // git check-ignore exits 0 when the path matches an ignore rule, and
-      // prints the matching rule with -v. It exits 1 for untracked, not
-      // ignored paths — which was the bug being tested for here.
-      const output = execFileSync(
-        'git',
-        ['check-ignore', '-v', 'src/pages/posts/__gitignore-regression-test.md'],
-        { cwd: projectRoot, encoding: 'utf8' }
-      );
-      expect(output).toContain('.gitignore');
-      expect(output).toContain('src/pages/posts/');
-    } finally {
-      fs.rmSync(target, { force: true });
-    }
+    // git check-ignore exits 0 when the path matches an ignore rule, and
+    // prints the matching rule with -v. It exits 1 for untracked, not
+    // ignored paths — which was the bug being tested for here. It works
+    // on a path string alone; nothing is written to disk.
+    const output = execFileSync('git', ['check-ignore', '-v', targetRelPath], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+    });
+    expect(output).toContain('.gitignore');
+    expect(output).toContain('src/pages/posts/');
+
+    // The real directory was never touched by this test.
+    expect(fs.existsSync(path.join(projectRoot, targetRelPath))).toBe(false);
   });
 });
