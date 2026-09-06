@@ -128,120 +128,31 @@ async function fetchRecipeContent(file, repoConfig) {
  * leading `<` to `&lt;`. This renders the payload as inert text instead of
  * markup while leaving normal markdown/prose untouched.
  *
+ * Markdown-native link/image URL schemes (`[text](javascript:...)`) are
+ * NOT handled here. That control used to live in this function as a
+ * markdown-source regex (`sanitizeMarkdownUrls()`), but a regex over raw
+ * source has to reimplement CommonMark's escape/entity/reference-resolution
+ * rules to know what a browser will actually receive, and disagreeing with
+ * the real parser is a bypass by construction — confirmed for
+ * backslash-escaped colons, uppercase hex character references, and
+ * reference definitions nested inside blockquotes/list items (see
+ * .security/findings.md RT-2026-09-06-04), plus a quadratic-time DoS in the
+ * regex itself (RT-2026-09-06-05). That check now runs as a Sätteri
+ * `hastPlugins` plugin (see scripts/sanitize-url-schemes.mjs, wired up in
+ * astro.config.mjs's `markdown.processor`) operating on the parsed HTML AST
+ * *after* Astro's markdown parser has resolved every escape/entity/
+ * reference, which is the same string a browser will receive and leaves no
+ * source-level parsing to disagree with.
+ *
  * See .security/findings.md RT-2026-07-30-01.
  * @param {String} content Raw markdown content from the external repo
  * @returns {String} Sanitized markdown content
  */
 function sanitizeMarkdownContent(content) {
-  // Neutralise `javascript:`/`data:`/etc. markdown link & image destinations
-  // *before* the raw-HTML escape below, since that escape only catches
-  // literal `<tag>` markup and does nothing for plain markdown syntax like
-  // `[text](javascript:...)` (see RT-2026-09-06-01 / RT-2026-07-30-01).
-  const withSafeUrls = sanitizeMarkdownUrls(content);
-
   // Matches `<` followed by a tag-name start character, a closing-tag `/`,
   // a comment `!`, or a processing instruction `?` — i.e. anything that a
   // browser/HTML parser would treat as the start of a tag or comment.
-  return withSafeUrls.replace(/<(?=[a-zA-Z/!?])/g, '&lt;');
-}
-
-/**
- * Decode the things that can obscure a URL's scheme from a plain string
- * check: numeric/hex HTML character references (`&#115;` / `&#x73;`, which
- * a markdown renderer decodes before emitting the `href`/`src` attribute)
- * and a small set of named references relevant to URL syntax (`&colon;`),
- * then strip embedded ASCII control characters (tabs, newlines, carriage
- * returns, NUL, etc.) that could otherwise be spliced into the middle of a
- * scheme name (`java\tscript:`, `java\x00script:`) purely to dodge a
- * literal-string match while still being ignored/collapsed by a real URL
- * parser. This mirrors what a browser effectively does before treating the
- * string as a URL, so the scheme check below sees what the browser sees.
- * @param {String} url
- * @returns {String} normalized URL, safe to run a scheme check against
- */
-function normalizeUrlForSchemeCheck(url) {
-  let decoded = url
-    .replace(/&#x([0-9a-fA-F]+);?/g, (_m, hex) => String.fromCodePoint(parseInt(hex, 16)))
-    .replace(/&#(\d+);?/g, (_m, dec) => String.fromCodePoint(parseInt(dec, 10)))
-    .replace(/&colon;/gi, ':')
-    .replace(/&semi;/gi, ';')
-    .replace(/&amp;/gi, '&');
-
-  // Strip ASCII control characters (0x00-0x1F, 0x7F).
-  decoded = decoded.replace(/[\x00-\x1f\x7f]/g, '');
-
-  return decoded.trim();
-}
-
-/**
- * Allow-list of URL schemes that are safe to leave as a live, clickable
- * link/image destination. A URL with no scheme at all (a bare relative
- * path or fragment, e.g. `./image.png`, `#section`, `../other-page`) is
- * also considered safe.
- * @param {String} normalizedUrl Output of normalizeUrlForSchemeCheck
- * @returns {boolean}
- */
-function isSafeUrlScheme(normalizedUrl) {
-  const schemeMatch = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(normalizedUrl);
-  if (!schemeMatch) {
-    return true;
-  }
-  const scheme = schemeMatch[1].toLowerCase();
-  return scheme === 'http' || scheme === 'https' || scheme === 'mailto';
-}
-
-/** Strip a markdown `<...>`-wrapped URL, if present. */
-function unwrapAngleBrackets(raw) {
-  if (raw.length >= 2 && raw[0] === '<' && raw[raw.length - 1] === '>') {
-    return { inner: raw.slice(1, -1), wrapped: true };
-  }
-  return { inner: raw, wrapped: false };
-}
-
-// A destination token as markdown allows it: either `<...>`-wrapped, or a
-// run of non-whitespace characters that may contain one level of balanced
-// parentheses (so `javascript:alert(document.domain)` is captured whole
-// instead of splitting on its inner `)`).
-const URL_TOKEN_SOURCE = '<[^>\\n]*>|(?:[^\\s()]|\\([^()]*\\))+';
-
-const BLOCKED_URL_PLACEHOLDER = '#blocked-by-sanitizer';
-
-/**
- * Neutralise markdown link/image destinations that use a disallowed URL
- * scheme. Astro's markdown pipeline emits `[text](url)` / `![alt](url)`
- * destinations verbatim into `href`/`src` attributes with no scheme
- * validation of its own, so `[text](javascript:...)` — no raw HTML
- * required at all — becomes a live, clickable/loadable XSS vector. Handles
- * inline `](url)` syntax and reference-style `[label]: url` definitions,
- * checking the decoded/normalized form of the URL so HTML-entity
- * obfuscation (`java&#115;cript:`) and control-character tricks
- * (`java\tscript:`, `java\x00script:`) are caught too.
- *
- * See .security/findings.md RT-2026-07-30-01 / RT-2026-09-06-01.
- * @param {String} content Markdown content
- * @returns {String} Content with unsafe link/image destinations neutralised
- */
-function sanitizeMarkdownUrls(content) {
-  const neutralize = (match, prefix, rawUrl) => {
-    const { inner, wrapped } = unwrapAngleBrackets(rawUrl);
-    const normalized = normalizeUrlForSchemeCheck(inner);
-    if (isSafeUrlScheme(normalized)) {
-      return match;
-    }
-    return `${prefix}${wrapped ? `<${BLOCKED_URL_PLACEHOLDER}>` : BLOCKED_URL_PLACEHOLDER}`;
-  };
-
-  // Inline destinations: `](url ...)` / `![alt](url ...)`.
-  let result = content.replace(new RegExp(`(\\]\\()\\s*(${URL_TOKEN_SOURCE})`, 'g'), neutralize);
-
-  // Reference-style definitions: `[label]: url ...` (up to 3 leading
-  // spaces, per CommonMark) at the start of a line.
-  result = result.replace(
-    new RegExp(`^([ \\t]{0,3}\\[[^\\]]+\\]:\\s*)(${URL_TOKEN_SOURCE})`, 'gm'),
-    neutralize
-  );
-
-  return result;
+  return content.replace(/<(?=[a-zA-Z/!?])/g, '&lt;');
 }
 
 /**
@@ -695,7 +606,6 @@ if (isMainModule) {
 
 export {
   sanitizeMarkdownContent,
-  sanitizeMarkdownUrls,
   validateRecipeFrontmatter,
   isSafeTag,
   isSafeLayout,

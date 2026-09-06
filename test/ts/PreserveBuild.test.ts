@@ -65,73 +65,48 @@ describe('sanitizeMarkdownContent (RT-2026-07-30-01)', () => {
   });
 });
 
-describe('sanitizeMarkdownContent neutralises unsafe link/image URL schemes (RT-2026-09-06-01 / RT-2026-07-30-01 reopened)', () => {
-  // Exact repro payloads from the red-team re-verification pass.
-  const cases: Array<[string, string]> = [
-    ['plain javascript: link', "[CLICK-ME-JSURI](javascript:alert(document.domain))"],
-    ['javascript: image', '![imgjsuri](javascript:alert(1))'],
-    ['entity-obfuscated javascript:', "[jsuri-obfuscated](java&#115;cript:alert('obf'))"],
-    ['data: URI', '[datauri](data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==)'],
-    ['NUL-byte-obfuscated javascript:', '[nulled](java\x00script:alert(1))'],
-    ['reference-style definition', '[refstyle-def][1]\n\n[1]: javascript:alert(1)'],
-  ];
+describe('sanitizeMarkdownContent no longer does URL-scheme filtering (moved to a rehype-style AST plugin, RT-2026-09-06-04 / RT-2026-09-06-05)', () => {
+  // The markdown-source regex sanitizer (sanitizeMarkdownUrls()) was removed
+  // entirely: it was bypassable (backslash-escaped colons, uppercase hex
+  // character references, reference definitions nested in blockquotes/list
+  // items — RT-2026-09-06-04) and itself a quadratic-time build DoS
+  // (RT-2026-09-06-05). URL-scheme validation now happens in
+  // scripts/sanitize-url-schemes.mjs, a Sätteri hastPlugins plugin wired up
+  // in astro.config.mjs's markdown.processor — see
+  // test/ts/UrlSchemeSanitizerPlugin.test.ts for its coverage.
+  //
+  // This block only asserts sanitizeMarkdownContent() no longer touches
+  // markdown link/image syntax at all (that responsibility moved out), and
+  // that the DoS input the old regex choked on is now unaffected by this
+  // function.
 
-  test.each(cases)('%s is neutralised, not left live', (_label, payload) => {
+  test('does not alter markdown link/image syntax (no source-level URL filtering left)', () => {
+    const content =
+      "[js](javascript:alert(1))\n\n" +
+      '![img](javascript:alert(1))\n\n' +
+      '[normal](https://example.com/page)\n';
     const result = runSnippet(`
       import { sanitizeMarkdownContent } from ${JSON.stringify(scriptPath)};
-      const sanitized = sanitizeMarkdownContent(${JSON.stringify(payload)});
-      console.log(JSON.stringify({
-        sanitized,
-        containsJsScheme: /javascript:/i.test(sanitized),
-        containsDataScheme: /data:/i.test(sanitized),
-      }));
+      console.log(JSON.stringify({ sanitized: sanitizeMarkdownContent(${JSON.stringify(content)}) }));
     `);
-    expect(result.containsJsScheme).toBe(false);
-    expect(result.containsDataScheme).toBe(false);
+    // sanitizeMarkdownContent() now only escapes raw HTML tag openers; plain
+    // markdown link/image syntax (safe or not) passes through byte-for-byte,
+    // because the AST-level plugin is the authoritative control now.
+    expect(result.sanitized).toBe(content);
   });
 
-  test('does not touch safe schemes (http/https/mailto) or relative links', () => {
-    const safe =
-      '[normal](https://example.com/page)\n\n' +
-      '[secure](http://example.com/page)\n\n' +
-      '[email](mailto:a@b.com)\n\n' +
-      '[relative](./other-post)\n\n' +
-      '[anchor](#section)\n';
+  test('the former quadratic-time DoS input (RT-2026-09-06-05 repro) is now fast', () => {
     const result = runSnippet(`
       import { sanitizeMarkdownContent } from ${JSON.stringify(scriptPath)};
-      console.log(JSON.stringify({ sanitized: sanitizeMarkdownContent(${JSON.stringify(safe)}) }));
+      const content = '[a\\n'.repeat(170600); // 511,800 bytes, under the 512KB cap
+      const start = Date.now();
+      sanitizeMarkdownContent(content);
+      console.log(JSON.stringify({ elapsedMs: Date.now() - start, bytes: Buffer.byteLength(content) }));
     `);
-    expect(result.sanitized).toBe(safe);
-  });
-
-  test('end-to-end: rendered HTML contains no live javascript:/data: href or src', async () => {
-    const payload =
-      "[CLICK-ME-JSURI](javascript:alert(document.domain))\n\n" +
-      '![imgjsuri](javascript:alert(1))\n\n' +
-      "[jsuri-obfuscated](java&#115;cript:alert('obf'))\n\n" +
-      '[datauri](data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==)\n';
-
-    const output = execFileSync(
-      'node',
-      [
-        '--input-type=module',
-        '-e',
-        `
-        import { sanitizeMarkdownContent } from ${JSON.stringify(scriptPath)};
-        import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
-        const processor = await createSatteriMarkdownProcessor();
-        const sanitized = sanitizeMarkdownContent(${JSON.stringify(payload)});
-        const rendered = await processor.render(sanitized);
-        console.log(JSON.stringify({ html: rendered.code }));
-        `,
-      ],
-      { cwd: projectRoot, encoding: 'utf8' }
-    );
-    const { html } = JSON.parse(output.trim().split('\n').pop() as string);
-
-    expect(html).not.toMatch(/href="javascript:/i);
-    expect(html).not.toMatch(/src="javascript:/i);
-    expect(html).not.toMatch(/href="data:/i);
+    expect(result.bytes).toBe(511800);
+    // Previously measured at 32.8s with the removed regex; the vulnerable
+    // regex no longer exists, so this should be near-instant.
+    expect(result.elapsedMs).toBeLessThan(2000);
   });
 });
 
