@@ -98,12 +98,22 @@ async function fetchRecipeContent(file, repoConfig) {
   console.log(`📥 Fetching recipe: ${file.name} from ${rawUrl}`);
   
   const rawResponse = await fetch(rawUrl);
-  
+
   if (!rawResponse.ok) {
     throw new Error(`Failed to fetch recipe content for ${file.name}: ${rawResponse.statusText}`);
   }
-  
-  return await rawResponse.text();
+
+  const text = await rawResponse.text();
+
+  // Reject oversized content before it ever reaches YAML parsing (see
+  // MAX_RECIPE_FILE_SIZE_BYTES / RT-2026-09-06-02).
+  if (Buffer.byteLength(text, 'utf8') > MAX_RECIPE_FILE_SIZE_BYTES) {
+    throw new Error(
+      `Recipe ${file.name} exceeds maximum allowed size of ${MAX_RECIPE_FILE_SIZE_BYTES} bytes`
+    );
+  }
+
+  return text;
 }
 
 /**
@@ -123,10 +133,115 @@ async function fetchRecipeContent(file, repoConfig) {
  * @returns {String} Sanitized markdown content
  */
 function sanitizeMarkdownContent(content) {
+  // Neutralise `javascript:`/`data:`/etc. markdown link & image destinations
+  // *before* the raw-HTML escape below, since that escape only catches
+  // literal `<tag>` markup and does nothing for plain markdown syntax like
+  // `[text](javascript:...)` (see RT-2026-09-06-01 / RT-2026-07-30-01).
+  const withSafeUrls = sanitizeMarkdownUrls(content);
+
   // Matches `<` followed by a tag-name start character, a closing-tag `/`,
   // a comment `!`, or a processing instruction `?` — i.e. anything that a
   // browser/HTML parser would treat as the start of a tag or comment.
-  return content.replace(/<(?=[a-zA-Z/!?])/g, '&lt;');
+  return withSafeUrls.replace(/<(?=[a-zA-Z/!?])/g, '&lt;');
+}
+
+/**
+ * Decode the things that can obscure a URL's scheme from a plain string
+ * check: numeric/hex HTML character references (`&#115;` / `&#x73;`, which
+ * a markdown renderer decodes before emitting the `href`/`src` attribute)
+ * and a small set of named references relevant to URL syntax (`&colon;`),
+ * then strip embedded ASCII control characters (tabs, newlines, carriage
+ * returns, NUL, etc.) that could otherwise be spliced into the middle of a
+ * scheme name (`java\tscript:`, `java\x00script:`) purely to dodge a
+ * literal-string match while still being ignored/collapsed by a real URL
+ * parser. This mirrors what a browser effectively does before treating the
+ * string as a URL, so the scheme check below sees what the browser sees.
+ * @param {String} url
+ * @returns {String} normalized URL, safe to run a scheme check against
+ */
+function normalizeUrlForSchemeCheck(url) {
+  let decoded = url
+    .replace(/&#x([0-9a-fA-F]+);?/g, (_m, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);?/g, (_m, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&colon;/gi, ':')
+    .replace(/&semi;/gi, ';')
+    .replace(/&amp;/gi, '&');
+
+  // Strip ASCII control characters (0x00-0x1F, 0x7F).
+  decoded = decoded.replace(/[\x00-\x1f\x7f]/g, '');
+
+  return decoded.trim();
+}
+
+/**
+ * Allow-list of URL schemes that are safe to leave as a live, clickable
+ * link/image destination. A URL with no scheme at all (a bare relative
+ * path or fragment, e.g. `./image.png`, `#section`, `../other-page`) is
+ * also considered safe.
+ * @param {String} normalizedUrl Output of normalizeUrlForSchemeCheck
+ * @returns {boolean}
+ */
+function isSafeUrlScheme(normalizedUrl) {
+  const schemeMatch = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(normalizedUrl);
+  if (!schemeMatch) {
+    return true;
+  }
+  const scheme = schemeMatch[1].toLowerCase();
+  return scheme === 'http' || scheme === 'https' || scheme === 'mailto';
+}
+
+/** Strip a markdown `<...>`-wrapped URL, if present. */
+function unwrapAngleBrackets(raw) {
+  if (raw.length >= 2 && raw[0] === '<' && raw[raw.length - 1] === '>') {
+    return { inner: raw.slice(1, -1), wrapped: true };
+  }
+  return { inner: raw, wrapped: false };
+}
+
+// A destination token as markdown allows it: either `<...>`-wrapped, or a
+// run of non-whitespace characters that may contain one level of balanced
+// parentheses (so `javascript:alert(document.domain)` is captured whole
+// instead of splitting on its inner `)`).
+const URL_TOKEN_SOURCE = '<[^>\\n]*>|(?:[^\\s()]|\\([^()]*\\))+';
+
+const BLOCKED_URL_PLACEHOLDER = '#blocked-by-sanitizer';
+
+/**
+ * Neutralise markdown link/image destinations that use a disallowed URL
+ * scheme. Astro's markdown pipeline emits `[text](url)` / `![alt](url)`
+ * destinations verbatim into `href`/`src` attributes with no scheme
+ * validation of its own, so `[text](javascript:...)` — no raw HTML
+ * required at all — becomes a live, clickable/loadable XSS vector. Handles
+ * inline `](url)` syntax and reference-style `[label]: url` definitions,
+ * checking the decoded/normalized form of the URL so HTML-entity
+ * obfuscation (`java&#115;cript:`) and control-character tricks
+ * (`java\tscript:`, `java\x00script:`) are caught too.
+ *
+ * See .security/findings.md RT-2026-07-30-01 / RT-2026-09-06-01.
+ * @param {String} content Markdown content
+ * @returns {String} Content with unsafe link/image destinations neutralised
+ */
+function sanitizeMarkdownUrls(content) {
+  const neutralize = (match, prefix, rawUrl) => {
+    const { inner, wrapped } = unwrapAngleBrackets(rawUrl);
+    const normalized = normalizeUrlForSchemeCheck(inner);
+    if (isSafeUrlScheme(normalized)) {
+      return match;
+    }
+    return `${prefix}${wrapped ? `<${BLOCKED_URL_PLACEHOLDER}>` : BLOCKED_URL_PLACEHOLDER}`;
+  };
+
+  // Inline destinations: `](url ...)` / `![alt](url ...)`.
+  let result = content.replace(new RegExp(`(\\]\\()\\s*(${URL_TOKEN_SOURCE})`, 'g'), neutralize);
+
+  // Reference-style definitions: `[label]: url ...` (up to 3 leading
+  // spaces, per CommonMark) at the start of a line.
+  result = result.replace(
+    new RegExp(`^([ \\t]{0,3}\\[[^\\]]+\\]:\\s*)(${URL_TOKEN_SOURCE})`, 'gm'),
+    neutralize
+  );
+
+  return result;
 }
 
 /**
@@ -140,6 +255,13 @@ function sanitizeMarkdownContent(content) {
  * @returns {{valid: boolean, reason?: string}}
  */
 function validateRecipeFrontmatter(content, fileName) {
+  if (Buffer.byteLength(content, 'utf8') > MAX_RECIPE_FILE_SIZE_BYTES) {
+    return {
+      valid: false,
+      reason: `Recipe content exceeds maximum allowed size of ${MAX_RECIPE_FILE_SIZE_BYTES} bytes`,
+    };
+  }
+
   let parsed;
   try {
     parsed = matter(content);
@@ -154,6 +276,10 @@ function validateRecipeFrontmatter(content, fileName) {
     if (typeof data[field] !== 'string' || data[field].trim() === '') {
       return { valid: false, reason: `Missing or invalid required field: ${field}` };
     }
+  }
+
+  if (!isSafeLayout(data.layout)) {
+    return { valid: false, reason: `Unsafe or unknown layout path: ${JSON.stringify(data.layout)}` };
   }
 
   if (Number.isNaN(Date.parse(data.pubDate))) {
@@ -187,6 +313,34 @@ function validateRecipeFrontmatter(content, fileName) {
 function isSafeTag(tag) {
   return /^[A-Za-z0-9 _-]+$/.test(tag);
 }
+
+/**
+ * Allow-list for the `layout` frontmatter field. Astro `import()`s this
+ * value as a module path, so an unvalidated string is an arbitrary file
+ * read / build crash vector (e.g. `layout: ../../../../../../etc/passwd`).
+ * Every recipe currently published (see src/pages/posts/*.md) uses exactly
+ * this one layout, so the allow-list only needs the single real path.
+ * @param {String} layout
+ * @returns {boolean}
+ */
+const ALLOWED_RECIPE_LAYOUTS = ['../../layout/Post/MarkdownPostLayout.astro'];
+
+function isSafeLayout(layout) {
+  return ALLOWED_RECIPE_LAYOUTS.includes(layout);
+}
+
+/**
+ * Upper bound on a single fetched recipe file's size, enforced before its
+ * frontmatter is parsed. `validateRecipeFrontmatter()` parses YAML via
+ * gray-matter/js-yaml, which (GHSA-5p4m-2wfm-xmqj) has quadratic-time
+ * `!!omap` resolution with no size limit of its own; an attacker-controlled
+ * recipe file with no cap can stall the build for tens of minutes. Real
+ * recipe files in the source repo are all under 4KB, so 500KB is already
+ * >100x headroom over anything legitimate while keeping worst-case parse
+ * time bounded.
+ * @type {number}
+ */
+const MAX_RECIPE_FILE_SIZE_BYTES = 500 * 1024;
 
 /**
  * Save recipe content to a file
@@ -541,8 +695,11 @@ if (isMainModule) {
 
 export {
   sanitizeMarkdownContent,
+  sanitizeMarkdownUrls,
   validateRecipeFrontmatter,
   isSafeTag,
+  isSafeLayout,
+  MAX_RECIPE_FILE_SIZE_BYTES,
   saveRecipeFile,
   fetchRecipes,
   runAstroBuild,

@@ -7,6 +7,7 @@
 import '@testing-library/jest-dom';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 // Since RecipeFetcher is still in TODO status, we'll create a skeleton test
 // that can be filled in once the implementation is complete
@@ -84,31 +85,37 @@ describe('Recipe Fetcher Functionality', () => {
   });
   
   test('RecipeFetcher should create recipe pages', async () => {
-    // Mock fs module
-    jest.mock('fs', () => ({
-      promises: {
-        writeFile: jest.fn().mockResolvedValue(undefined),
-        mkdir: jest.fn().mockResolvedValue(undefined)
-      }
-    }));
-    
-    // Placeholder for actual implementation
-    const RecipeFetcher = {
-      createRecipePage: async (fileName: string, content: string) => {
-        const outputPath = path.join('src/pages/posts', fileName);
-        await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
-        await fs.promises.writeFile(outputPath, content);
-        return outputPath;
-      }
-    };
-    
-    // This is a placeholder test that will need to be updated
-    // once the actual implementation is complete
-    const mockContent = '# Test Recipe\n\nThis is a test recipe.';
-    
-    // For now, we'll just verify the test runs without errors
-    expect(async () => {
-      await RecipeFetcher.createRecipePage('test-recipe.md', mockContent);
-    }).not.toThrow();
+    // RT-2026-09-06-03: this test used to write a real, frontmatter-less
+    // src/pages/posts/test-recipe.md into the working tree and never
+    // cleaned it up, which broke `astro build` (invalid frontmatter) and
+    // raced with CspBuild.test.ts's real build. Write to an isolated temp
+    // directory instead of the real posts directory, and always clean up.
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recipe-fetcher-test-'));
+    const realPostsDir = path.resolve(__dirname, '../../src/pages/posts');
+
+    try {
+      // Placeholder for actual implementation
+      const RecipeFetcher = {
+        createRecipePage: async (fileName: string, content: string) => {
+          const outputPath = path.join(tempDir, fileName);
+          await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
+          await fs.promises.writeFile(outputPath, content);
+          return outputPath;
+        }
+      };
+
+      const mockContent = '# Test Recipe\n\nThis is a test recipe.';
+
+      const outputPath = await RecipeFetcher.createRecipePage('test-recipe.md', mockContent);
+
+      // The file was written to the temp dir...
+      expect(fs.existsSync(outputPath)).toBe(true);
+      // ...and never touched the real source tree (the exact pollution the
+      // red-team repro flagged: a leaked src/pages/posts/test-recipe.md
+      // breaking `astro build` / racing with CspBuild.test.ts).
+      expect(fs.existsSync(path.join(realPostsDir, 'test-recipe.md'))).toBe(false);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 });

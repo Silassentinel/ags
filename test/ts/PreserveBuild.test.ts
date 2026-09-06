@@ -65,6 +65,76 @@ describe('sanitizeMarkdownContent (RT-2026-07-30-01)', () => {
   });
 });
 
+describe('sanitizeMarkdownContent neutralises unsafe link/image URL schemes (RT-2026-09-06-01 / RT-2026-07-30-01 reopened)', () => {
+  // Exact repro payloads from the red-team re-verification pass.
+  const cases: Array<[string, string]> = [
+    ['plain javascript: link', "[CLICK-ME-JSURI](javascript:alert(document.domain))"],
+    ['javascript: image', '![imgjsuri](javascript:alert(1))'],
+    ['entity-obfuscated javascript:', "[jsuri-obfuscated](java&#115;cript:alert('obf'))"],
+    ['data: URI', '[datauri](data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==)'],
+    ['NUL-byte-obfuscated javascript:', '[nulled](java\x00script:alert(1))'],
+    ['reference-style definition', '[refstyle-def][1]\n\n[1]: javascript:alert(1)'],
+  ];
+
+  test.each(cases)('%s is neutralised, not left live', (_label, payload) => {
+    const result = runSnippet(`
+      import { sanitizeMarkdownContent } from ${JSON.stringify(scriptPath)};
+      const sanitized = sanitizeMarkdownContent(${JSON.stringify(payload)});
+      console.log(JSON.stringify({
+        sanitized,
+        containsJsScheme: /javascript:/i.test(sanitized),
+        containsDataScheme: /data:/i.test(sanitized),
+      }));
+    `);
+    expect(result.containsJsScheme).toBe(false);
+    expect(result.containsDataScheme).toBe(false);
+  });
+
+  test('does not touch safe schemes (http/https/mailto) or relative links', () => {
+    const safe =
+      '[normal](https://example.com/page)\n\n' +
+      '[secure](http://example.com/page)\n\n' +
+      '[email](mailto:a@b.com)\n\n' +
+      '[relative](./other-post)\n\n' +
+      '[anchor](#section)\n';
+    const result = runSnippet(`
+      import { sanitizeMarkdownContent } from ${JSON.stringify(scriptPath)};
+      console.log(JSON.stringify({ sanitized: sanitizeMarkdownContent(${JSON.stringify(safe)}) }));
+    `);
+    expect(result.sanitized).toBe(safe);
+  });
+
+  test('end-to-end: rendered HTML contains no live javascript:/data: href or src', async () => {
+    const payload =
+      "[CLICK-ME-JSURI](javascript:alert(document.domain))\n\n" +
+      '![imgjsuri](javascript:alert(1))\n\n' +
+      "[jsuri-obfuscated](java&#115;cript:alert('obf'))\n\n" +
+      '[datauri](data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==)\n';
+
+    const output = execFileSync(
+      'node',
+      [
+        '--input-type=module',
+        '-e',
+        `
+        import { sanitizeMarkdownContent } from ${JSON.stringify(scriptPath)};
+        import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
+        const processor = await createSatteriMarkdownProcessor();
+        const sanitized = sanitizeMarkdownContent(${JSON.stringify(payload)});
+        const rendered = await processor.render(sanitized);
+        console.log(JSON.stringify({ html: rendered.code }));
+        `,
+      ],
+      { cwd: projectRoot, encoding: 'utf8' }
+    );
+    const { html } = JSON.parse(output.trim().split('\n').pop() as string);
+
+    expect(html).not.toMatch(/href="javascript:/i);
+    expect(html).not.toMatch(/src="javascript:/i);
+    expect(html).not.toMatch(/href="data:/i);
+  });
+});
+
 describe('validateRecipeFrontmatter (RT-2026-07-30-02)', () => {
   const goodFrontmatter =
     "---\n" +
@@ -106,6 +176,57 @@ describe('validateRecipeFrontmatter (RT-2026-07-30-02)', () => {
     const result = validate(bad);
     expect(result.valid).toBe(false);
     expect(result.reason).toMatch(/pubDate/);
+  });
+
+  test('rejects a path-traversal layout value (RT-2026-09-06-02 (a) repro)', () => {
+    const bad = goodFrontmatter.replace(
+      'layout: ../../layout/Post/MarkdownPostLayout.astro',
+      'layout: ../../../../../../../../etc/passwd'
+    );
+    const result = validate(bad);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toMatch(/layout/i);
+  });
+
+  test('rejects any layout value outside the allow-list', () => {
+    const bad = goodFrontmatter.replace(
+      'layout: ../../layout/Post/MarkdownPostLayout.astro',
+      'layout: ../../layout/BaseLayout.astro'
+    );
+    const result = validate(bad);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toMatch(/layout/i);
+  });
+
+  test('rejects oversized content before YAML parsing (RT-2026-09-06-02 (b) repro)', () => {
+    const result = runSnippet(`
+      import { validateRecipeFrontmatter, MAX_RECIPE_FILE_SIZE_BYTES } from ${JSON.stringify(scriptPath)};
+      const oversized = 'x'.repeat(MAX_RECIPE_FILE_SIZE_BYTES + 1);
+      const start = Date.now();
+      const result = validateRecipeFrontmatter(oversized, 'huge.md');
+      console.log(JSON.stringify({ ...result, elapsedMs: Date.now() - start }));
+    `);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toMatch(/size/i);
+    // Rejected on a fast length check, not after an expensive parse attempt.
+    expect(result.elapsedMs).toBeLessThan(1000);
+  });
+
+  test('an !!omap YAML payload no longer shows quadratic parse time', () => {
+    // Reproduces the red-team's GHSA-5p4m-2wfm-xmqj measurement at a size
+    // that would previously take single-digit seconds (quadratic growth);
+    // with the js-yaml override in place this should stay well under a
+    // second.
+    const result = runSnippet(`
+      import { validateRecipeFrontmatter } from ${JSON.stringify(scriptPath)};
+      let entries = '';
+      for (let i = 0; i < 10000; i++) entries += \`  - k\${i}: v\\n\`;
+      const content = '---\\nlayout: ../../layout/Post/MarkdownPostLayout.astro\\ntitle: t\\npubDate: 2024-01-01\\nauthor: a\\ndescription: d\\nomap: !!omap\\n' + entries + '---\\nbody\\n';
+      const start = Date.now();
+      validateRecipeFrontmatter(content, 'omap-bomb.md');
+      console.log(JSON.stringify({ elapsedMs: Date.now() - start }));
+    `);
+    expect(result.elapsedMs).toBeLessThan(2000);
   });
 });
 

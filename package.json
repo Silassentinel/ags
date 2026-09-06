@@ -47,6 +47,9 @@
     "ts-node": "^10.9.2"
   },
   "overrides": {
-    "sharp": ">=0.35.0"
+    "sharp": ">=0.35.0",
+    "gray-matter": {
+      "js-yaml": "^3.15.1"
+    }
   }
 }
