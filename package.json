@@ -45,5 +45,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2"
+  },
+  "overrides": {
+    "sharp": ">=0.35.0"
   }
 }

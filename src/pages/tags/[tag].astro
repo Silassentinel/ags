@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layout/BaseLayout.astro";
 import BlogPost from "../../components/Blog/BlogPost.astro";
+import { filterValidTags } from "../../scripts/ContentBuilder/Tags/tagUtils";
 
 // Define interfaces for our data structure
 interface Frontmatter {
@@ -34,10 +35,15 @@ export async function getStaticPaths(): Promise<Array<{ params: { tag: string },
     // Log for debugging
     // console.log("All posts:", allPosts.map((p: Post) => ({title: p.frontmatter.title, url: p.url, tags: p.frontmatter.tags})));
     
-    // Extract all unique tags
-    const uniqueTags: string[] = [...new Set(
+    // Extract all unique tags. Tag values come from recipe frontmatter
+    // fetched from an external, untrusted repository, so they are
+    // allow-listed here before becoming a URL/path segment below
+    // (defense-in-depth alongside the markdown sanitization and frontmatter
+    // validation in scripts/preserve-build.js — see .security/findings.md
+    // RT-2026-07-30-01 / RT-2026-07-30-02).
+    const uniqueTags: string[] = filterValidTags([...new Set(
         allPosts.map((post: Post) => post.frontmatter.tags || []).flat()
-    )];
+    )]);
     
     // Create paths for each tag with filtered posts as props
     return uniqueTags.map((tag: string) => {

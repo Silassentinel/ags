@@ -8,6 +8,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
+import matter from 'gray-matter';
 
 /**
  * Initialize configuration and constants
@@ -106,6 +107,88 @@ async function fetchRecipeContent(file, repoConfig) {
 }
 
 /**
+ * Sanitize markdown content fetched from the (untrusted) external Recipes
+ * repository before it is written into src/pages/posts, where Astro renders
+ * it as a page. Astro's markdown pipeline passes raw HTML through verbatim,
+ * so any literal HTML-like tag (`<script>`, `<img onerror=...>`, etc.) in the
+ * fetched content would otherwise execute in visitors' browsers.
+ *
+ * Standard recipe markdown has no legitimate need for raw HTML tags, so we
+ * neutralise anything that looks like a tag/comment opener by escaping the
+ * leading `<` to `&lt;`. This renders the payload as inert text instead of
+ * markup while leaving normal markdown/prose untouched.
+ *
+ * See .security/findings.md RT-2026-07-30-01.
+ * @param {String} content Raw markdown content from the external repo
+ * @returns {String} Sanitized markdown content
+ */
+function sanitizeMarkdownContent(content) {
+  // Matches `<` followed by a tag-name start character, a closing-tag `/`,
+  // a comment `!`, or a processing instruction `?` — i.e. anything that a
+  // browser/HTML parser would treat as the start of a tag or comment.
+  return content.replace(/<(?=[a-zA-Z/!?])/g, '&lt;');
+}
+
+/**
+ * Validate a fetched recipe's frontmatter before it is allowed to reach the
+ * Astro build step. Malformed frontmatter (missing required fields, broken
+ * YAML, unsafe tag values) can crash `astro build` mid-render, which — see
+ * RT-2026-07-30-02 — previously caused the deploy repo's .git/CNAME to be
+ * deleted. Rejecting bad content here means it never reaches that step.
+ * @param {String} content Raw (already sanitized) markdown content
+ * @param {String} fileName Name of the file, for error messages
+ * @returns {{valid: boolean, reason?: string}}
+ */
+function validateRecipeFrontmatter(content, fileName) {
+  let parsed;
+  try {
+    parsed = matter(content);
+  } catch (error) {
+    return { valid: false, reason: `Invalid frontmatter YAML: ${error.message}` };
+  }
+
+  const { data } = parsed;
+
+  const requiredStringFields = ['layout', 'title', 'pubDate', 'author', 'description'];
+  for (const field of requiredStringFields) {
+    if (typeof data[field] !== 'string' || data[field].trim() === '') {
+      return { valid: false, reason: `Missing or invalid required field: ${field}` };
+    }
+  }
+
+  if (Number.isNaN(Date.parse(data.pubDate))) {
+    return { valid: false, reason: `Invalid pubDate: ${data.pubDate}` };
+  }
+
+  if (data.tags !== undefined) {
+    if (!Array.isArray(data.tags)) {
+      return { valid: false, reason: 'tags must be an array' };
+    }
+    for (const tag of data.tags) {
+      if (typeof tag !== 'string' || !isSafeTag(tag)) {
+        return { valid: false, reason: `Unsafe or invalid tag value: ${JSON.stringify(tag)}` };
+      }
+    }
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Basic allow-list for tag values that later become URL/filesystem path
+ * segments (see src/pages/tags/[tag].astro). Calibrated against every tag
+ * already in production use (letters, digits, spaces, hyphens, underscores)
+ * so legitimate multi-word tags keep working, while rejecting path
+ * traversal sequences and stray quote characters (e.g. `../../../x`,
+ * `burgers"`).
+ * @param {String} tag
+ * @returns {boolean}
+ */
+function isSafeTag(tag) {
+  return /^[A-Za-z0-9 _-]+$/.test(tag);
+}
+
+/**
  * Save recipe content to a file
  * @param {String} fileName The name of the file
  * @param {String} content The content to save
@@ -138,7 +221,15 @@ async function fetchRecipes(config) {
     // Fetch and process each recipe
     for (const file of markdownFiles) {
       try {
-        const content = await fetchRecipeContent(file, recipeRepo);
+        const rawContent = await fetchRecipeContent(file, recipeRepo);
+        const content = sanitizeMarkdownContent(rawContent);
+
+        const validation = validateRecipeFrontmatter(content, file.name);
+        if (!validation.valid) {
+          console.error(`❌ Rejecting recipe ${file.name}: ${validation.reason}`);
+          continue;
+        }
+
         saveRecipeFile(file.name, content, recipePostsDir);
       } catch (error) {
         console.error(`❌ Error processing recipe ${file.name}:`, error.message);
@@ -233,22 +324,25 @@ function backupFilesToPreserve(config) {
 
 /**
  * Run the Astro build process
- * Note: This function is commented out to avoid circular references since this script
- * is likely called by the build process itself
+ * @param {String} [command] The shell command to run for the build. Defaults
+ * to `npm run build:standard`, overridable via PRESERVE_BUILD_COMMAND (used
+ * by tests to deterministically simulate a failing build without invoking a
+ * real Astro build — see test/ts/PreserveBuild.test.ts).
  */
-function runAstroBuild() {
+function runAstroBuild(command = process.env.PRESERVE_BUILD_COMMAND || 'npm run build:standard') {
   console.log('🚀 Running Astro build...');
-  // Commented out to avoid circular reference in build process
   try {
-    execSync('npm run build:standard', { stdio: 'inherit' });
+    execSync(command, { stdio: 'inherit' });
     console.log('✅ Build completed successfully');
     return true;
   } catch (error) {
-    console.error('❌ Build failed:', error);
-    process.exit(1);
+    // Do NOT process.exit() here: that would terminate the process
+    // immediately and skip the finally block in main() that restores
+    // .git/CNAME/.nojekyll into the deploy repo (RT-2026-07-30-02).
+    // Throw instead so main() can restore preserved files before exiting.
+    console.error('❌ Build failed:', error.message);
+    throw error;
   }
-  console.log('ℹ️ Build step skipped since this script is part of the build process');
-  return true;
 }
 
 /**
@@ -384,48 +478,75 @@ function cleanupTempFiles(config) {
  * The main function that orchestrates the entire build process
  */
 async function main() {
+  // Initialize configuration first; if this itself fails, nothing has been
+  // backed up yet so there is nothing to restore.
+  let config;
   try {
-    // Initialize configuration
-    const config = await initializeConfig();
-    
-    // Create necessary directories
-    createRequiredDirectories(config);
-    
-    // Backup files to preserve
-    backupFilesToPreserve(config);
-    
-    // Fetch recipes
-    console.log('🍳 Starting recipe fetching process...');
-    await fetchRecipes(config);
-    
-    // Ensure data directory exists
-    ensureDataDirectory(config);
-    
-    // Generate static data
-    //generateStaticData();
-    
-    // Build step is handled by the calling process, no need to run it here
-    // The runAstroBuild function is now commented out to avoid circular references
-    runAstroBuild(); // This will now just log a message indicating it was skipped
-    
-    // Clean up excluded directories
-    cleanupExcludedDirectories(config);
-    
-    // Restore preserved files
-    restorePreservedFiles(config);
-    
-    // Verify Git repository
-    verifyGitRepository(config);
-    
-    // Clean up temporary files
-    cleanupTempFiles(config);
-    
-    console.log('✨ Build completed with preserved files!');
+    config = await initializeConfig();
   } catch (error) {
     console.error('❌ Build failed with error:', error);
     process.exit(1);
+    return;
   }
+
+  try {
+    // Create necessary directories
+    createRequiredDirectories(config);
+
+    // Backup files to preserve
+    backupFilesToPreserve(config);
+
+    // Fetch recipes
+    console.log('🍳 Starting recipe fetching process...');
+    await fetchRecipes(config);
+
+    // Ensure data directory exists
+    ensureDataDirectory(config);
+
+    // Run the Astro build. May throw if rendering fails (e.g. malformed
+    // recipe content) — that is handled below, after preserved files are
+    // guaranteed to be restored.
+    runAstroBuild();
+
+    // Clean up excluded directories
+    cleanupExcludedDirectories(config);
+  } catch (error) {
+    console.error('❌ Build failed with error:', error);
+    // Use exitCode (not process.exit()) so the finally block below still
+    // runs to completion before the process exits.
+    process.exitCode = 1;
+  } finally {
+    // Always restore preserved files, even if the build step above failed.
+    // This is what prevents a bad recipe from permanently deleting the
+    // deploy repo's .git/CNAME/.nojekyll (RT-2026-07-30-02).
+    restorePreservedFiles(config);
+    verifyGitRepository(config);
+    cleanupTempFiles(config);
+  }
+
+  if (process.exitCode === 1) {
+    return;
+  }
+
+  console.log('✨ Build completed with preserved files!');
 }
 
-// Execute the main function
-main();
+// Only run main() when this file is executed directly (e.g. via
+// `npm run build` / `node scripts/preserve-build.js`), not when its
+// functions are imported for testing.
+const isMainModule = process.argv[1] && import.meta.url === `file://${path.resolve(process.argv[1])}`;
+if (isMainModule) {
+  main();
+}
+
+export {
+  sanitizeMarkdownContent,
+  validateRecipeFrontmatter,
+  isSafeTag,
+  saveRecipeFile,
+  fetchRecipes,
+  runAstroBuild,
+  restorePreservedFiles,
+  backupFilesToPreserve,
+  main,
+};
