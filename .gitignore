@@ -136,3 +136,6 @@ src/pages/posts/
 # Claude Code project config / generated project index (may contain internal notes)
 .claude/
 INDEX.md
+
+# Astro generated types/content cache
+.astro/
