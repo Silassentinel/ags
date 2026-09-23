@@ -147,7 +147,7 @@ blockquote {
   font-family: monospace;
 }
 
-:global(.dark) blockquote {
+.dark blockquote {
   border-left: 5px solid #ff0000;
   border-right: 5px solid #0066ff;
   background-color: #ffffff;
@@ -156,22 +156,22 @@ blockquote {
   box-shadow: 0 0 0 2px #ff0000, 0 0 0 4px #0066ff;
 }
 
-:global(.dark) blockquote * {
+.dark blockquote * {
   color: #000000 !important;
 }
 
-:global(.dark) blockquote p,
-:global(.dark) blockquote h1,
-:global(.dark) blockquote h2,
-:global(.dark) blockquote h3,
-:global(.dark) blockquote h4,
-:global(.dark) blockquote h5,
-:global(.dark) blockquote h6,
-:global(.dark) blockquote a,
-:global(.dark) blockquote ul,
-:global(.dark) blockquote ol,
-:global(.dark) blockquote li,
-:global(.dark) blockquote span {
+.dark blockquote p,
+.dark blockquote h1,
+.dark blockquote h2,
+.dark blockquote h3,
+.dark blockquote h4,
+.dark blockquote h5,
+.dark blockquote h6,
+.dark blockquote a,
+.dark blockquote ul,
+.dark blockquote ol,
+.dark blockquote li,
+.dark blockquote span {
   color: #000000 !important;
 }
 
@@ -183,7 +183,7 @@ code {
   padding: 2px 5px;
 }
 
-:global(.dark) code {
+.dark code {
   background-color: #333;
   border-color: #fff;
 }
@@ -307,26 +307,16 @@ span.date {
   font-weight: bold;
 }
 
-/* For brutalist card component date displays in subtitle */
-.brutalist-card h3:contains("Last updated:"),
-.brutalist-card h3:contains("Published:"),
-.brutalist-card h3:contains("Date:") {
-  color: #ff0000 !important;
-}
-
 /* Ensure dates are still visible in dark mode */
-:global(.dark) .date,
-:global(.dark) time,
-:global(.dark) [datetime],
-:global(.dark) [pubdate],
-:global(.dark) .pubDate,
-:global(.dark) .date-display,
-:global(.dark) time:not(.no-date-style),
-:global(.dark) span:has([datetime]),
-:global(.dark) span.date,
-:global(.dark) .brutalist-card h3:contains("Last updated:"),
-:global(.dark) .brutalist-card h3:contains("Published:"),
-:global(.dark) .brutalist-card h3:contains("Date:") {
+.dark .date,
+.dark time,
+.dark [datetime],
+.dark [pubdate],
+.dark .pubDate,
+.dark .date-display,
+.dark time:not(.no-date-style),
+.dark span:has([datetime]),
+.dark span.date {
   color: #ff5555 !important; /* A brighter red for dark mode to ensure readability */
 }
 
