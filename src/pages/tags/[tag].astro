@@ -2,6 +2,7 @@
 import BaseLayout from "../../layout/BaseLayout.astro";
 import BlogPost from "../../components/Blog/BlogPost.astro";
 import { filterValidTags } from "../../scripts/ContentBuilder/Tags/tagUtils";
+import { SEASON_MONTHS, seasonMonthsForTag } from "../../scripts/ContentBuilder/Season/seasonCalendar";
 
 // Define interfaces for our data structure
 interface Frontmatter {
@@ -63,11 +64,22 @@ export async function getStaticPaths(): Promise<Array<{ params: { tag: string },
 
 const { tag } = Astro.params;
 const { posts } = Astro.props as { posts: Post[] };
+// When this tag is a seasonal ingredient, the months it's in season in
+// Belgium (see src/pages/seizoenskalender.astro).
+const seasonMonths = seasonMonthsForTag(tag ?? "").map(i => SEASON_MONTHS[i].name);
 ---
 
 <BaseLayout pageTitle={tag}>
     <div class="tag-posts">
         <h1>Posts tagged with {tag}</h1>
+        {seasonMonths.length > 0 && (
+            <p class="in-season">
+                In seizoen in België:{" "}
+                {seasonMonths.map((name, i) => (
+                    <>{i > 0 && ", "}<a href={`/seizoenskalender#${name.toLowerCase()}`}>{name.toLowerCase()}</a></>
+                ))}
+            </p>
+        )}
         {posts && posts.length > 0 ? (
             <ul class="post-list">
                 {posts.map((post) => (
@@ -85,6 +97,16 @@ const { posts } = Astro.props as { posts: Post[] };
     margin-top: 2rem;
   }
   
+  .in-season {
+    font-family: monospace;
+    border: 2px solid #2d6a2e;
+    padding: 0.5rem 0.75rem;
+  }
+
+  :global(.dark) .in-season {
+    border-color: #5cb85c;
+  }
+
   .post-list {
     list-style-type: none;
     padding: 0;

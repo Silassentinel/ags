@@ -2,68 +2,16 @@
 import BaseLayout from "../layout/BaseLayout.astro";
 const pageTitle = "Seizoenskalender";
 
-const months = [
-  {
-    name: "Januari",
-    groenten: ["aardappel","aardpeer","boerenkool","groene selderij","knolselderij","koolraap","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","waterkers","winterpostelein","witlof","wittekool","wortel"],
-    fruit: ["appel","peer"]
-  },
-  {
-    name: "Februari",
-    groenten: ["aardappel","boerenkool","groene selderij","knolselderij","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","winterpostelein","witlof","wittekool","wortel"],
-    fruit: ["appel","peer"]
-  },
-  {
-    name: "Maart",
-    groenten: ["aardappel","bloemkool","boerenkool","groene selderij","knolselderij","paddenstoelen","pastinaak","pompoen","prei","raap","radijs","rammenas","rode biet","rodekool","roodlof","savooikool","schorseneer","spinazie","spruiten","ui","veldsla","warmoes","winterpostelein","witlof","wittekool","wortel"],
-    fruit: ["appel","rabarber"]
-  },
-  {
-    name: "April",
-    groenten: ["aardappel","andijvie","bloemkool","groene selderij","paddenstoelen","paksoi","pompoen","prei","raap","raapsteel","radijs","rode biet","roodlof","spinazie","ui","warmoes","waterkers","wortel","witlof"],
-    fruit: ["aardbei","rabarber"]
-  },
-  {
-    name: "Mei",
-    groenten: ["aardappel","andijvie","asperge","bloemkool","doperwt","groene selderij","koolrabi","kropsla","paddenstoelen","paksoi","peultjes","prei","raap","raapsteel","radijs","rode biet","roodlof","spinazie","spitskool","ui","warmoes","waterkers","wortel"],
-    fruit: ["aardbei","rabarber"]
-  },
-  {
-    name: "Juni",
-    groenten: ["aardappel","andijvie","artisjok","asperge","bloemkool","broccoli","doperwt","groene selderij","koolrabi","kropsla","paddenstoelen","paksoi","peultjes","prei","prinsessenboon","raap","radijs","rode biet","savooikool","spinazie","spitskool","tomaat","tuinboon","ui","venkel","warmoes","waterkers","wortel"],
-    fruit: ["aardbei","abrikoos","blauwe bes","framboos","kers","nectarine","perzik","rabarber","rode bes","zwarte bes"]
-  },
-  {
-    name: "Juli",
-    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","bloemkool","broccoli","chinese kool","courgette","doperwt","groene selderij","komkommer","koolrabi","kropsla","paddenstoelen","paksoi","paprika","peultjes","prei","prinsessenboon","radijs","rode biet","rodekool","savooikool","snijboon","spinazie","spitskool","tomaat","tuinboon","ui","venkel","warmoes","waterkers","wittekool","wortel"],
-    fruit: ["aardbei","abrikoos","blauwe bes","braam","framboos","kers","nectarine","perzik","rabarber","rode bes","zwarte bes"]
-  },
-  {
-    name: "Augustus",
-    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","bloemkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","komkommer","koolrabi","kropsla","mais","paddenstoelen","paksoi","paprika","pompoen","prei","prinsessenboon","raapsteel","radijs","rode biet","rodekool","savooikool","snijboon","spinazie","spitskool","tomaat","ui","venkel","warmoes","waterkers","wittekool","wortel"],
-    fruit: ["aardbei","abrikoos","appel","blauwe bes","braam","druif","framboos","kers","meloen","nectarine","peer","perzik","pruim","vijg","zwarte bes"]
-  },
-  {
-    name: "September",
-    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","bloemkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","komkommer","koolrabi","kropsla","mais","paddenstoelen","paksoi","paprika","pompoen","prei","prinsessenboon","raap(steel)","radijs","rammenas","rode biet","rodekool","savooikool","snijboon","spinazie","spitskool","tomaat","ui","venkel","warmoes","waterkers","wittekool","wortel"],
-    fruit: ["appel","blauwe bes","braam","druif","framboos","kiwibes","meloen","nectarine","peer","perzik","pruim","vijg"]
-  },
-  {
-    name: "Oktober",
-    groenten: ["aardappel","andijvie","artisjok","aubergine","bleekselderij","boerenkool","bloemkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","komkommer","koolrabi","kropsla","paddenstoelen","paksoi","paprika","pastinaak","pompoen","prei","prinsessenboon","raap(steel)","radijs","rammenas","rode biet","rodekool","roodlof","savooikool","schorseneer","snijboon","spinazie","spitskool","spruiten","tomaat","ui","veldsla","venkel","warmoes","waterkers","winterpostelein","witlof","wittekool","wortel"],
-    fruit: ["appel","braam","druif","framboos","kiwibes","meloen","peer"]
-  },
-  {
-    name: "November",
-    groenten: ["aardappel","aardpeer","andijvie","bleekselderij","bloemkool","boerenkool","broccoli","chinese kool","courgette","groene selderij","knolselderij","koolraap","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","venkel","warmoes","waterkers","winterpostelein","witlof","wittekool","wortel"],
-    fruit: ["appel","druif","meloen","peer"]
-  },
-  {
-    name: "December",
-    groenten: ["aardappel","aardpeer","andijvie","boerenkool","groene selderij","knolselderij","koolraap","paddenstoelen","pastinaak","pompoen","prei","raap","rammenas","rode biet","rodekool","savooikool","schorseneer","spruiten","ui","veldsla","waterkers","winterpostelein","witlof","wittekool","wortel"],
-    fruit: ["appel","peer"]
-  }
-];
+import { SEASON_MONTHS as months, linkedTagForProduce } from "../scripts/ContentBuilder/Season/seasonCalendar";
+import { filterValidTags } from "../scripts/ContentBuilder/Tags/tagUtils";
+
+// Every tag used by at least one recipe, filtered with the same allow-list
+// src/pages/tags/[tag].astro uses to decide which /tags/<tag> pages exist,
+// so a calendar entry only ever links to a page that was actually built.
+const posts = await Promise.all(
+  Object.values(import.meta.glob<{ frontmatter: { tags?: string[] } }>("./posts/*.md")).map(resolve => resolve())
+);
+const recipeTags = new Set(filterValidTags(posts.flatMap(post => post.frontmatter.tags ?? [])));
 
 const now = new Date();
 const currentMonth = now.getMonth();
@@ -72,6 +20,7 @@ const currentMonth = now.getMonth();
 <BaseLayout pageTitle={pageTitle}>
   <section class="cal-intro">
     <p>Seizoensgroenten & fruit voor <strong>Belgi&euml;</strong> — volle grond / onverwarmde serres.</p>
+    <p class="legend"><span class="tag tag-groente has-recipes">vet</span> = er zijn recepten mee — klik om ze te zien.</p>
     <nav class="month-nav">
       {months.map((m, i) => (
         <a href={`#${m.name.toLowerCase()}`} class:list={["month-link", { active: i === currentMonth }]}>
@@ -91,14 +40,24 @@ const currentMonth = now.getMonth();
       <div class="produce-section">
         <h3 class="produce-label">Groenten <span class="count">{month.groenten.length}</span></h3>
         <div class="tag-cloud">
-          {month.groenten.map(g => <span class="tag tag-groente">{g}</span>)}
+          {month.groenten.map(g => {
+            const tag = linkedTagForProduce(g, recipeTags);
+            return tag
+              ? <a href={`/tags/${tag}`} class="tag tag-groente has-recipes" title={`Recepten met ${tag}`}>{g}</a>
+              : <span class="tag tag-groente">{g}</span>;
+          })}
         </div>
       </div>
 
       <div class="produce-section">
         <h3 class="produce-label">Fruit <span class="count">{month.fruit.length}</span></h3>
         <div class="tag-cloud">
-          {month.fruit.map(f => <span class="tag tag-fruit">{f}</span>)}
+          {month.fruit.map(f => {
+            const tag = linkedTagForProduce(f, recipeTags);
+            return tag
+              ? <a href={`/tags/${tag}`} class="tag tag-fruit has-recipes" title={`Recepten met ${tag}`}>{f}</a>
+              : <span class="tag tag-fruit">{f}</span>;
+          })}
         </div>
       </div>
     </section>
@@ -245,6 +204,19 @@ const currentMonth = now.getMonth();
     padding: 2px 8px;
     border: 1px solid;
     display: inline-block;
+  }
+
+  a.tag {
+    text-decoration: none;
+  }
+
+  .has-recipes {
+    font-weight: bold;
+    border-width: 2px;
+  }
+
+  .legend {
+    font-size: 0.85rem;
   }
 
   .tag-groente {
