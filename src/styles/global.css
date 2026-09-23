@@ -234,63 +234,67 @@ code {
   .pull-left {
     float: left;
   }
-  
-  /* Dark mode brutalist style */
-  html.dark {
-    background-color: #000000;
-    color: #ffffff;
-  }
-  
-  .dark body {
-    border-color: #ffffff;
-  }
-  
-  .dark h1 {
-    border-bottom-color: #ffffff;
-  }
-  
-  .dark a {
-    color: #ffffff;
-  }
-  
-  .dark a:hover {
-    background-color: #ffffff;
-    color: #000000;
-  }
-  
-  .dark .nav-links {
-    background-color: #000000;
-    border-color: #ffffff;
-  }
-  
-  .dark .nav-links a {
-    border-color: #ffffff;
-    color: #ffffff;
-  }
-  
-  .dark .nav-links a:hover {
-    background-color: #ffffff;
-    color: #000000;
-  }
-  
-  .dark button {
-    background-color: #000000;
-    border-color: #ffffff;
-    color: #ffffff;
-  }
-  
-  .dark button:hover {
-    background-color: #ffffff;
-    color: #000000;
-  }
-  
-  .dark table, .dark th, .dark td {
-    border-color: #ffffff;
-  }
-  
-  .dark th {
-    background-color: #333;
-  }
+}
+
+/* Dark mode brutalist style (all screen widths) */
+html.dark {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.dark body {
+  border-color: #ffffff;
+}
+
+.dark h1 {
+  border-bottom-color: #ffffff;
+}
+
+.dark a {
+  color: #ffffff;
+}
+
+.dark a:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark .nav-links {
+  background-color: #000000;
+  border-color: #ffffff;
+}
+
+.dark .nav-links a {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.dark .nav-links a:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark button {
+  background-color: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.dark button:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark table, .dark th, .dark td {
+  border-color: #ffffff;
+}
+
+.dark th {
+  background-color: #333;
+}
+
+.dark .hamburger .line {
+  background-color: #ffffff;
 }
 
 /* Date styling - makes all dates appear in red */
