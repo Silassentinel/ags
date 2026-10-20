@@ -136,6 +136,10 @@ Result: 29 of 29 suites pass, 173 tests, 2 skipped (they need the fetched recipe
 5. The first automatic deploy from `main` succeeds and the live site shows the backdrop (`/verify-deploy`).
 6. Anything not verified is written down here as unverified, not claimed.
 
+## Later changes
+
+- 2026-10-20, accessibility work ([../accessibility/PLAN.md](../accessibility/PLAN.md)): with `prefers-reduced-motion: reduce` and no stored choice the backdrop now starts off; the Settings switch opts in. The first automatic deploy from `main` succeeded the same day (Phase 3 done).
+
 ## Maintenance
 
 Update this file when a phase's status changes or a decision in FEATURE_REQUEST.md's open questions is settled.

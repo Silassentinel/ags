@@ -36,6 +36,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Headless Chromium for the accessibility gate (test/ts/Accessibility.test.ts)
+      - run: npx playwright install --with-deps chromium
       # The recipe-dependent tests skip themselves without the real recipes
       - run: npm run fetch:recipes
         env:

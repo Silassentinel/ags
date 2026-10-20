@@ -12,7 +12,7 @@ const { items, maxItems = 3 } = Astro.props;
 const limitedItems = items.slice(0, maxItems);
 ---
 
-<div class="brutalist-sub-menu">
+<nav class="brutalist-sub-menu" aria-label="Sections">
   <div class="menu-container">
     {limitedItems.map((item) => (
       <a href={`#${item.id}`} class="menu-item highlight-in-viewport">
@@ -21,7 +21,7 @@ const limitedItems = items.slice(0, maxItems);
       </a>
     ))}
   </div>
-</div>
+</nav>
 
 <style>
   .brutalist-sub-menu {
@@ -48,7 +48,8 @@ const limitedItems = items.slice(0, maxItems);
     color: #000;
     font-family: monospace;
     text-transform: uppercase;
-    transition: all 0.3s ease;
+    /* named properties, so the keyboard focus ring is never animated in */
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
   }
   
   .menu-item:hover {

@@ -32,6 +32,12 @@ export function Theme(props: ThemeProps) {
 
     const isDark = element.classList.contains("dark");
     localStorage.setItem("theme", isDark ? "dark" : "light");
+    reflectPressed(isDark);
+  };
+
+  /** Keeps aria-pressed on the toggle button in step with the theme (it is a toggle button, WCAG 4.1.2). */
+  const reflectPressed = (isDark: boolean): void => {
+    document.getElementById("themeToggle")?.setAttribute("aria-pressed", String(isDark));
   };
 
   /**
@@ -48,6 +54,7 @@ export function Theme(props: ThemeProps) {
     } else {
       document.documentElement.classList.add('dark');
     }
+    reflectPressed(theme !== 'light');
 
     window.localStorage.setItem('theme', theme);
 
@@ -66,8 +73,13 @@ export function Theme(props: ThemeProps) {
       });
     }
     
+    // The Settings panel's "Dark Mode" switch flips the class itself; mirror it on the button
+    const observer = new MutationObserver(() => reflectPressed(document.documentElement.classList.contains('dark')));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
     // Cleanup function to remove event listeners when component unmounts
     return () => {
+      observer.disconnect();
       if (themeToggle) {
         themeToggle.removeEventListener("click", (e) => {
           e.preventDefault();

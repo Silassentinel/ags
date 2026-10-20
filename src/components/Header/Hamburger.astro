@@ -2,10 +2,12 @@
 
 ---
 
-<div class="hamburger">
+<!-- A real button: reachable by keyboard, named for screen readers, and
+     announcing whether the menu it controls is open (src/scripts/ui/Menu.ts) -->
+<button class="hamburger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
   <span class="line"></span>
   <span class="line"></span>
   <span class="line"></span>
-</div>
+</button>
 
 <!-- Menu functionality is handled by ClientScripts.tsx component -->

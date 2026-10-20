@@ -56,6 +56,17 @@ describe('Theme Component', () => {
     expect(addEventListenerSpy).toHaveBeenCalledWith('touchend', expect.any(Function));
   });
 
+  test('the toggle button reports its pressed state', () => {
+    render(h(Theme, {}));
+    const themeToggle = document.getElementById('themeToggle') as HTMLButtonElement;
+    expect(themeToggle.getAttribute('aria-pressed')).toBe('false');
+
+    act(() => {
+      themeToggle.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    expect(themeToggle.getAttribute('aria-pressed')).toBe('true');
+  });
+
   test('theme toggle button click toggles the theme', () => {
     localStorage.setItem('theme', 'light');
     render(h(Theme, {}));

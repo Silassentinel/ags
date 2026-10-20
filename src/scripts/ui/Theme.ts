@@ -28,6 +28,7 @@ export const initTheme = (): void => {
   } else {
     document.documentElement.classList.add('dark');
   }
+  reflectPressed(theme !== 'light');
 
   window.localStorage.setItem('theme', theme || 'light');
 
@@ -56,6 +57,12 @@ export const handleToggleClick = (): void => {
 
   const isDark = element.classList.contains("dark");
   localStorage.setItem("theme", isDark ? "dark" : "light");
+  reflectPressed(isDark);
+};
+
+/** Keeps aria-pressed on the toggle button in step with the theme (it is a toggle button, WCAG 4.1.2). */
+const reflectPressed = (isDark: boolean): void => {
+  document.getElementById("themeToggle")?.setAttribute("aria-pressed", String(isDark));
 };
 
 // Initialize theme when this module is loaded

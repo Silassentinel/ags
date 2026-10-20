@@ -51,18 +51,31 @@ describe('Navigation Menu Management', () => {
     expect(goBackButton!.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
   });
   
-  test('toggleNavMenu toggles expanded class on nav-links element', () => {
-    // Get the nav links element
-    const navLinks = document.querySelector('.nav-links');
-    
-    // Mock the classList toggle method
-    navLinks!.classList.toggle = jest.fn();
-    
-    // Call toggleNavMenu
+  test('toggleNavMenu toggles the expanded class and the button state', () => {
+    const navLinks = document.querySelector('.nav-links')!;
+    const hamburger = document.querySelector('.hamburger')!;
+
     toggleNavMenu();
-    
-    // Should toggle the 'expanded' class on the nav-links element
-    expect(navLinks!.classList.toggle).toHaveBeenCalledWith('expanded');
+    expect(navLinks.classList.contains('expanded')).toBe(true);
+    expect(hamburger.getAttribute('aria-expanded')).toBe('true');
+
+    toggleNavMenu();
+    expect(navLinks.classList.contains('expanded')).toBe(false);
+    expect(hamburger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  test('Escape closes an open menu and returns focus to the hamburger', () => {
+    const cleanup = initNavMenu();
+    const hamburger = document.querySelector('.hamburger') as HTMLButtonElement;
+    toggleNavMenu();
+    expect(hamburger.getAttribute('aria-expanded')).toBe('true');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    expect(document.querySelector('.nav-links')!.classList.contains('expanded')).toBe(false);
+    expect(hamburger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(hamburger);
+    cleanup();
   });
   
   test('clicking back button calls window.history.back()', () => {

@@ -24,18 +24,28 @@ const allPosts = posts as Post[];
 
 {
     allPosts &&
-    allPosts.map((post) => {
-            const title = post.frontmatter.title;
-            return (
-                <>
-                        <li>{post.frontmatter.title}</li>
-                        <li>{post.frontmatter.author}</li>
-                        <li>{new Date(post.frontmatter.pubDate).toLocaleDateString('nl-BE')}</li>
-                        <li>
-                            <a href={post.url}>click me</a>
-                        </li>
-                        <hr/>
-                </>
-            );
-        })
+    allPosts.map((post) => (
+        <li class="post">
+            <a href={post.url}>{post.frontmatter.title}</a>
+            <span class="post-meta">
+                by {post.frontmatter.author},{" "}
+                <time datetime={new Date(post.frontmatter.pubDate).toISOString().slice(0, 10)}>
+                    {new Date(post.frontmatter.pubDate).toLocaleDateString('nl-BE')}
+                </time>
+            </span>
+        </li>
+    ))
 }
+
+<style>
+    .post {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid currentColor;
+    }
+
+    .post-meta {
+        display: block;
+        font-weight: normal;
+        font-size: 0.9em;
+    }
+</style>
