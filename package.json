@@ -26,6 +26,7 @@
     "@astrojs/preact": "^6.0.5",
     "@astrojs/rss": "^4.0.19",
     "@preact/preset-vite": "^2.10.6",
+    "ascii.rest": "github:Silassentinel/ascii#fcb644403bfc25af0002e415d1006dd10b99ca34",
     "astro": "^7.3.4",
     "dotenv": "^18.0.3",
     "node-fetch": "^3.3.2",
