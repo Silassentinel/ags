@@ -1,8 +1,11 @@
 # ASCII art backgrounds (ascii.rest) — preparation notes
 
 Status: **prepared, not wired in**. The library is installed and a backdrop
-component exists, but no page uses it yet. Decisions for the site owner are
-listed at the end.
+component exists, but no page uses it yet. The design and implementation
+plan lives in [features/ascii-background/PLAN.md](features/ascii-background/PLAN.md);
+the decisions at the end of this file were answered on 2026-10-20 (every
+page, random per page, seasonal pools, switch plus intensity slider, test
+suite fixed first).
 
 ## What was checked (2026-10-20)
 
