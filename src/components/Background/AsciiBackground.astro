@@ -1,0 +1,225 @@
+---
+/*
+ * AsciiBackground: one animated ascii.rest piece as a full-viewport backdrop
+ * behind the page content, picked at random from the current season's pool
+ * on every page load (src/scripts/ui/features/AsciiBackground/).
+ *
+ *   ---
+ *   import AsciiBackground from "../components/Background/AsciiBackground.astro";
+ *   ---
+ *   <AsciiBackground />                       seasonal random pick (the normal use)
+ *   <AsciiBackground piece="snowfall" />      a fixed piece, for demos; first frame pre-rendered
+ *
+ * Why this component instead of `import Ascii from "ascii.rest/astro"`:
+ *   - the library's <Ascii> / <ascii-art> tag fetches a fallback font from
+ *     https://ascii.rest at runtime (third-party request on every visit) and
+ *     injects a <style> element from script, which this site's CSP
+ *     (security.csp: true, no 'unsafe-inline') rejects;
+ *   - it renders an inline style="" attribute for canvas pieces, which the
+ *     same CSP blocks;
+ *   - a backdrop needs "cover" sizing, which the library tag does not do.
+ * So this uses the library's lower-level `mount()` API, like ascii.rest's own
+ * site does, and keeps every style in a stylesheet or on the CSSOM.
+ *
+ * The Settings panel's "ASCII Background" switch and intensity slider
+ * (src/scripts/ui/features/AsciiBackground/prefs.ts) are honoured on load
+ * and live, through the panel's feature-toggle / feature-setting events.
+ * Pieces hold their first frame when the reader prefers reduced motion
+ * (mount() handles this) and pause while the tab is hidden. Only the pieces
+ * allow-listed in ./pieces.ts are bundled; a wrong `piece` fails the build.
+ * The wrapper is aria-hidden, behind everything and never takes pointer
+ * events. With the random pick the server cannot know the piece, so the
+ * <pre> starts empty; the wrapper is position: fixed, so nothing shifts.
+ */
+import type { Piece } from "ascii.rest";
+import { backdrops, isBackdrop, type BackdropName } from "./pieces";
+
+interface Props {
+  /** A fixed piece from ./pieces.ts instead of the seasonal random pick. */
+  piece?: BackdropName;
+  /** Frames per second; 12 by default to stay cheap on phones. */
+  fps?: number;
+}
+
+const { piece, fps = 12 } = Astro.props;
+if (piece !== undefined && !isBackdrop(piece)) {
+  throw new Error(`AsciiBackground: "${piece}" is not in the allow-list in src/components/Background/pieces.ts`);
+}
+// A fixed text piece gets its first frame rendered at build time.
+let still = "";
+if (piece !== undefined) {
+  const mod: Piece = await backdrops[piece]();
+  if (!mod.meta.palette) still = mod.default(mod.meta.options ?? {})(0, { paper: true });
+}
+---
+
+<div class="ascii-bg" aria-hidden="true">
+  <pre class="ascii-bg__piece" data-piece={piece} data-fps={fps}>{still}</pre>
+</div>
+
+<script>
+  import { mount, type Piece } from "ascii.rest";
+  import { backdrops, isBackdrop } from "./pieces";
+  import { seasonFor } from "../../scripts/ui/features/AsciiBackground/seasons";
+  import { pickBackdrop } from "../../scripts/ui/features/AsciiBackground/pool";
+  import {
+    FEATURE_ID,
+    INTENSITY_SETTING_ID,
+    opacityFor,
+    readEnabled,
+    readIntensity,
+  } from "../../scripts/ui/features/AsciiBackground/prefs";
+
+  // Monospace glyphs are about 0.6em wide and rows are 1.2em tall (see the stylesheet below).
+  const GLYPH_W = 0.6;
+  const LINE_H = 1.2;
+
+  /** Loads the piece and plays it in the wrapper. Returns a function that stops everything it started. */
+  async function start(wrap: HTMLElement): Promise<() => void> {
+    const pre = wrap.querySelector<HTMLElement>(".ascii-bg__piece") as HTMLElement;
+    const fps = Number(pre.dataset.fps) || 12;
+
+    // A fixed piece from the markup (or an earlier start), or the seasonal random pick.
+    const fixed = pre.dataset.piece ?? "";
+    const season = seasonFor();
+    const name = isBackdrop(fixed) ? fixed : pickBackdrop(season);
+    wrap.dataset.season = season;
+    pre.dataset.piece = name;
+
+    const piece: Piece = await backdrops[name]();
+    const { cols, rows, cell = 2, palette } = piece.meta;
+    let el: HTMLElement = pre;
+
+    if (palette && !(pre instanceof HTMLCanvasElement)) {
+      // A coloured piece draws on a canvas as wide as its box; mount() keeps the aspect ratio.
+      el = document.createElement("canvas");
+      el.className = "ascii-bg__piece";
+      el.dataset.piece = name;
+      el.dataset.fps = String(fps);
+      // Astro scopes this component's styles with a data-astro-cid-* attribute; carry it over so the rules apply.
+      for (const { name: attr } of Array.from(pre.attributes)) if (attr.startsWith("data-astro-cid")) el.setAttribute(attr, "");
+      pre.replaceWith(el);
+    }
+
+    // "Cover" sizing: scale the piece so it fills both viewport axes, overflow clipped by the wrapper.
+    // Everything is set through the CSSOM, never an inline style attribute, so the site's CSP allows it.
+    const fit = () => {
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      if (palette) {
+        const ratio = cols / (rows * cell);
+        el.style.width = `${Math.max(w, h * ratio)}px`;
+      } else {
+        const px = Math.max(w / (cols * GLYPH_W), h / (rows * LINE_H));
+        el.style.fontSize = `${px}px`;
+      }
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(wrap);
+
+    const stop = mount(el, piece, { fps });
+    return () => {
+      ro.disconnect();
+      stop();
+    };
+  }
+
+  /** Ties one backdrop to the visitor's preferences and the Settings panel's events. */
+  function control(wrap: HTMLElement) {
+    let stop: (() => void) | null = null;
+    let starting = false;
+    let intensity = readIntensity();
+
+    const isDark = () => document.documentElement.classList.contains("dark");
+    const applyOpacity = () => {
+      wrap.style.opacity = String(opacityFor(intensity, isDark()));
+    };
+
+    const show = async () => {
+      wrap.hidden = false;
+      applyOpacity();
+      if (stop || starting) return;
+      starting = true;
+      try {
+        const stopper = await start(wrap);
+        // Switched off again while the piece was loading
+        if (wrap.hidden) stopper();
+        else stop = stopper;
+      } catch (error) {
+        console.warn("AsciiBackground: could not start", error);
+      } finally {
+        starting = false;
+      }
+    };
+
+    const hide = () => {
+      wrap.hidden = true;
+      stop?.();
+      stop = null;
+    };
+
+    document.addEventListener("feature-toggle", (event) => {
+      const detail = (event as CustomEvent<{ id: string; enabled: boolean }>).detail;
+      if (detail?.id !== FEATURE_ID) return;
+      if (detail.enabled) show();
+      else hide();
+    });
+
+    document.addEventListener("feature-setting", (event) => {
+      const detail = (event as CustomEvent<{ id: string; value: number }>).detail;
+      if (detail?.id !== INTENSITY_SETTING_ID) return;
+      intensity = Number(detail.value);
+      applyOpacity();
+    });
+
+    // Dark mode flips via the header icon or the Settings switch: re-apply the opacity either way.
+    new MutationObserver(applyOpacity).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    if (readEnabled()) show();
+    else hide();
+  }
+
+  document.querySelectorAll<HTMLElement>(".ascii-bg").forEach(control);
+</script>
+
+<style>
+  .ascii-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1; /* behind the body's content, above the html background */
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Defaults for the intensity slider at 30; the script sets the real opacity from the visitor's choice. */
+    opacity: 0.18;
+    color: #000;
+  }
+
+  .ascii-bg[hidden] {
+    display: none; /* switched off in Settings */
+  }
+
+  :global(html.dark) .ascii-bg {
+    opacity: 0.27;
+    color: #fff;
+  }
+
+  .ascii-bg__piece {
+    margin: 0;
+    flex: none;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    line-height: 1.2;
+    letter-spacing: 0;
+    white-space: pre;
+    font-variant-ligatures: none;
+  }
+
+  /* Coloured pieces: mount() sets the width/aspect-ratio on the element itself. */
+  .ascii-bg :global(canvas.ascii-bg__piece) {
+    display: block;
+  }
+</style>

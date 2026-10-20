@@ -23,6 +23,17 @@ import * as path from 'path';
 import * as os from 'os';
 
 const projectRoot = path.resolve(__dirname, '../..');
+
+/**
+ * The real recipes only exist locally after `npm run fetch:recipes` (or a
+ * full `npm run build`); src/pages/posts/ is gitignored. Tests that assert
+ * against them are skipped, not failed, on a fresh checkout. CI fetches
+ * them first so they always run there.
+ */
+const hasFetchedRecipes = (): boolean => {
+  const dir = path.join(projectRoot, 'src/pages/posts');
+  return fs.existsSync(dir) && fs.readdirSync(dir).some((name) => name.endsWith('.md'));
+};
 const scriptPath = path.join(projectRoot, 'scripts/preserve-build.js');
 
 /** Runs a small ESM snippet that imports preserve-build.js and prints JSON. */
@@ -238,7 +249,7 @@ describe('validateRecipeFrontmatter (RT-2026-07-30-02)', () => {
     expect(validate(goodFrontmatter).valid).toBe(true);
   });
 
-  test('none of the 34 real recipes currently published under src/pages/posts/ are rejected for image reasons (confirms the "no real recipe uses images" premise for real, not just as claimed)', () => {
+  (hasFetchedRecipes() ? test : test.skip)('none of the 34 real recipes currently published under src/pages/posts/ are rejected for image reasons (skipped unless `npm run fetch:recipes` populated src/pages/posts/) (confirms the "no real recipe uses images" premise for real, not just as claimed)', () => {
     // This asserts against the image check specifically, not full
     // validity: one real published file (Smoked-bacon-burgers.md) has a
     // pre-existing, unrelated stray-quote tag that already fails the tag

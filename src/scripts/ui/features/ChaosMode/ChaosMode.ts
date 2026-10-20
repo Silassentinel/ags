@@ -45,6 +45,9 @@ export class ChaosMode {
   /** Interval id for the ultra chaos glitch-effect flicker, so it can be stopped on disable */
   private glitchIntervalId: number | null = null;
 
+  /** True once initialize() has registered its document listeners */
+  private initialized = false;
+
   /**
    * Creates a new ChaosMode instance
    */
@@ -60,6 +63,11 @@ export class ChaosMode {
    */
   public initialize(): void {
     if (typeof window === 'undefined') return;
+
+    // Idempotent: a second initialize() (e.g. a component re-mount) must not
+    // register a second set of listeners, which would count every click twice
+    if (this.initialized) return;
+    this.initialized = true;
 
     // Respect the user's "Chaos Mode" setting: if disabled, clean up any
     // leftover state from a previous session and stay dormant
@@ -523,12 +531,6 @@ export const initChaosMode = (): void => {
   chaosModeInstance.initialize();
 };
 
-// Initialize chaos mode when the document is ready
-if (typeof window !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initChaosMode);
-  
-  // If the document is already loaded, initialize immediately
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    initChaosMode();
-  }
-}
+// No self-start on import: src/components/features/ChaosMode/ChaosMode.tsx
+// calls initChaosMode() once the component mounts. Importing this module
+// (in tests, or from a server render) has no side effects.

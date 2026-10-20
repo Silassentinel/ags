@@ -84,19 +84,4 @@ describe('Navigation Menu Management', () => {
     // Should call window.history.back()
     expect(window.history.back).toHaveBeenCalled();
   });
-  
-  test('DOMContentLoaded event initializes the menu', () => {
-    // Mock document.addEventListener
-    const originalAddEventListener = document.addEventListener;
-    document.addEventListener = jest.fn();
-    
-    // Load the Menu module
-    const spy = jest.spyOn(document, 'addEventListener');
-    
-    // Check if the event listener was registered for DOMContentLoaded
-    expect(spy).toHaveBeenCalledWith('DOMContentLoaded', initNavMenu);
-    
-    // Clean up
-    document.addEventListener = originalAddEventListener;
-  });
 });

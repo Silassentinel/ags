@@ -67,4 +67,4 @@ if (typeof document !== 'undefined') {
 }
 
 
-export { initContentHighlight };
+export { initContentHighlight, GetScreenDimensions };

@@ -3,152 +3,138 @@ import { render, fireEvent } from '@testing-library/preact';
 import '@testing-library/jest-dom';
 import Settings from '../src/components/ui/Settings';
 
+/** Renders the panel and opens it. */
+const renderOpen = () => {
+  const result = render(h(Settings, {}));
+  fireEvent.click(result.container.querySelector('#settingsToggle') as HTMLButtonElement);
+  return result;
+};
+
 describe('Settings Component', () => {
+  let dispatchEvent: jest.SpyInstance;
+
   beforeEach(() => {
-    // Properly mock document.documentElement instead of trying to replace it
-    const mockDocElement = document.createElement('html');
-    Object.defineProperty(document, 'documentElement', {
-      value: mockDocElement,
-      writable: false,
-      configurable: true
-    });
-    
-    // Properly mock localStorage
-    Object.defineProperty(window, 'localStorage', {
-      value: {
-        getItem: jest.fn((key) => {
-          const mockData = {
-            'chaosMode': 'disabled',
-            'obfuscator': 'disabled',
-            'contentHighlighter': 'enabled',
-            'theme': 'light'
-          };
-          return mockData[key] || null;
-        }),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
-      },
-      writable: true,
-      configurable: true
-    });
-    
-    // Mock document.dispatchEvent
-    document.dispatchEvent = jest.fn();
+    dispatchEvent = jest.spyOn(document, 'dispatchEvent');
   });
-  
+
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
-  
+
   test('renders settings button', () => {
     const { container } = render(h(Settings, {}));
-    
-    // Check that settings button exists
-    const settingsButton = container.querySelector('#settingsToggle');
-    expect(settingsButton).toBeInTheDocument();
+    expect(container.querySelector('#settingsToggle')).toBeInTheDocument();
   });
-  
+
   test('toggles settings panel when button is clicked', () => {
     const { container } = render(h(Settings, {}));
-    
-    // Get settings button and panel
-    const settingsButton = container.querySelector('#settingsToggle');
+    const settingsButton = container.querySelector('#settingsToggle') as HTMLButtonElement;
     const settingsPanel = container.querySelector('.settings-panel');
-    
-    // Initially panel should not have 'open' class
+
     expect(settingsPanel).not.toHaveClass('open');
-    
-    // Click the button to open panel
-    if (settingsButton) {
-      fireEvent.click(settingsButton);
-    }
-    
-    // Panel should now have 'open' class
+    fireEvent.click(settingsButton);
     expect(settingsPanel).toHaveClass('open');
-    
-    // Click again to close
-    if (settingsButton) {
-      fireEvent.click(settingsButton);
-    }
-    
-    // Panel should no longer have 'open' class
+    fireEvent.click(settingsButton);
     expect(settingsPanel).not.toHaveClass('open');
   });
-  
+
   test('initializes feature toggles from localStorage', () => {
-    const { container } = render(h(Settings, {}));
-    
-    // Open settings panel
-    const settingsButton = container.querySelector('#settingsToggle');
-    if (settingsButton) {
-      fireEvent.click(settingsButton);
-    }
-    
-    // Check checkbox states match localStorage values
-    const chaosToggle = container.querySelector('#chaos-mode') as HTMLInputElement;
-    const obfuscatorToggle = container.querySelector('#obfuscator') as HTMLInputElement;
-    const highlighterToggle = container.querySelector('#content-highlighter') as HTMLInputElement;
-    const darkModeToggle = container.querySelector('#dark-mode') as HTMLInputElement;
-    
-    expect(chaosToggle?.checked).toBeFalsy(); // disabled in mock
-    expect(obfuscatorToggle?.checked).toBeFalsy(); // disabled in mock
-    expect(highlighterToggle?.checked).toBeTruthy(); // enabled in mock
-    expect(darkModeToggle?.checked).toBeFalsy(); // light in mock
+    localStorage.setItem('chaosMode', 'disabled');
+    localStorage.setItem('obfuscator', 'enabled');
+    localStorage.setItem('contentHighlighter', 'disabled');
+    localStorage.setItem('theme', 'dark');
+    localStorage.setItem('asciiBackground', 'disabled');
+
+    const { container } = renderOpen();
+    const checked = (id: string) => (container.querySelector(`#${id}`) as HTMLInputElement).checked;
+
+    expect(checked('chaos-mode')).toBe(false);
+    expect(checked('obfuscator')).toBe(true);
+    expect(checked('content-highlighter')).toBe(false);
+    expect(checked('dark-mode')).toBe(true);
+    expect(checked('ascii-background')).toBe(false);
   });
-  
+
+  test('never overwrites a stored choice with the default on mount', () => {
+    localStorage.setItem('chaosMode', 'enabled');
+    localStorage.setItem('asciiBackground', 'disabled');
+    render(h(Settings, {}));
+
+    expect(localStorage.getItem('chaosMode')).toBe('enabled');
+    expect(localStorage.getItem('asciiBackground')).toBe('disabled');
+    const announced = dispatchEvent.mock.calls
+      .map(([event]) => event as CustomEvent)
+      .filter((event) => event.type === 'feature-toggle' && event.detail.id === 'ascii-background')
+      .map((event) => event.detail.enabled);
+    expect(announced).toEqual([false]);
+  });
+
   test('toggles feature and updates localStorage when checkbox clicked', () => {
-    const { container } = render(h(Settings, {}));
-    
-    // Open settings panel
-    const settingsButton = container.querySelector('#settingsToggle');
-    if (settingsButton) {
-      fireEvent.click(settingsButton);
-    }
-    
-    // Get chaos mode toggle
-    const chaosToggle = container.querySelector('#chaos-mode') as HTMLInputElement;
-    
-    // Toggle chaos mode on
-    if (chaosToggle) {
-      fireEvent.click(chaosToggle);
-    }
-    
-    // Check that localStorage was updated
-    expect(window.localStorage.setItem).toHaveBeenCalledWith('chaosMode', 'enabled');
-    
-    // Check that a custom event was dispatched
-    expect(document.dispatchEvent).toHaveBeenCalledWith(
+    const { container } = renderOpen();
+    fireEvent.click(container.querySelector('#chaos-mode') as HTMLInputElement);
+
+    expect(localStorage.getItem('chaosMode')).toBe('enabled');
+    expect(dispatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'feature-toggle',
-        detail: expect.objectContaining({
-          id: 'chaos-mode',
-          enabled: true
-        })
+        detail: expect.objectContaining({ id: 'chaos-mode', enabled: true }),
       })
     );
   });
-  
+
+  test('the ASCII background is on by default and can be switched off', () => {
+    const { container } = renderOpen();
+    const toggle = container.querySelector('#ascii-background') as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
+
+    fireEvent.click(toggle);
+
+    expect(toggle.checked).toBe(false);
+    expect(localStorage.getItem('asciiBackground')).toBe('disabled');
+    expect(dispatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'feature-toggle',
+        detail: expect.objectContaining({ id: 'ascii-background', enabled: false }),
+      })
+    );
+  });
+
+  test('the intensity slider shows the stored value, persists changes and announces them', () => {
+    localStorage.setItem('asciiBackgroundIntensity', '45');
+    const { container } = renderOpen();
+    const slider = container.querySelector('#ascii-background-intensity') as HTMLInputElement;
+
+    expect(slider.value).toBe('45');
+    expect(container.querySelector('.feature-range')).toHaveTextContent('Intensity: 45%');
+
+    fireEvent.input(slider, { target: { value: '80' } });
+
+    expect(localStorage.getItem('asciiBackgroundIntensity')).toBe('80');
+    expect(container.querySelector('.feature-range')).toHaveTextContent('Intensity: 80%');
+    expect(dispatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'feature-setting',
+        detail: expect.objectContaining({ id: 'ascii-background-intensity', value: 80 }),
+      })
+    );
+  });
+
+  test('the intensity slider is disabled while the backdrop is switched off', () => {
+    localStorage.setItem('asciiBackground', 'disabled');
+    const { container } = renderOpen();
+    const slider = container.querySelector('#ascii-background-intensity') as HTMLInputElement;
+    expect(slider.disabled).toBe(true);
+
+    fireEvent.click(container.querySelector('#ascii-background') as HTMLInputElement);
+    expect(slider.disabled).toBe(false);
+  });
+
   test('closes settings panel with close button', () => {
-    const { container } = render(h(Settings, {}));
-    
-    // Open settings panel
-    const settingsButton = container.querySelector('#settingsToggle');
-    if (settingsButton) {
-      fireEvent.click(settingsButton);
-    }
-    
-    // Panel should be open
+    const { container } = renderOpen();
     const settingsPanel = container.querySelector('.settings-panel');
     expect(settingsPanel).toHaveClass('open');
-    
-    // Click close button
-    const closeButton = container.querySelector('.close-settings');
-    if (closeButton) {
-      fireEvent.click(closeButton);
-    }
-    
-    // Panel should be closed
+
+    fireEvent.click(container.querySelector('.close-settings') as HTMLButtonElement);
     expect(settingsPanel).not.toHaveClass('open');
   });
 });
