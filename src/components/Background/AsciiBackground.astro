@@ -22,24 +22,25 @@
  * The first frame is rendered at build time (text pieces), so the page is
  * whole before any script runs. Pieces hold that frame when the reader
  * prefers reduced motion (mount() handles this) and pause while the tab is
- * hidden. The piece name is validated at build time: a wrong name fails the
- * build, never the page.
+ * hidden. Only the pieces allow-listed in ./pieces.ts are bundled; the name
+ * is validated at build time, so a wrong name fails the build, never the page.
  */
-import { canvas as canvasPieces, isPiece, load, type Piece, type PieceName } from "ascii.rest";
+import type { Piece } from "ascii.rest";
+import { backdrops, isBackdrop, type BackdropName } from "./pieces";
 
 interface Props {
-  /** A piece's file name, e.g. "matrix-rain", "starfield", "night-coast". */
-  piece: PieceName;
+  /** One of the pieces allowed in ./pieces.ts, e.g. "matrix-rain", "starfield", "night-coast". */
+  piece: BackdropName;
   /** Overrides the piece's own frame rate. Lower is cheaper on the CPU. */
   fps?: number;
 }
 
 const { piece, fps } = Astro.props;
-if (!isPiece(piece)) throw new Error(`AsciiBackground: there is no piece named "${piece}"`);
-// Typed as the generic piece contract: load[] returns the union of all 191 module types otherwise.
-const mod: Piece = await load[piece]();
+if (!isBackdrop(piece)) throw new Error(`AsciiBackground: "${piece}" is not in the allow-list in src/components/Background/pieces.ts`);
+// Typed as the generic piece contract rather than the union of the listed modules.
+const mod: Piece = backdrops[piece];
 const { meta } = mod;
-const onCanvas = canvasPieces.has(piece);
+const onCanvas = Boolean(meta.palette);
 // Text pieces get a server-rendered first frame; coloured pieces draw on a canvas once the script runs.
 const still = onCanvas ? "" : mod.default(meta.options ?? {})(0, { paper: true });
 ---
@@ -49,7 +50,8 @@ const still = onCanvas ? "" : mod.default(meta.options ?? {})(0, { paper: true }
 </div>
 
 <script>
-  import { isPiece, load, mount, type Piece } from "ascii.rest";
+  import { mount, type Piece } from "ascii.rest";
+  import { backdrops, isBackdrop } from "./pieces";
 
   // Monospace glyphs are about 0.6em wide and rows are 1.2em tall (see the stylesheet below).
   const GLYPH_W = 0.6;
@@ -57,41 +59,39 @@ const still = onCanvas ? "" : mod.default(meta.options ?? {})(0, { paper: true }
 
   function start(pre: HTMLPreElement) {
     const name = pre.dataset.piece ?? "";
-    if (!isPiece(name)) return;
+    if (!isBackdrop(name)) return;
     const wrap = pre.parentElement as HTMLElement;
     const fps = Number(pre.dataset.fps) || undefined;
+    const piece: Piece = backdrops[name];
+    const { cols, rows, cell = 2, palette } = piece.meta;
+    let el: HTMLElement = pre;
 
-    load[name]().then((piece: Piece) => {
-      const { cols, rows, cell = 2, palette } = piece.meta;
-      let el: HTMLElement = pre;
+    if (palette) {
+      // A coloured piece draws on a canvas as wide as its box; mount() keeps the aspect ratio.
+      el = document.createElement("canvas");
+      el.className = "ascii-bg__piece";
+      // Astro scopes this component's styles with a data-astro-cid-* attribute; carry it over so the rules apply.
+      for (const { name } of Array.from(pre.attributes)) if (name.startsWith("data-astro-cid")) el.setAttribute(name, "");
+      pre.replaceWith(el);
+    }
 
+    // "Cover" sizing: scale the piece so it fills both viewport axes, overflow clipped by the wrapper.
+    // Everything is set through the CSSOM, never an inline style attribute, so the site's CSP allows it.
+    const fit = () => {
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
       if (palette) {
-        // A coloured piece draws on a canvas as wide as its box; mount() keeps the aspect ratio.
-        el = document.createElement("canvas");
-        el.className = "ascii-bg__piece";
-        // Astro scopes this component's styles with a data-astro-cid-* attribute; carry it over so the rules apply.
-        for (const { name } of Array.from(pre.attributes)) if (name.startsWith("data-astro-cid")) el.setAttribute(name, "");
-        pre.replaceWith(el);
+        const ratio = cols / (rows * cell);
+        el.style.width = `${Math.max(w, h * ratio)}px`;
+      } else {
+        const px = Math.max(w / (cols * GLYPH_W), h / (rows * LINE_H));
+        el.style.fontSize = `${px}px`;
       }
+    };
+    fit();
+    new ResizeObserver(fit).observe(wrap);
 
-      // "Cover" sizing: scale the piece so it fills both viewport axes, overflow clipped by the wrapper.
-      // Everything is set through the CSSOM, never an inline style attribute, so the site's CSP allows it.
-      const fit = () => {
-        const w = wrap.clientWidth;
-        const h = wrap.clientHeight;
-        if (palette) {
-          const ratio = cols / (rows * cell);
-          el.style.width = `${Math.max(w, h * ratio)}px`;
-        } else {
-          const px = Math.max(w / (cols * GLYPH_W), h / (rows * LINE_H));
-          el.style.fontSize = `${px}px`;
-        }
-      };
-      fit();
-      new ResizeObserver(fit).observe(wrap);
-
-      mount(el, piece, fps ? { fps } : {});
-    });
+    mount(el, piece, fps ? { fps } : {});
   }
 
   document.querySelectorAll<HTMLPreElement>(".ascii-bg > pre[data-piece]").forEach(start);

@@ -1,0 +1,99 @@
+# Builds the site and pushes the output to Silassentinel/silassentinel.github.io
+# (the repository GitHub Pages serves benjamindegryse.be from) on every push
+# to main. The build itself is `npm run build` (scripts/preserve-build.js):
+# it fetches the recipes, runs `astro build` into ../silassentinel.github.io
+# and keeps that checkout's .git, CNAME and .nojekyll intact.
+#
+# One-time setup, see docs/deploy.md:
+#   - repository secret DEPLOY_TOKEN: a fine-grained personal access token
+#     with "Contents: read and write" on silassentinel.github.io only.
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never run two deploys at once; a later push waits for the running one.
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs the suite for visibility but does not gate the deploy yet: the suite
+  # is red on main as of 2026-10-20 (21 of 30 suites fail before any change
+  # here). Once it is green, drop continue-on-error and add `needs: test` to
+  # the deploy job so a red test blocks a deploy.
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:ci
+
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ags
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v4
+        with:
+          path: ags
+          persist-credentials: false
+
+      # astro.config.mjs builds into ../silassentinel.github.io, so the deploy
+      # repository is checked out as a sibling directory with the same name.
+      - name: Check out the deploy repository
+        uses: actions/checkout@v4
+        with:
+          repository: Silassentinel/silassentinel.github.io
+          ref: main
+          path: silassentinel.github.io
+          token: ${{ secrets.DEPLOY_TOKEN }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ags/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build into the deploy repository
+        env:
+          # Authenticated GitHub API calls when fetching recipes: the
+          # unauthenticated limit is shared by every runner on this IP range.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build
+
+      - name: Commit and push the built site
+        working-directory: silassentinel.github.io
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing changed; no deploy."
+            exit 0
+          fi
+          # First line of the source commit's message only.
+          git commit -m "Deploy ${GITHUB_SHA::7}: ${SOURCE_MESSAGE%%$'\n'*}"
+          git push origin HEAD:main
+        env:
+          SOURCE_MESSAGE: ${{ github.event.head_commit.message || 'manual run' }}

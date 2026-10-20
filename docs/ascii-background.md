@@ -8,7 +8,7 @@ listed at the end.
 
 | Check | Result |
 |---|---|
-| Library | [Silassentinel/ascii](https://github.com/Silassentinel/ascii), fork of `bas3line/ascii`, pinned to commit `fcb6444`. MIT. |
+| Library | [Silassentinel/ascii](https://github.com/Silassentinel/ascii), fork of `bas3line/ascii`, pinned to commit `25b4b18` (upstream `fcb6444` + lockfile fix). MIT. |
 | Astro version here | 7.3.4 (static output, Preact islands, `security.csp: true`) |
 | Installs via `npm ci`? | Yes. npm clones the fork, runs its `prepare` (TypeScript 7 build of `dist/`), then installs `dist/` + `src/astro/`. |
 | Builds with the real `astro.config.mjs`? | Yes, no errors or warnings from the library. |
@@ -52,8 +52,9 @@ import AsciiBackground from "../components/Background/AsciiBackground.astro";
 </BaseLayout>
 ```
 
-`piece` is any name from the ascii.rest catalogue (type-checked at build time;
-a wrong name fails the build). `fps` is optional and lowers CPU use.
+`piece` is one of the names allow-listed in `src/components/Background/pieces.ts`
+(type-checked at build time; a wrong name fails the build). `fps` is optional
+and lowers CPU use.
 
 Good backdrop candidates (all text pieces unless noted):
 
@@ -68,15 +69,17 @@ Good backdrop candidates (all text pieces unless noted):
 
 ## Security / supply-chain notes
 
-- **Pinned to a commit**, not a branch: `github:Silassentinel/ascii#fcb6444…`.
-  Bump deliberately after reviewing upstream changes.
+- **Pinned to a commit**, not a branch: `github:Silassentinel/ascii#25b4b18…`
+  (the fork's branch with the lockfile fix below). Bump deliberately after
+  reviewing upstream changes. If that branch is ever deleted without being
+  merged, the commit becomes unreachable and `npm ci` breaks: merge it.
 - The package runs a `prepare` script (`tsc`) on install, i.e. code from the
   fork executes at `npm ci` time. Pinning to a reviewed commit on the fork
   you control is the mitigation.
-- The fork's `package-lock.json` resolves its dev dependencies from
-  `registry.npmmirror.com` (upstream author's mirror). Every `npm ci` of this
-  site therefore pulls TypeScript 7 and friends from that mirror. Consider
-  regenerating that lockfile against `registry.npmjs.org` in the fork.
+- Fixed: the fork's `package-lock.json` used to resolve its dev dependencies
+  from `registry.npmmirror.com`; commit `25b4b18` on the fork resolves them
+  from `registry.npmjs.org`. Verified: a clean `npm ci` here needs no
+  registry override any more.
 - No runtime network access, no `eval`, no `innerHTML`: pieces are pure
   functions returning strings; the component sets `textContent` or draws on a
   canvas.
@@ -85,17 +88,17 @@ Good backdrop candidates (all text pieces unless noted):
 
 ## Build-output note
 
-`load[name]` keeps every piece reachable, so the static build emits all 191
-pieces as lazy chunks (≈1.2 MB in `_astro/`, about 200 files). A visitor only
-downloads the one piece used, but all files land in the deploy repository. If
-that matters, switch the component to a small allow-list of static imports.
+Only the pieces allow-listed in `src/components/Background/pieces.ts` are
+bundled (static imports), so the deploy repository gets a handful of chunks
+instead of all 191. To use another piece, add one import line there.
 
-## Known pre-existing issue (not introduced here)
+## Fixed pre-existing issue
 
-`npm ci` on `main` fails with an ERESOLVE peer conflict
-(`@testing-library/preact-hooks@1.1.0` wants `@testing-library/preact@^2`,
-the project has `^3.2.4`). `npm ci --legacy-peer-deps` works and is what was
-used here.
+`npm ci` on `main` used to fail with an ERESOLVE peer conflict
+(`@testing-library/preact-hooks@1.1.0` wants `@testing-library/preact@^2`).
+`@testing-library/preact@3` exports `renderHook` itself, so the stale package
+was removed and the two tests import `renderHook` from there. `npm ci` now
+works without `--legacy-peer-deps`.
 
 ## Decisions needed before wiring it in
 
@@ -105,4 +108,5 @@ used here.
 3. **Opacity**: currently 0.18 light / 0.28 dark in the component's CSS.
 4. **Settings toggle**: should the existing Settings panel get an
    "ascii background" switch (localStorage), like Chaos Mode?
-5. **Fork lockfile**: regenerate against npmjs.org (see security notes)?
+5. **Fork lockfile**: done on the fork's branch; merge that branch in the
+   fork so the pinned commit stays reachable.

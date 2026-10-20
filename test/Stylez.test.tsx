@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { renderHook } from '@testing-library/preact-hooks';
+import { renderHook } from '@testing-library/preact';
 import '@testing-library/jest-dom';
 import { Stylez, skillColor, fontWeight, textCase, useStylez } from '../src/components/ui/Stylez';
 

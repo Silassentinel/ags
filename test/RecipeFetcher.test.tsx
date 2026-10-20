@@ -1,6 +1,5 @@
 import { h } from 'preact';
-import { render, waitFor } from '@testing-library/preact';
-import { renderHook } from '@testing-library/preact-hooks';
+import { render, renderHook, waitFor } from '@testing-library/preact';
 import '@testing-library/jest-dom';
 import RecipeFetcher from '../src/components/ContentBuilder/RecipeFetcher/RecipeFetcher';
 

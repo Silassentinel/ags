@@ -26,7 +26,7 @@
     "@astrojs/preact": "^6.0.5",
     "@astrojs/rss": "^4.0.19",
     "@preact/preset-vite": "^2.10.6",
-    "ascii.rest": "github:Silassentinel/ascii#fcb644403bfc25af0002e415d1006dd10b99ca34",
+    "ascii.rest": "github:Silassentinel/ascii#25b4b18aea77a5c77a327df2969bab15f040c744",
     "astro": "^7.3.4",
     "dotenv": "^18.0.3",
     "node-fetch": "^3.3.2",
@@ -37,7 +37,6 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/preact": "^3.2.4",
-    "@testing-library/preact-hooks": "^1.1.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.2",
     "cross-env": "^10.1.0",

@@ -33,6 +33,19 @@ async function initializeConfig() {
 }
 
 /**
+ * Request headers for api.github.com. With GITHUB_TOKEN set (GitHub Actions
+ * provides one) the request is authenticated, which lifts the 60/hour
+ * unauthenticated rate limit shared by every runner on the same address.
+ * @returns {Record<string, string>} Headers for fetch()
+ */
+function githubHeaders() {
+  const headers = { Accept: 'application/vnd.github+json' };
+  const token = process.env.GITHUB_TOKEN;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+/**
  * Create required directories if they don't exist
  * @param {Object} config Configuration object with paths
  */
@@ -62,7 +75,7 @@ async function fetchRepositoryContents(repoConfig) {
   const repoUrl = `https://api.github.com/repos/${owner}/${name}/contents?ref=${branch}`;
   
   console.log(`🔍 Fetching repository contents from: ${repoUrl}`);
-  const response = await fetch(repoUrl);
+  const response = await fetch(repoUrl, { headers: githubHeaders() });
   
   if (!response.ok) {
     throw new Error(`Failed to fetch repository contents: ${response.statusText}`);
