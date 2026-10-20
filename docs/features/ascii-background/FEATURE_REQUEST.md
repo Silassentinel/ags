@@ -51,11 +51,11 @@ Settled on 2026-10-20 (owner's answers):
 2. **Season source**: Belgium's date (`Europe/Brussels`) regardless of where the visitor is, with meteorological boundaries (Mar–May, Jun–Aug, Sep–Nov, Dec–Feb).
 3. **Pools**: as proposed in [PLAN.md](PLAN.md), accepted unchanged.
 
-Still open:
+4. **Intensity scale and defaults**: implemented as proposed, 0–100 slider mapped to opacity 0–0.6, default 30 (0.18 light, 0.27 dark), dark mode × 1.5 capped at 0.6. The numbers are constants in `prefs.ts`; the owner has not yet confirmed them on a real screen.
+5. **Test-fix strategy for ESM**: settled, ts-jest compiles the ESM-only testing library (see PLAN.md Phase 0).
+6. **Recipes in tests**: settled, the CI test job fetches the real recipes first (`npm run fetch:recipes`) and the two tests skip with a reason when they are absent locally.
 
-4. **Intensity scale and defaults**: proposed 0–100 slider mapped to opacity 0–0.6, default 30 (0.18 light), dark mode scaled up by 1.5 (capped). Numbers to be confirmed visually in Phase 2.
-5. **Test-fix strategy for ESM**: three options exist (see PLAN.md Phase 0); the plan picks one but it must be proven on the branch first.
-6. **Recipes in tests**: two suites read the 34 real recipe pages that only exist after a build fetches them. Make the tests fetch, skip, or ship fixtures?
+Still open: none that block; see PLAN.md's unchecked items (a phone-sized manual check, a CPU measurement on a real device, a `ci.yml` for pull requests).
 
 ## Relationship to existing precedent
 

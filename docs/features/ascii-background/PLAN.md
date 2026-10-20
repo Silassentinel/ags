@@ -70,7 +70,7 @@ Opacity = intensity / 100 × 0.6, multiplied by 1.5 in dark mode and capped at 0
 
 - **Phase 0 — green test suite** (prerequisite for gating deploys; Requirement 9). Done 2026-10-20; CI confirmation pending the first run on `main`.
 - **Phase 1 — seasonal random backdrop on every page** (Requirements 1–3, 6–8). Done 2026-10-20.
-- **Phase 2 — Settings switch and intensity slider** (Requirements 4–5), with tests.
+- **Phase 2 — Settings switch and intensity slider** (Requirements 4–5), with tests. Done 2026-10-20.
 - **Phase 3 — turn on the deploy gate, ship**: make `test` a `needs:` of `deploy`, merge to `main`, confirm the first automatic deploy, check the live site with `/verify-deploy`.
 - Backlog: canvas scenes, visitor piece picker, Belgium-fixed season, Dockerfile Node 22.
 
@@ -103,13 +103,13 @@ Result: 29 of 29 suites pass, 173 tests, 2 skipped (they need the fetched recipe
 - [ ] CPU measurement on a throttled profile: not measured here (headless Chromium gives no reliable main-thread figure). Check once on a real phone; the fps cap of 12 and the pause-when-hidden behaviour are the mitigations.
 - [x] Docs updated.
 
-## Todo — Phase 2 (switch and slider)
+## Todo — Phase 2 (switch and slider) — done 2026-10-20
 
-- [ ] `src/scripts/ui/features/AsciiBackground/prefs.ts`: read/write of the two keys with defaults and validation (clamp 0–100, ignore garbage); unit tests.
-- [ ] `Settings.tsx`: `control` support, the "ASCII background" entry (default on) and its range control; the `feature-setting` event; tests in `test/Settings.test.tsx` for render, toggle, slider and localStorage writes.
-- [ ] Client script: react to both events live (no reload), stop the animation when disabled so it costs nothing.
-- [ ] Dark-mode observer so intensity re-applies when the theme flips via either the header icon or the Settings switch.
-- [ ] Manual check on a phone-sized viewport: slider usable, text readable at 100 %.
+- [x] `src/scripts/ui/features/AsciiBackground/prefs.ts`: the two keys (`asciiBackground`, `asciiBackgroundIntensity`), defaults (on, 30), clamping, a guarded storage access, `opacityFor(intensity, dark)` (intensity / 100 × 0.6, × 1.5 in dark mode, capped at 0.6); unit tests.
+- [x] `Settings.tsx`: an optional `control` per feature; the "ASCII Background" entry (on by default) with an Intensity range (0–100, step 5) under its switch; `feature-setting` event `{ id: 'ascii-background-intensity', value }`. The panel now reads the stored choices in its first render instead of in an effect, so it no longer briefly writes the defaults over the visitor's choices and announces a state they did not pick (that transient affected every feature, Chaos Mode included). Tests in `test/Settings.test.tsx` (rewritten against the real DOM).
+- [x] Client script: honours the switch on load (`hidden` wrapper, nothing loaded or played when off), reacts live to both events, stops the animation and observers when switched off, restarts with the same piece when switched on, re-applies the opacity when `html.dark` flips (MutationObserver).
+- [x] `global.css`: the `.feature-range` control, light and dark.
+- [ ] Manual check on a phone-sized viewport: slider usable, text readable at 100 %. Not done here; headless check at 1200×800 only.
 
 ## Backlog (later phases)
 

@@ -21,6 +21,9 @@
  * So this uses the library's lower-level `mount()` API, like ascii.rest's own
  * site does, and keeps every style in a stylesheet or on the CSSOM.
  *
+ * The Settings panel's "ASCII Background" switch and intensity slider
+ * (src/scripts/ui/features/AsciiBackground/prefs.ts) are honoured on load
+ * and live, through the panel's feature-toggle / feature-setting events.
  * Pieces hold their first frame when the reader prefers reduced motion
  * (mount() handles this) and pause while the tab is hidden. Only the pieces
  * allow-listed in ./pieces.ts are bundled; a wrong `piece` fails the build.
@@ -59,16 +62,24 @@ if (piece !== undefined) {
   import { backdrops, isBackdrop } from "./pieces";
   import { seasonFor } from "../../scripts/ui/features/AsciiBackground/seasons";
   import { pickBackdrop } from "../../scripts/ui/features/AsciiBackground/pool";
+  import {
+    FEATURE_ID,
+    INTENSITY_SETTING_ID,
+    opacityFor,
+    readEnabled,
+    readIntensity,
+  } from "../../scripts/ui/features/AsciiBackground/prefs";
 
   // Monospace glyphs are about 0.6em wide and rows are 1.2em tall (see the stylesheet below).
   const GLYPH_W = 0.6;
   const LINE_H = 1.2;
 
-  async function start(pre: HTMLPreElement) {
-    const wrap = pre.parentElement as HTMLElement;
+  /** Loads the piece and plays it in the wrapper. Returns a function that stops everything it started. */
+  async function start(wrap: HTMLElement): Promise<() => void> {
+    const pre = wrap.querySelector<HTMLElement>(".ascii-bg__piece") as HTMLElement;
     const fps = Number(pre.dataset.fps) || 12;
 
-    // A fixed piece from the markup, or the seasonal random pick.
+    // A fixed piece from the markup (or an earlier start), or the seasonal random pick.
     const fixed = pre.dataset.piece ?? "";
     const season = seasonFor();
     const name = isBackdrop(fixed) ? fixed : pickBackdrop(season);
@@ -79,10 +90,12 @@ if (piece !== undefined) {
     const { cols, rows, cell = 2, palette } = piece.meta;
     let el: HTMLElement = pre;
 
-    if (palette) {
+    if (palette && !(pre instanceof HTMLCanvasElement)) {
       // A coloured piece draws on a canvas as wide as its box; mount() keeps the aspect ratio.
       el = document.createElement("canvas");
       el.className = "ascii-bg__piece";
+      el.dataset.piece = name;
+      el.dataset.fps = String(fps);
       // Astro scopes this component's styles with a data-astro-cid-* attribute; carry it over so the rules apply.
       for (const { name: attr } of Array.from(pre.attributes)) if (attr.startsWith("data-astro-cid")) el.setAttribute(attr, "");
       pre.replaceWith(el);
@@ -102,14 +115,72 @@ if (piece !== undefined) {
       }
     };
     fit();
-    new ResizeObserver(fit).observe(wrap);
+    const ro = new ResizeObserver(fit);
+    ro.observe(wrap);
 
-    mount(el, piece, { fps });
+    const stop = mount(el, piece, { fps });
+    return () => {
+      ro.disconnect();
+      stop();
+    };
   }
 
-  document.querySelectorAll<HTMLPreElement>(".ascii-bg > pre").forEach((pre) => {
-    start(pre).catch((error) => console.warn("AsciiBackground: could not start", error));
-  });
+  /** Ties one backdrop to the visitor's preferences and the Settings panel's events. */
+  function control(wrap: HTMLElement) {
+    let stop: (() => void) | null = null;
+    let starting = false;
+    let intensity = readIntensity();
+
+    const isDark = () => document.documentElement.classList.contains("dark");
+    const applyOpacity = () => {
+      wrap.style.opacity = String(opacityFor(intensity, isDark()));
+    };
+
+    const show = async () => {
+      wrap.hidden = false;
+      applyOpacity();
+      if (stop || starting) return;
+      starting = true;
+      try {
+        const stopper = await start(wrap);
+        // Switched off again while the piece was loading
+        if (wrap.hidden) stopper();
+        else stop = stopper;
+      } catch (error) {
+        console.warn("AsciiBackground: could not start", error);
+      } finally {
+        starting = false;
+      }
+    };
+
+    const hide = () => {
+      wrap.hidden = true;
+      stop?.();
+      stop = null;
+    };
+
+    document.addEventListener("feature-toggle", (event) => {
+      const detail = (event as CustomEvent<{ id: string; enabled: boolean }>).detail;
+      if (detail?.id !== FEATURE_ID) return;
+      if (detail.enabled) show();
+      else hide();
+    });
+
+    document.addEventListener("feature-setting", (event) => {
+      const detail = (event as CustomEvent<{ id: string; value: number }>).detail;
+      if (detail?.id !== INTENSITY_SETTING_ID) return;
+      intensity = Number(detail.value);
+      applyOpacity();
+    });
+
+    // Dark mode flips via the header icon or the Settings switch: re-apply the opacity either way.
+    new MutationObserver(applyOpacity).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    if (readEnabled()) show();
+    else hide();
+  }
+
+  document.querySelectorAll<HTMLElement>(".ascii-bg").forEach(control);
 </script>
 
 <style>
@@ -123,13 +194,17 @@ if (piece !== undefined) {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Faint by default so the page's text stays readable; tune per theme. */
+    /* Defaults for the intensity slider at 30; the script sets the real opacity from the visitor's choice. */
     opacity: 0.18;
     color: #000;
   }
 
+  .ascii-bg[hidden] {
+    display: none; /* switched off in Settings */
+  }
+
   :global(html.dark) .ascii-bg {
-    opacity: 0.28;
+    opacity: 0.27;
     color: #fff;
   }
 

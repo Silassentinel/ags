@@ -1,11 +1,32 @@
 import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import {
+  FEATURE_ID as ASCII_BACKGROUND_ID,
+  INTENSITY_SETTING_ID,
+  clampIntensity,
+  readEnabled as readAsciiBackgroundEnabled,
+  readIntensity as readAsciiBackgroundIntensity,
+  writeEnabled as writeAsciiBackgroundEnabled,
+  writeIntensity as writeAsciiBackgroundIntensity,
+} from '../../scripts/ui/features/AsciiBackground/prefs';
+
+/** A secondary control shown under a feature's switch, e.g. an intensity slider. */
+interface FeatureControl {
+  type: 'range';
+  /** Id of the input and of the `feature-setting` event it dispatches. */
+  id: string;
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+}
 
 interface FeatureToggle {
   id: string;
   name: string;
   enabled: boolean;
   description: string;
+  control?: FeatureControl;
 }
 
 /**
@@ -30,6 +51,65 @@ const setLocalStorageItem = (key: string, value: string): void => {
   }
 };
 
+/** Whether a feature is on, from localStorage (its default when nothing is stored). */
+const storedEnabled = (id: string): boolean => {
+  switch (id) {
+    case 'chaos-mode':
+      return getLocalStorageItem('chaosMode') === 'enabled';
+    case 'obfuscator':
+      return getLocalStorageItem('obfuscator') === 'enabled';
+    case 'content-highlighter':
+      return getLocalStorageItem('contentHighlighter') !== 'disabled';
+    case 'dark-mode':
+      return getLocalStorageItem('theme') === 'dark';
+    case ASCII_BACKGROUND_ID:
+      return readAsciiBackgroundEnabled();
+    default:
+      return false;
+  }
+};
+
+const FEATURES: FeatureToggle[] = [
+  {
+    id: 'chaos-mode',
+    name: 'Chaos Mode',
+    enabled: false,
+    description: 'Adds random chaotic effects to the page'
+  },
+  {
+    id: 'obfuscator',
+    name: 'Text Obfuscator',
+    enabled: false,
+    description: 'Obfuscates text on the page with various effects'
+  },
+  {
+    id: 'content-highlighter',
+    name: 'Content Highlighter',
+    enabled: true,
+    description: 'Highlights content in viewport and darkens content outside'
+  },
+  {
+    id: 'dark-mode',
+    name: 'Dark Mode',
+    enabled: false,
+    description: 'Toggles between dark and light theme'
+  },
+  {
+    id: ASCII_BACKGROUND_ID,
+    name: 'ASCII Background',
+    enabled: true,
+    description: 'Plays a seasonal ascii art piece behind the page',
+    control: {
+      type: 'range',
+      id: INTENSITY_SETTING_ID,
+      label: 'Intensity',
+      min: 0,
+      max: 100,
+      step: 5,
+    },
+  },
+];
+
 /**
  * Settings component for toggling various UI features
  * This component provides a settings panel to enable/disable various features
@@ -38,58 +118,15 @@ const setLocalStorageItem = (key: string, value: string): void => {
 const Settings = () => {
   // Initialize state
   const [isOpen, setIsOpen] = useState(false);
-  const [features, setFeatures] = useState<FeatureToggle[]>([
-    {
-      id: 'chaos-mode',
-      name: 'Chaos Mode',
-      enabled: false,
-      description: 'Adds random chaotic effects to the page'
-    },
-    {
-      id: 'obfuscator',
-      name: 'Text Obfuscator',
-      enabled: false,
-      description: 'Obfuscates text on the page with various effects'
-    },
-    {
-      id: 'content-highlighter',
-      name: 'Content Highlighter',
-      enabled: true,
-      description: 'Highlights content in viewport and darkens content outside'
-    },
-    {
-      id: 'dark-mode',
-      name: 'Dark Mode',
-      enabled: false,
-      description: 'Toggles between dark and light theme'
-    }
-  ]);
-  
-  // Initialize state from localStorage if available after component mounts
-  useEffect(() => {
-    if (!isBrowser()) return;
-    
-    setFeatures(prev => prev.map(feature => {
-      let enabled = false;
-      
-      switch (feature.id) {
-        case 'chaos-mode':
-          enabled = getLocalStorageItem('chaosMode') === 'enabled';
-          break;
-        case 'obfuscator':
-          enabled = getLocalStorageItem('obfuscator') === 'enabled';
-          break;
-        case 'content-highlighter':
-          enabled = getLocalStorageItem('contentHighlighter') !== 'disabled';
-          break;
-        case 'dark-mode':
-          enabled = getLocalStorageItem('theme') === 'dark';
-          break;
-      }
-      
-      return { ...feature, enabled };
-    }));
-  }, []);
+  // Read the stored choices on the first render (the component only renders
+  // in the browser), so the first persistence effect below never writes the
+  // defaults over them and never announces a state the visitor did not pick.
+  const [features, setFeatures] = useState<FeatureToggle[]>(() =>
+    isBrowser() ? FEATURES.map(feature => ({ ...feature, enabled: storedEnabled(feature.id) })) : FEATURES
+  );
+  const [intensity, setIntensity] = useState<number>(() =>
+    isBrowser() ? readAsciiBackgroundIntensity() : clampIntensity(undefined)
+  );
 
   // Update localStorage when features change
   useEffect(() => {
@@ -115,6 +152,9 @@ const Settings = () => {
             document.documentElement.classList.toggle('dark', feature.enabled);
           }
           break;
+        case ASCII_BACKGROUND_ID:
+          writeAsciiBackgroundEnabled(feature.enabled);
+          break;
       }
 
       // Dispatch a custom event so other components can react to setting changes
@@ -125,6 +165,15 @@ const Settings = () => {
       }
     });
   }, [features]);
+
+  // Persist and announce the intensity slider
+  useEffect(() => {
+    if (!isBrowser()) return;
+    writeAsciiBackgroundIntensity(intensity);
+    document.dispatchEvent(new CustomEvent('feature-setting', {
+      detail: { id: INTENSITY_SETTING_ID, value: intensity }
+    }));
+  }, [intensity]);
 
   // Toggle a feature by ID
   const toggleFeature = (id: string) => {
@@ -192,6 +241,21 @@ const Settings = () => {
                   </label>
                 </div>
                 <p class="feature-description">{feature.description}</p>
+                {feature.control && (
+                  <label class="feature-range" htmlFor={feature.control.id}>
+                    <span>{feature.control.label}: {intensity}%</span>
+                    <input
+                      type="range"
+                      id={feature.control.id}
+                      min={feature.control.min}
+                      max={feature.control.max}
+                      step={feature.control.step}
+                      value={intensity}
+                      disabled={!feature.enabled}
+                      onInput={(event) => setIntensity(clampIntensity((event.currentTarget as HTMLInputElement).value))}
+                    />
+                  </label>
+                )}
               </li>
             ))}
           </ul>

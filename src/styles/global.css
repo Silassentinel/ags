@@ -545,6 +545,29 @@ span.date {
   color: #ccc;
 }
 
+/* A secondary range control under a feature switch (the ASCII background intensity) */
+.feature-range {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.feature-range input[type="range"] {
+  width: 100%;
+  accent-color: #000;
+}
+
+.feature-range input[type="range"]:disabled {
+  opacity: 0.4;
+}
+
+.dark .feature-range input[type="range"] {
+  accent-color: #fff;
+}
+
 /* Toggle Switch Styles */
 .toggle-switch {
   position: relative;

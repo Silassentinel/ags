@@ -1,9 +1,9 @@
 # ASCII art backgrounds (ascii.rest) — preparation notes
 
-Status: **wired in on every page** (Phase 1 of
-[features/ascii-background/PLAN.md](features/ascii-background/PLAN.md), 2026-10-20).
-The Settings switch and intensity slider (Phase 2) are still to come; the
-decisions at the end of this file were answered on 2026-10-20.
+Status: **live on every page, with the Settings switch and intensity slider**
+(Phases 1 and 2 of [features/ascii-background/PLAN.md](features/ascii-background/PLAN.md),
+2026-10-20). The decisions at the end of this file were answered on
+2026-10-20.
 
 ## What was checked (2026-10-20)
 
@@ -53,6 +53,12 @@ from the pool of the current season in Belgium
 | zomer, Jun–Aug | fireflies, sea-swell, starfield, sunrise, wind |
 | herfst, Sep–Nov | wind, rain, flow-field, lightning, ruled-mountains |
 | winter, Dec–Feb | snowfall, starfield, aurora, contour-map, moon-phases |
+
+Visitors control it from the Settings panel (gear icon): an "ASCII
+Background" switch (on by default) and an Intensity slider (0–100, default
+30, stored as `asciiBackground` / `asciiBackgroundIntensity` in
+localStorage). Opacity is intensity / 100 × 0.6, × 1.5 in dark mode, capped
+at 0.6. Switching off stops the animation entirely.
 
 For a demo or a one-off page a fixed piece can be forced; its first frame
 is then rendered at build time:
