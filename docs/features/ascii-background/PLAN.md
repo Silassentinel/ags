@@ -51,7 +51,7 @@ BaseLayout.astro
 | herfst, Sep–Nov | wind (15), rain (30), flow-field (20), lightning (20), ruled-mountains (10) |
 | winter, Dec–Feb | snowfall (20), starfield (30), aurora (20), contour-map (8), moon-phases (15) |
 
-`pieces.ts` becomes the union of these pools (18 pieces instead of 7; still static imports, about 20 small chunks).
+`pieces.ts` is the union of these pools (17 pieces, lazy imports, one small chunk each).
 
 **Preferences (localStorage, same conventions as `Settings.tsx`):**
 
@@ -69,7 +69,7 @@ Opacity = intensity / 100 × 0.6, multiplied by 1.5 in dark mode and capped at 0
 ## Phasing
 
 - **Phase 0 — green test suite** (prerequisite for gating deploys; Requirement 9). Done 2026-10-20; CI confirmation pending the first run on `main`.
-- **Phase 1 — seasonal random backdrop on every page** (Requirements 1–3, 6–8).
+- **Phase 1 — seasonal random backdrop on every page** (Requirements 1–3, 6–8). Done 2026-10-20.
 - **Phase 2 — Settings switch and intensity slider** (Requirements 4–5), with tests.
 - **Phase 3 — turn on the deploy gate, ship**: make `test` a `needs:` of `deploy`, merge to `main`, confirm the first automatic deploy, check the live site with `/verify-deploy`.
 - Backlog: canvas scenes, visitor piece picker, Belgium-fixed season, Dockerfile Node 22.
@@ -92,16 +92,16 @@ Result: 29 of 29 suites pass, 173 tests, 2 skipped (they need the fetched recipe
 - [x] Deploy gate on: `deploy` now `needs: test` in `.github/workflows/deploy.yml`.
 - [ ] A `ci.yml` on pull requests (not only pushes to `main`): still to do; cheap, see backlog.
 
-## Todo — Phase 1 (seasonal random backdrop)
+## Todo — Phase 1 (seasonal random backdrop) — done 2026-10-20
 
-- [ ] `src/scripts/ui/features/AsciiBackground/seasons.ts`: `seasonFor(date): 'lente'|'zomer'|'herfst'|'winter'` from the month in `Europe/Brussels` (`Intl.DateTimeFormat`, so a visitor abroad sees Belgium's season); unit tests for every boundary month and for a UTC instant that is already the next month in Brussels.
-- [ ] `src/scripts/ui/features/AsciiBackground/pool.ts`: `POOLS` per season and `pick(pool, random)`; tests that every pool entry is in `pieces.ts` and that `pick` covers the whole pool.
-- [ ] `src/components/Background/pieces.ts`: extend the allow-list to the 18 pool pieces.
-- [ ] `AsciiBackground.astro`: drop the `piece` prop path (keep it as an optional override for demos), pick in the client script, cap fps at 12, keep the CSSOM-only styling.
-- [ ] Mount `<AsciiBackground />` in `BaseLayout.astro`.
-- [ ] Build with the production config; headless-Chromium check as before (no CSP violations, no external requests, plays, reduced motion holds, dark mode flips) on at least the home page, a recipe page and the seizoenskalender.
-- [ ] Measure: main-thread time of the animation on a throttled CPU profile (target: well under 10 % of a core at 12 fps on desktop).
-- [ ] Update [../../ascii-background.md](../../ascii-background.md) and this file.
+- [x] `src/scripts/ui/features/AsciiBackground/seasons.ts`: `seasonFor(date)` from the month in `Europe/Brussels` via `Intl.DateTimeFormat`; tests cover every month and two UTC instants that are already the next month in Brussels (CET and CEST).
+- [x] `src/scripts/ui/features/AsciiBackground/pool.ts`: `POOLS` typed `satisfies Record<Season, readonly BackdropName[]>` (a piece that is not allow-listed fails `astro check`), `pick()` clamps a `random()` of 1 or below 0; tests for coverage and uniformity.
+- [x] `src/components/Background/pieces.ts`: 17 pool pieces as lazy imports (`() => import("ascii.rest/pieces/…")`), one chunk each, fetched only when that piece plays.
+- [x] `AsciiBackground.astro`: `piece` is an optional override (first frame pre-rendered when given); otherwise the client script picks from the season's pool; fps defaults to 12; CSSOM-only styling; the wrapper carries `data-season` and the `<pre>` the chosen `data-piece` for inspection.
+- [x] Mounted in `BaseLayout.astro`.
+- [x] Production-config build: 28 files, 156 KB in `_astro/`. Headless Chromium on `/`, `/tags/` and `/seizoenskalender/`: season `herfst`, pieces vary across loads (rain, lightning, flow-field, wind seen), zero CSP violations, zero external requests, animation runs, frame held under `prefers-reduced-motion: reduce`, ink flips with `html.dark`.
+- [ ] CPU measurement on a throttled profile: not measured here (headless Chromium gives no reliable main-thread figure). Check once on a real phone; the fps cap of 12 and the pause-when-hidden behaviour are the mitigations.
+- [x] Docs updated.
 
 ## Todo — Phase 2 (switch and slider)
 

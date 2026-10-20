@@ -1,11 +1,9 @@
 # ASCII art backgrounds (ascii.rest) — preparation notes
 
-Status: **prepared, not wired in**. The library is installed and a backdrop
-component exists, but no page uses it yet. The design and implementation
-plan lives in [features/ascii-background/PLAN.md](features/ascii-background/PLAN.md);
-the decisions at the end of this file were answered on 2026-10-20 (every
-page, random per page, seasonal pools, switch plus intensity slider, test
-suite fixed first).
+Status: **wired in on every page** (Phase 1 of
+[features/ascii-background/PLAN.md](features/ascii-background/PLAN.md), 2026-10-20).
+The Settings switch and intensity slider (Phase 2) are still to come; the
+decisions at the end of this file were answered on 2026-10-20.
 
 ## What was checked (2026-10-20)
 
@@ -42,33 +40,30 @@ does. It renders the first frame at build time, scales the piece to cover the
 viewport from script (CSSOM only, no inline style attributes) and keeps all
 styling in a scoped stylesheet.
 
-## How to try it
+## How it is used
+
+`src/layout/BaseLayout.astro` mounts `<AsciiBackground />` once, so every
+page gets a backdrop. On each page load the browser picks a random piece
+from the pool of the current season in Belgium
+(`src/scripts/ui/features/AsciiBackground/seasons.ts` and `pool.ts`):
+
+| season (Europe/Brussels, meteorological) | pool |
+|---|---|
+| lente, Mar–May | cherry-blossom, rain, fern, butterfly, pond-ripples |
+| zomer, Jun–Aug | fireflies, sea-swell, starfield, sunrise, wind |
+| herfst, Sep–Nov | wind, rain, flow-field, lightning, ruled-mountains |
+| winter, Dec–Feb | snowfall, starfield, aurora, contour-map, moon-phases |
+
+For a demo or a one-off page a fixed piece can be forced; its first frame
+is then rendered at build time:
 
 ```astro
----
-import BaseLayout from "../layout/BaseLayout.astro";
-import AsciiBackground from "../components/Background/AsciiBackground.astro";
----
-<BaseLayout pageTitle="Home">
-  <AsciiBackground piece="matrix-rain" fps={12} />
-  …
-</BaseLayout>
+<AsciiBackground piece="snowfall" fps={10} />
 ```
 
-`piece` is one of the names allow-listed in `src/components/Background/pieces.ts`
-(type-checked at build time; a wrong name fails the build). `fps` is optional
-and lowers CPU use.
-
-Good backdrop candidates (all text pieces unless noted):
-
-| piece | size | native fps | note |
-|---|---|---|---|
-| `matrix-rain` | 63×24 | 20 | the obvious one |
-| `starfield` | 64×24 | 30 | options `{ stars, speed }` |
-| `rain`, `snowfall` | 64×20 / 64×22 | 30 / 20 | quiet |
-| `flow-field`, `plasma` | 64×22 | 20 / 24 | generative |
-| `contour-map` | 72×20 | 8 | very cheap |
-| `night-coast`, `aurora-fjord` | 200×100 | 15 | coloured scenes on a `<canvas>`, dark ground |
+`piece` must be one of the names allow-listed in
+`src/components/Background/pieces.ts` (type-checked; a wrong name fails the
+build). `fps` defaults to 12.
 
 ## Security / supply-chain notes
 
@@ -91,9 +86,11 @@ Good backdrop candidates (all text pieces unless noted):
 
 ## Build-output note
 
-Only the pieces allow-listed in `src/components/Background/pieces.ts` are
-bundled (static imports), so the deploy repository gets a handful of chunks
-instead of all 191. To use another piece, add one import line there.
+Only the 17 pieces allow-listed in `src/components/Background/pieces.ts`
+are bundled, each as its own lazy chunk that is fetched only when it plays:
+28 files, 156 KB in `_astro/` for the whole site (was about 200 files and
+1.2 MB with the library's `load[]` lookup). To use another piece, add one
+line there and, if it should play by itself, put it in a pool.
 
 ## Fixed pre-existing issue
 

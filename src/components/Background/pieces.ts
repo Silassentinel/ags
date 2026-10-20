@@ -1,30 +1,35 @@
 /*
  * The ascii.rest pieces this site may use as a backdrop.
  *
- * A static allow-list instead of the library's `load[name]` lookup: `load`
- * keeps all 191 pieces reachable, so the build would ship 191 lazy chunks
- * (about 1.2 MB) to the deploy repository. With static imports only the
- * pieces listed here are bundled. Add a line to allow another piece; the
- * name must be the piece's file name on ascii.rest.
+ * A static allow-list of lazy imports instead of the library's `load[name]`
+ * lookup: `load` keeps all 191 pieces reachable, so the build would ship
+ * 191 chunks (about 1.2 MB) to the deploy repository. Each entry here
+ * becomes one small chunk that is only fetched when that piece plays. The
+ * seasonal pools in src/scripts/ui/features/AsciiBackground/pool.ts are
+ * typed against these names. To allow another piece, add one line; the
+ * key must be the piece's file name on ascii.rest.
  */
 import type { Piece } from "ascii.rest";
-import * as contourMap from "ascii.rest/pieces/contour-map";
-import * as flowField from "ascii.rest/pieces/flow-field";
-import * as matrixRain from "ascii.rest/pieces/matrix-rain";
-import * as nightCoast from "ascii.rest/pieces/night-coast";
-import * as rain from "ascii.rest/pieces/rain";
-import * as snowfall from "ascii.rest/pieces/snowfall";
-import * as starfield from "ascii.rest/pieces/starfield";
 
 export const backdrops = {
-  "contour-map": contourMap,
-  "flow-field": flowField,
-  "matrix-rain": matrixRain,
-  "night-coast": nightCoast,
-  rain,
-  snowfall,
-  starfield,
-} satisfies Record<string, Piece>;
+  "aurora": () => import("ascii.rest/pieces/aurora"),
+  "butterfly": () => import("ascii.rest/pieces/butterfly"),
+  "cherry-blossom": () => import("ascii.rest/pieces/cherry-blossom"),
+  "contour-map": () => import("ascii.rest/pieces/contour-map"),
+  "fern": () => import("ascii.rest/pieces/fern"),
+  "fireflies": () => import("ascii.rest/pieces/fireflies"),
+  "flow-field": () => import("ascii.rest/pieces/flow-field"),
+  "lightning": () => import("ascii.rest/pieces/lightning"),
+  "moon-phases": () => import("ascii.rest/pieces/moon-phases"),
+  "pond-ripples": () => import("ascii.rest/pieces/pond-ripples"),
+  "rain": () => import("ascii.rest/pieces/rain"),
+  "ruled-mountains": () => import("ascii.rest/pieces/ruled-mountains"),
+  "sea-swell": () => import("ascii.rest/pieces/sea-swell"),
+  "snowfall": () => import("ascii.rest/pieces/snowfall"),
+  "starfield": () => import("ascii.rest/pieces/starfield"),
+  "sunrise": () => import("ascii.rest/pieces/sunrise"),
+  "wind": () => import("ascii.rest/pieces/wind"),
+} satisfies Record<string, () => Promise<Piece>>;
 
 export type BackdropName = keyof typeof backdrops;
 

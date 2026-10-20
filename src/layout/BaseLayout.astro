@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Header from "../components/Header/Header.astro";
 import Footer from "../components/Footer/Footer.astro";
 import ClientScripts from "../components/ui/ClientScripts";
+import AsciiBackground from "../components/Background/AsciiBackground.astro";
 const { pageTitle } = Astro.props;
 ---
 
@@ -15,6 +16,8 @@ const { pageTitle } = Astro.props;
         <title>{pageTitle}</title>
     </head>
     <body>
+        <!-- Seasonal animated ascii backdrop, behind everything (docs/features/ascii-background/) -->
+        <AsciiBackground />
         <Header />
         <h1 class="brutalist-title">{pageTitle}</h1>
         <main>
