@@ -32,7 +32,7 @@ BaseLayout.astro
     └── <script>                  bundled by Astro → external module, allowed by script-src 'self'
           prefs.read()            localStorage: asciiBackground, asciiBackgroundIntensity
           if disabled → remove wrapper, done
-          season = seasonFor(new Date())          seasons.ts (pure, unit-tested)
+          season = seasonFor(new Date())          seasons.ts: month in Europe/Brussels via Intl, pure, unit-tested
           piece  = pick(POOLS[season], Math.random) pool.ts  (pure, unit-tested)
           fit()   font-size via CSSOM so cols×rows cover the viewport (existing code)
           wrap.style.opacity = opacityFor(intensity, isDark)   CSSOM, not an attribute
@@ -64,33 +64,37 @@ Opacity = intensity / 100 × 0.6, multiplied by 1.5 in dark mode and capped at 0
 
 **Settings panel:** `FeatureToggle` gets an optional `control: { type: 'range'; min; max; step; storageKey; value }`. The list renders a `<input type="range">` under the switch when present, writes the value to localStorage on input, and dispatches `feature-setting` with `{ id, value }`. The existing `feature-toggle` dispatch covers the switch. The range input is labelled and keyboard operable (native control).
 
-**Why the first frame is no longer pre-rendered:** with a random pick in the browser the server cannot know the piece. The wrapper is `position: fixed`, so an empty `<pre>` causes no layout shift; the piece appears when the module runs (tens of milliseconds after HTML). If open question 1 resolves to "stable per page", the build-time pick returns and the first frame comes back for free.
+**Why the first frame is no longer pre-rendered:** the owner chose a fresh random pick per page load (2026-10-20), so the server cannot know the piece. The wrapper is `position: fixed`, so an empty `<pre>` causes no layout shift; the piece appears when the module runs (tens of milliseconds after HTML). If open question 1 resolves to "stable per page", the build-time pick returns and the first frame comes back for free.
 
 ## Phasing
 
-- **Phase 0 — green test suite** (prerequisite for gating deploys; Requirement 9).
+- **Phase 0 — green test suite** (prerequisite for gating deploys; Requirement 9). Done 2026-10-20; CI confirmation pending the first run on `main`.
 - **Phase 1 — seasonal random backdrop on every page** (Requirements 1–3, 6–8).
 - **Phase 2 — Settings switch and intensity slider** (Requirements 4–5), with tests.
 - **Phase 3 — turn on the deploy gate, ship**: make `test` a `needs:` of `deploy`, merge to `main`, confirm the first automatic deploy, check the live site with `/verify-deploy`.
 - Backlog: canvas scenes, visitor piece picker, Belgium-fixed season, Dockerfile Node 22.
 
-## Todo — Phase 0 (green test suite)
+## Todo — Phase 0 (green test suite) — done 2026-10-20
 
-- [ ] `jest.config.js`: exempt `@testing-library` from `transformIgnorePatterns` and give Jest a transform for its `.mjs` (ts-jest with `allowJs`, or `babel-jest`); if that proves brittle, fall back to running Jest in native ESM mode (`NODE_OPTIONS=--experimental-vm-modules`) or Node 24.9+ (`require(esm)`), and record which one won in this file.
-- [ ] Re-run the 13 `.tsx` suites; fix whatever the ESM fix uncovers, suite by suite.
-- [ ] `test/ts/Menu.test.ts`: delete, or restore `src/scripts/ui/Menu.ts` from `Menu.ts.bak` if the Preact `Menu.tsx` does not already cover it. Same question for `Stylez.ts.bak`.
-- [ ] `test/ts/Theme.test.ts`, `Utilities.test.ts`, `ContentHighlight.test.ts`: replace "replace the DOM with jest.fn objects" with `jest.spyOn` on real jsdom (`classList.add`, `matchMedia` via `Object.defineProperty`, `innerWidth`).
-- [ ] `test/ts/ChaosMode.test.ts`: stop `ChaosMode.ts` from self-initialising at import (export `initChaosMode`, call it from the component only), then test against jsdom.
-- [ ] `test/ts/Obfuscator.test.ts`: make `onlyVisible` testable (inject a visibility predicate) and give `cyclicObfuscation` a non-recursive scheduler; test with fake timers.
-- [ ] Recipes-dependent suites: extract `fetchRecipes` into `npm run fetch:recipes` (same code path as the build), run it in the CI `test` job before `npm run test:ci`, and make the two suites `test.skip` with a clear reason when `src/pages/posts/` is absent locally.
-- [ ] Root-cause the remaining `PreserveBuild` end-to-end failure.
-- [ ] `test/ts/RecipeFetcher.test.ts` / `test/ts/UrlSchemeSanitizerPlugin.test.ts`: confirm they no longer write into the real `src/pages/posts/` (RT-2026-09-06-03 / -07 regression check).
-- [ ] `npm run test:ci` green locally three times in a row (the findings log mentions an intermittent `CspBuild` race).
-- [ ] Add a `ci.yml` (or reuse the `test` job) on pull requests so the suite runs before merge, not only on `main`.
+Result: 29 of 29 suites pass, 173 tests, 2 skipped (they need the fetched recipes and run in CI), stable over three consecutive runs; `astro check` 0 errors.
+
+- [x] `jest.config.js`: `@testing-library` exempted from `transformIgnorePatterns`; its ESM-only `.mjs` is compiled by ts-jest (`allowJs`, CommonJS). This won over native ESM mode and Node 24 because it needed no change to how tests are written or run. The `preact` module mocks were removed: they stubbed `render` and `act`, so no component test could ever render.
+- [x] `jest.setup.ts` rewritten: real jsdom DOM, only `IntersectionObserver`, `ResizeObserver`, `matchMedia`, viewport size and a non-networking `fetch` are provided; DOM and storage reset before every test. The old setup replaced `document.documentElement`, `body` and the query methods with `jest.fn()` objects, which is why 13 suites could not find what they rendered.
+- [x] `test/ts/Menu.test.ts`: `src/scripts/ui/Menu.ts` restored from `Menu.ts.bak` (no self-start on import; `initNavMenu` returns a cleanup) and `Menu.tsx` delegates to it. The test for the removed `DOMContentLoaded` self-start was dropped.
+- [x] `test/ts/Theme.test.ts`, `Utilities.test.ts`, `ContentHighlight.test.ts`, `test/Theme.test.tsx`: rewritten against the real DOM with `jest.spyOn`; `GetScreenDimensions` exported.
+- [x] `ChaosMode.ts` / `Index.ts` no longer self-start on import (the component calls `initChaosMode()`), and `initialize()` is idempotent (a re-mount used to double-count clicks). `test/ts/ChaosMode.test.ts` and `test/ChaosMode.test.tsx` rewritten to test thresholds, the Settings switch and the user-disabled guard.
+- [x] `test/ts/Obfuscator.test.ts` rewritten (visibility via `getBoundingClientRect`, fake timers for the cycle); the duplicate `test/Obfuscator.test.tsx` removed.
+- [x] Recipes-dependent suites: `npm run fetch:recipes` (`scripts/fetch-recipes.js`, same code path as the build) runs in the CI `test` job before the suite; the two tests that read the real recipes skip with the reason in their name when `src/pages/posts/` is empty.
+- [x] Remaining `PreserveBuild` end-to-end failure root-caused: `backupItem()`/`restoreItem()` shelled out to `rsync`, which is not installed here (and may not be where the build runs); a failed backup silently lost `.git`. Both now use `fs.cpSync`.
+- [x] `RecipeFetcher.tsx` uses the same not-a-recipe list as the build script (`1ATEMPLATE.MD`, `README.md`, `test-recipe.md`); its test assumed that.
+- [x] `test/Greeting.test.tsx`: the mocked `Math.random` sequence was off by one; now spied and restored per test.
+- [x] `npm run test:ci` green three times in a row.
+- [x] Deploy gate on: `deploy` now `needs: test` in `.github/workflows/deploy.yml`.
+- [ ] A `ci.yml` on pull requests (not only pushes to `main`): still to do; cheap, see backlog.
 
 ## Todo — Phase 1 (seasonal random backdrop)
 
-- [ ] `src/scripts/ui/features/AsciiBackground/seasons.ts`: `seasonFor(date): 'lente'|'zomer'|'herfst'|'winter'` (meteorological months); unit tests for every boundary month.
+- [ ] `src/scripts/ui/features/AsciiBackground/seasons.ts`: `seasonFor(date): 'lente'|'zomer'|'herfst'|'winter'` from the month in `Europe/Brussels` (`Intl.DateTimeFormat`, so a visitor abroad sees Belgium's season); unit tests for every boundary month and for a UTC instant that is already the next month in Brussels.
 - [ ] `src/scripts/ui/features/AsciiBackground/pool.ts`: `POOLS` per season and `pick(pool, random)`; tests that every pool entry is in `pieces.ts` and that `pick` covers the whole pool.
 - [ ] `src/components/Background/pieces.ts`: extend the allow-list to the 18 pool pieces.
 - [ ] `AsciiBackground.astro`: drop the `piece` prop path (keep it as an optional override for demos), pick in the client script, cap fps at 12, keep the CSSOM-only styling.
@@ -112,8 +116,8 @@ Opacity = intensity / 100 × 0.6, multiplied by 1.5 in dark mode and capped at 0
 - Stable-per-page variant with a pre-rendered first frame, if open question 1 flips.
 - Canvas scenes (night-coast, aurora-fjord) as optional "cover" backdrops, with a per-pool fps cap.
 - A visitor-facing piece picker, or an "ascii art" page showing the pool.
-- Belgium-fixed season (Europe/Brussels) instead of the visitor's clock.
 - Dockerfile: Node 22 base image (currently 18; the project's `engines` already exclude it).
+- A `ci.yml` that runs the suite on pull requests.
 
 ## Security / operational considerations
 

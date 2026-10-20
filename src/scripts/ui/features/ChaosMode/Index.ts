@@ -46,14 +46,5 @@ export type {
   DEFAULT_CONFIG
 };
 
-// Auto-initialize if in browser environment
-if (typeof window !== 'undefined') {
-  // Wait for DOM to be fully loaded
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    // DOM already loaded, initialize immediately
-    initChaosMode();
-  } else {
-    // Wait for DOM to load
-    document.addEventListener('DOMContentLoaded', initChaosMode);
-  }
-}
+// No auto-initialisation here either: the Preact ChaosMode component owns
+// the lifecycle (see ChaosMode.ts).

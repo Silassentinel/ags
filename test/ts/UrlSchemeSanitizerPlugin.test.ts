@@ -27,6 +27,12 @@ import * as path from 'path';
 import * as os from 'os';
 
 const projectRoot = path.resolve(__dirname, '../..');
+
+/** See the same helper in PreserveBuild.test.ts: real recipes are only present after `npm run fetch:recipes`. */
+const hasFetchedRecipes = (): boolean => {
+  const dir = path.join(projectRoot, 'src/pages/posts');
+  return fs.existsSync(dir) && fs.readdirSync(dir).some((name) => name.endsWith('.md'));
+};
 const pluginPath = path.join(projectRoot, 'scripts/sanitize-url-schemes.mjs');
 
 /** Runs a small ESM snippet and returns its last line of JSON output. */
@@ -242,6 +248,11 @@ describe('end-to-end: a real `astro build` blocks every bypass payload (RT-2026-
     // suite): a stale test-recipe.md must not break this build either.
     fs.rmSync(path.join(scratchProjectDir, 'src/pages/posts/test-recipe.md'), { force: true });
 
+    // On a fresh checkout src/pages/posts/ does not exist yet (it is
+    // gitignored and only populated by `npm run fetch:recipes`); the
+    // payload page below is enough for the bypass assertions.
+    fs.mkdirSync(path.join(scratchProjectDir, 'src/pages/posts'), { recursive: true });
+
     fs.writeFileSync(
       path.join(scratchProjectDir, 'src/pages/posts', tempPostName),
       frontmatter + body
@@ -297,7 +308,7 @@ describe('end-to-end: a real `astro build` blocks every bypass payload (RT-2026-
     expect(html).toContain('href="https://example.com/page"');
   });
 
-  test('none of the 34 real recipe pages were altered (zero false positives)', () => {
+  (hasFetchedRecipes() ? test : test.skip)('none of the 34 real recipe pages were altered (zero false positives; skipped unless `npm run fetch:recipes` populated src/pages/posts/)', () => {
     const postsDir = path.join(scratchOutDir, 'posts');
     const realRecipeDirs = fs
       .readdirSync(postsDir)

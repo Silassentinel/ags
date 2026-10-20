@@ -13,7 +13,7 @@ that repository; this repository only holds the source.
 1. checks out this repository into `ags/` and the deploy repository into
    `silassentinel.github.io/` next to it, the layout `astro.config.mjs`
    expects (`outDir: "../silassentinel.github.io/"`);
-2. runs `npm ci`;
+2. runs `npm ci` (after the `test` job passed);
 3. runs `npm run build` (`scripts/preserve-build.js`), which fetches the
    recipes, builds with Astro and keeps the deploy checkout's `.git`,
    `CNAME` and `.nojekyll`;
@@ -22,11 +22,12 @@ that repository; this repository only holds the source.
 
 Deploys never overlap: a second push waits for the running deploy.
 
-A separate `test` job runs `npm run test:ci` on the same push. It is
-**non-blocking for now** (`continue-on-error: true`) because the suite was
-already red on `main` before this workflow existed (21 of 30 suites failing on
-2026-10-20, identical on an untouched checkout). Once the suite is green, make
-it a gate: remove `continue-on-error` and add `needs: test` to the deploy job.
+A separate `test` job runs `npm run fetch:recipes` (so the recipe-dependent
+tests have the real recipes) and `npm run test:ci` on the same push. The
+deploy job `needs` it: a red suite blocks the deploy. The suite was fixed on
+2026-10-20 (it had been red on `main`, 21 of 30 suites); locally it is green
+three runs in a row with the two recipe-dependent tests skipped, since they
+only run once `npm run fetch:recipes` has populated `src/pages/posts/`.
 
 ## One-time setup: the `DEPLOY_TOKEN` secret
 

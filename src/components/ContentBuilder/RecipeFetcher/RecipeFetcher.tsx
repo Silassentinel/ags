@@ -51,8 +51,10 @@ export function RecipeFetcher({
         const contents = await response.json();
         
         // Filter for markdown files (recipes)
+        // Same rule as filterRecipeFiles() in scripts/preserve-build.js
+        const NOT_RECIPES = ['1ATEMPLATE.MD', 'README.md', 'test-recipe.md'];
         const markdownFiles = contents.filter((file: any) => 
-          file.type === 'file' && file.name.endsWith('.md') && file.name !== '1ATEMPLATE.MD'
+          file.type === 'file' && file.name.endsWith('.md') && !NOT_RECIPES.includes(file.name)
         );
         
         // Fetch the raw content of each recipe file

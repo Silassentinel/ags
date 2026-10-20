@@ -45,10 +45,15 @@ Every page of the site plays one faint, animated ASCII piece behind its content,
 
 ## Open questions
 
-1. **"Randomised for every page"** can mean (a) a fresh random pick on every page load, or (b) a different but stable piece per page (same piece every time you open the same page). (a) must happen in the browser, so the first frame cannot be pre-rendered at build time; (b) can be decided at build time from the page path and keeps the pre-rendered first frame. The plan assumes (a).
-2. **Season source**: the visitor's own clock (a visitor in Australia sees the southern season inverted, i.e. "wrong" for a Belgian site) or Belgium's date regardless of where the visitor is. Both are a one-line difference. The plan assumes the visitor's local date with meteorological boundaries (Mar–May, Jun–Aug, Sep–Nov, Dec–Feb).
-3. **Pools**: proposed in [PLAN.md](PLAN.md); the owner may want to swap pieces.
-4. **Intensity scale and defaults**: proposed 0–100 slider mapped to opacity 0–0.6, default 30 (0.18 light), dark mode scaled up by 1.5 (capped). Numbers to be confirmed visually.
+Settled on 2026-10-20 (owner's answers):
+
+1. **"Randomised for every page"**: a fresh random pick on every page load, in the browser. The owner had no preference; the recommended reading was kept. The first frame is therefore not pre-rendered.
+2. **Season source**: Belgium's date (`Europe/Brussels`) regardless of where the visitor is, with meteorological boundaries (Mar–May, Jun–Aug, Sep–Nov, Dec–Feb).
+3. **Pools**: as proposed in [PLAN.md](PLAN.md), accepted unchanged.
+
+Still open:
+
+4. **Intensity scale and defaults**: proposed 0–100 slider mapped to opacity 0–0.6, default 30 (0.18 light), dark mode scaled up by 1.5 (capped). Numbers to be confirmed visually in Phase 2.
 5. **Test-fix strategy for ESM**: three options exist (see PLAN.md Phase 0); the plan picks one but it must be proven on the branch first.
 6. **Recipes in tests**: two suites read the 34 real recipe pages that only exist after a build fetches them. Make the tests fetch, skip, or ship fixtures?
 

@@ -403,8 +403,10 @@ function backupItem(item, sourcePath, targetPath) {
   
   try {
     if (fs.lstatSync(sourcePath).isDirectory()) {
-      // For directories like .git, use rsync for more reliable copying
-      execSync(`rsync -a "${sourcePath}/" "${targetPath}/"`);
+      // Directories like .git: a recursive copy with Node itself, so the
+      // script does not depend on rsync being installed (CI runners and
+      // containers often lack it, and a failed backup silently lost .git)
+      fs.cpSync(sourcePath, targetPath, { recursive: true, preserveTimestamps: true });
       console.log(`✅ Successfully backed up directory: ${item}`);
     } else {
       // For files like CNAME
@@ -531,8 +533,8 @@ function restoreItem(item, sourcePath, targetPath, outputDir) {
     }
     
     if (fs.lstatSync(sourcePath).isDirectory()) {
-      // For directories like .git, use rsync for more reliable copying
-      execSync(`rsync -a "${sourcePath}/" "${targetPath}/"`);
+      // Directories like .git: recursive copy with Node, see backupItem()
+      fs.cpSync(sourcePath, targetPath, { recursive: true, preserveTimestamps: true });
       console.log(`✅ Successfully restored directory: ${item}`);
       return true;
     } else {

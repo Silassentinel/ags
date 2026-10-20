@@ -5,7 +5,7 @@
 /**
  * Initializes the navigation menu functionality
  */
-export const initNavMenu = (): void => {
+export const initNavMenu = (): (() => void) => {
   // Handle hamburger menu click
   const hamburger: HTMLElement | null = document.querySelector('.hamburger');
   if (hamburger) {
@@ -13,10 +13,17 @@ export const initNavMenu = (): void => {
   }
   
   // Handle back button click
+  const goBack = (): void => window.history.back();
   const goBackButton: HTMLElement | null = document.querySelector(".goBack");
   if (goBackButton) {
-    goBackButton.addEventListener('click', () => window.history.back());
+    goBackButton.addEventListener('click', goBack);
   }
+
+  // Returns the cleanup, so a component can unmount cleanly
+  return () => {
+    hamburger?.removeEventListener('click', toggleNavMenu);
+    goBackButton?.removeEventListener('click', goBack);
+  };
 };
 
 /**
@@ -29,7 +36,5 @@ export const toggleNavMenu = (): void => {
   }
 };
 
-// Initialize menu when this module is loaded
-if (typeof window !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initNavMenu);
-}
+// No self-start on import: src/components/ui/Menu.tsx calls initNavMenu()
+// from its mount effect, so importing this module has no side effects.

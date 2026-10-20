@@ -23,14 +23,10 @@ permissions:
   contents: read
 
 jobs:
-  # Runs the suite for visibility but does not gate the deploy yet: the suite
-  # is red on main as of 2026-10-20 (21 of 30 suites fail before any change
-  # here). Once it is green, drop continue-on-error and add `needs: test` to
-  # the deploy job so a red test blocks a deploy.
+  # A red suite blocks the deploy (the deploy job `needs` this one).
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,9 +36,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # The recipe-dependent tests skip themselves without the real recipes
+      - run: npm run fetch:recipes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run test:ci
 
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:

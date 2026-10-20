@@ -8,6 +8,7 @@
     "build": "node scripts/preserve-build.js",
     "build:astro": "astro build --config astro.config.mjs",
     "build:standard": "astro build --config astro.config.mjs",
+    "fetch:recipes": "node scripts/fetch-recipes.js",
     "preview": "astro preview",
     "astro": "astro",
     "test": "npx jest --no-cache --detectOpenHandles --verbose",

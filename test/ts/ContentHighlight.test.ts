@@ -33,17 +33,12 @@ describe('Content Highlight Functionality', () => {
   });
   
   test('GetScreenDimensions returns correct window dimensions', () => {
-    // Set window dimensions
     window.innerWidth = 1024;
     window.innerHeight = 768;
-    
-    // Import the module to test the GetScreenDimensions function
-    const ContentHighlightModule = require('../../src/scripts/ui/features/ContentHighlight/ContentHighlight');
-    
-    // Access the exported dimensions
-    const { horizontal, vertical } = ContentHighlightModule;
-    
-    // Verify dimensions match window size
+
+    const { GetScreenDimensions } = require('../../src/scripts/ui/features/ContentHighlight/ContentHighlight');
+    const { horizontal, vertical } = GetScreenDimensions();
+
     expect(horizontal).toBe(1024);
     expect(vertical).toBe(768);
   });
