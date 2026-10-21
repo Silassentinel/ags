@@ -38,11 +38,28 @@ export function clampIntensity(value: unknown): number {
   return Math.min(100, Math.max(0, Math.round(n)));
 }
 
-export function readEnabled(store: StorageLike | null = storage()): boolean {
+/** True when the visitor's system asks for reduced motion (WCAG 2.3.3). */
+export function prefersReducedMotion(): boolean {
   try {
-    return store?.getItem(STORAGE_ENABLED) !== 'disabled';
+    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch {
-    return true;
+    return false;
+  }
+}
+
+/**
+ * Whether the backdrop plays. A stored choice always wins; without one it is
+ * on, except for visitors who ask for reduced motion, who get it off and can
+ * opt in from the Settings panel.
+ */
+export function readEnabled(store: StorageLike | null = storage(), reducedMotion: boolean = prefersReducedMotion()): boolean {
+  try {
+    const stored = store?.getItem(STORAGE_ENABLED);
+    if (stored === 'enabled') return true;
+    if (stored === 'disabled') return false;
+    return !reducedMotion;
+  } catch {
+    return !reducedMotion;
   }
 }
 

@@ -8,6 +8,10 @@
  */
 import '@testing-library/jest-dom';
 
+// test/ts/Accessibility.test.ts runs in the node environment (it drives a real
+// browser); the browser shims below only apply where jsdom provides a window.
+const hasDom = typeof window !== 'undefined';
+
 // IntersectionObserver: jsdom has none. Instances record the observed
 // elements and expose simulateIntersection() for tests.
 class MockIntersectionObserver implements IntersectionObserver {
@@ -46,6 +50,7 @@ class MockIntersectionObserver implements IntersectionObserver {
   }
 }
 
+if (hasDom) {
 Object.defineProperty(window, 'IntersectionObserver', {
   writable: true,
   configurable: true,
@@ -67,20 +72,21 @@ Object.defineProperty(window, 'ResizeObserver', {
 });
 
 // matchMedia: jsdom has none. Nothing matches by default; a test can
-// override it with jest.spyOn(window, 'matchMedia').
+// override the implementation, and it is reset before every test below.
+const noMediaMatches = (query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: jest.fn(),
+  removeListener: jest.fn(),
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  dispatchEvent: jest.fn(),
+});
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   configurable: true,
-  value: jest.fn().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
+  value: jest.fn().mockImplementation(noMediaMatches),
 });
 
 // A deterministic viewport for layout-related assertions.
@@ -100,9 +106,11 @@ beforeAll(() => {
   );
 });
 
-// Every test starts from a clean DOM and storage.
+// Every test starts from a clean DOM, storage and media queries.
 beforeEach(() => {
   document.body.innerHTML = '';
   document.documentElement.className = '';
   localStorage.clear();
+  if (jest.isMockFunction(window.matchMedia)) (window.matchMedia as jest.Mock).mockImplementation(noMediaMatches);
 });
+}

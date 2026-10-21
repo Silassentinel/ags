@@ -1,9 +1,10 @@
 import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import {
   FEATURE_ID as ASCII_BACKGROUND_ID,
   INTENSITY_SETTING_ID,
   clampIntensity,
+  prefersReducedMotion,
   readEnabled as readAsciiBackgroundEnabled,
   readIntensity as readAsciiBackgroundIntensity,
   writeEnabled as writeAsciiBackgroundEnabled,
@@ -58,8 +59,13 @@ const storedEnabled = (id: string): boolean => {
       return getLocalStorageItem('chaosMode') === 'enabled';
     case 'obfuscator':
       return getLocalStorageItem('obfuscator') === 'enabled';
-    case 'content-highlighter':
-      return getLocalStorageItem('contentHighlighter') !== 'disabled';
+    case 'content-highlighter': {
+      // On unless stored off; off by default for visitors who ask for reduced motion (it animates on scroll)
+      const stored = getLocalStorageItem('contentHighlighter');
+      if (stored === 'enabled') return true;
+      if (stored === 'disabled') return false;
+      return !prefersReducedMotion();
+    }
     case 'dark-mode':
       return getLocalStorageItem('theme') === 'dark';
     case ASCII_BACKGROUND_ID:
@@ -118,6 +124,7 @@ const FEATURES: FeatureToggle[] = [
 const Settings = () => {
   // Initialize state
   const [isOpen, setIsOpen] = useState(false);
+  const toggleButton = useRef<HTMLButtonElement>(null);
   // Read the stored choices on the first render (the component only renders
   // in the browser), so the first persistence effect below never writes the
   // defaults over them and never announces a state the visitor did not pick.
@@ -189,19 +196,30 @@ const Settings = () => {
     setIsOpen(!isOpen);
   };
 
+  // Escape closes the panel and puts focus back on the button that opened it
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== 'Escape' || !isOpen) return;
+    setIsOpen(false);
+    toggleButton.current?.focus();
+  };
+
   // Don't render anything on the server
   if (!isBrowser()) {
     return null;
   }
 
   return (
-    <div class="settings-component">
-      {/* Settings toggle button */}
+    <aside class="settings-component" aria-label="Site settings" onKeyDown={handleKeyDown}>
+      {/* Settings toggle button: a disclosure that announces whether the panel is open */}
       <button 
         id="settingsToggle"
         class="settings-toggle"
+        type="button"
         onClick={toggleSettings}
-        aria-label="Toggle Settings Panel"
+        aria-label="Settings"
+        aria-expanded={isOpen}
+        aria-controls="settings-panel"
+        ref={toggleButton}
       >
         <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
           <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
@@ -209,14 +227,21 @@ const Settings = () => {
         </svg>
       </button>
 
-      {/* Settings panel */}
-      <div class={`settings-panel ${isOpen ? 'open' : ''}`}>
+      {/* Settings panel: inert while closed, so its controls are neither focusable nor announced */}
+      <div
+        id="settings-panel"
+        class={`settings-panel ${isOpen ? 'open' : ''}`}
+        aria-labelledby="settings-heading"
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+      >
         <div class="settings-header">
-          <h3>Settings</h3>
+          <h2 id="settings-heading">Settings</h2>
           <button 
             class="close-settings"
+            type="button"
             onClick={toggleSettings}
-            aria-label="Close Settings Panel"
+            aria-label="Close settings"
           >
             ×
           </button>
@@ -261,7 +286,7 @@ const Settings = () => {
           </ul>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 

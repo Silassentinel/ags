@@ -129,6 +129,51 @@ describe('Settings Component', () => {
     expect(slider.disabled).toBe(false);
   });
 
+  test('the gear button is a disclosure and the closed panel is inert', () => {
+    const { container } = render(h(Settings, {}));
+    const button = container.querySelector('#settingsToggle') as HTMLButtonElement;
+    const panel = container.querySelector('#settings-panel') as HTMLElement;
+
+    expect(container.querySelector('aside[aria-label="Site settings"]')).toBeInTheDocument();
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(button.getAttribute('aria-controls')).toBe('settings-panel');
+    expect(panel.hasAttribute('inert')).toBe(true);
+    expect(panel.getAttribute('aria-hidden')).toBe('true');
+    expect(panel.getAttribute('aria-labelledby')).toBe('settings-heading');
+
+    fireEvent.click(button);
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(panel.hasAttribute('inert')).toBe(false);
+    expect(panel.getAttribute('aria-hidden')).toBe('false');
+  });
+
+  test('Escape closes the panel and returns focus to the gear button', () => {
+    const { container } = renderOpen();
+    const button = container.querySelector('#settingsToggle') as HTMLButtonElement;
+    const panel = container.querySelector('#settings-panel') as HTMLElement;
+    expect(panel).toHaveClass('open');
+
+    fireEvent.keyDown(panel, { key: 'Escape' });
+
+    expect(panel).not.toHaveClass('open');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(button);
+  });
+
+  test('visitors who ask for reduced motion get the animated features off by default', () => {
+    (window.matchMedia as jest.Mock).mockImplementation((query: string) => ({ matches: query.includes('reduce'), media: query, addEventListener: jest.fn(), removeEventListener: jest.fn() }));
+    const { container } = renderOpen();
+    const checked = (id: string) => (container.querySelector(`#${id}`) as HTMLInputElement).checked;
+
+    expect(checked('content-highlighter')).toBe(false);
+    expect(checked('ascii-background')).toBe(false);
+    expect(checked('chaos-mode')).toBe(false);
+    // ... and a stored choice still wins
+    localStorage.setItem('asciiBackground', 'enabled');
+    const second = renderOpen();
+    expect((second.container.querySelector('#ascii-background') as HTMLInputElement).checked).toBe(true);
+  });
+
   test('closes settings panel with close button', () => {
     const { container } = renderOpen();
     const settingsPanel = container.querySelector('.settings-panel');

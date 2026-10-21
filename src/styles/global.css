@@ -35,9 +35,52 @@ a:hover {
   color: #fff;
 }
 
+/* Keyboard focus: a thick ring in the text colour on every control, only for
+   keyboard (focus-visible), never removed (WCAG 2.4.7, 2.4.11). */
+:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* The skip-link target is focused programmatically, not a control */
+main:focus {
+  outline: none;
+}
+
+/* Links that invert on focus need the ring inside their own box */
+.nav-links a:focus-visible,
+a:hover:focus-visible {
+  outline-offset: -4px;
+}
+
+/* Skip link: visually hidden until it receives keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 10000;
+  padding: 8px 12px;
+  background-color: #000;
+  color: #fff;
+  font-family: monospace;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.dark .skip-link {
+  background-color: #fff;
+  color: #000;
+}
+
 /* nav styles */
 .hamburger {
-  padding-right: 20px;
+  padding: 0 20px 0 0;
+  border: 0;
+  background: none;
   cursor: pointer;
 }
 
@@ -109,7 +152,6 @@ button {
   text-transform: uppercase;
   font-family: monospace;
   cursor: pointer;
-  outline: none;
 }
 
 button:hover {
@@ -119,7 +161,8 @@ button:hover {
 
 /* Content highlighting styles */
 .highlight-in-viewport {
-  transition: all 0.4s ease;
+  /* named properties, so the keyboard focus ring is never animated in */
+  transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
 }
 
 .content-highlighted {
@@ -297,6 +340,11 @@ html.dark {
   background-color: #ffffff;
 }
 
+.dark .hamburger {
+  background: none;
+  border: 0;
+}
+
 /* Date styling - makes all dates appear in red */
 .date, 
 time, 
@@ -307,7 +355,7 @@ time,
 time:not(.no-date-style),
 span:has([datetime]),
 span.date {
-  color: #ff0000 !important;
+  color: #c00000 !important; /* 6.5:1 on white; #ff0000 was 4.0:1, below AA */
   font-weight: bold;
 }
 
@@ -478,8 +526,9 @@ span.date {
   background-color: #333;
 }
 
-.settings-header h3 {
+.settings-header h2 {
   margin: 0;
+  font-size: 1.17em;
   text-transform: uppercase;
   font-family: monospace;
 }

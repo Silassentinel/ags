@@ -10,6 +10,7 @@ import {
   STORAGE_INTENSITY,
   clampIntensity,
   opacityFor,
+  prefersReducedMotion,
   readEnabled,
   readIntensity,
   writeEnabled,
@@ -46,6 +47,23 @@ describe('stored preferences', () => {
     expect(readEnabled()).toBe(false);
   });
 
+  test('without a stored choice, reduced motion turns the backdrop off; a stored choice wins', () => {
+    expect(readEnabled(localStorage, true)).toBe(false);
+    expect(readEnabled(localStorage, false)).toBe(true);
+    localStorage.setItem(STORAGE_ENABLED, 'enabled');
+    expect(readEnabled(localStorage, true)).toBe(true);
+    localStorage.setItem(STORAGE_ENABLED, 'disabled');
+    expect(readEnabled(localStorage, false)).toBe(false);
+  });
+
+  test('prefersReducedMotion follows the media query', () => {
+    expect(prefersReducedMotion()).toBe(false);
+    (window.matchMedia as jest.Mock).mockImplementation((query: string) => ({ matches: query.includes('reduce'), media: query, addEventListener: jest.fn(), removeEventListener: jest.fn() }));
+    expect(prefersReducedMotion()).toBe(true);
+    expect(readEnabled()).toBe(false);
+    (window.matchMedia as jest.Mock).mockImplementation((query: string) => ({ matches: false, media: query, addEventListener: jest.fn(), removeEventListener: jest.fn() }));
+  });
+
   test('writeEnabled stores the switch', () => {
     writeEnabled(false);
     expect(localStorage.getItem(STORAGE_ENABLED)).toBe('disabled');
@@ -73,7 +91,7 @@ describe('stored preferences', () => {
         throw new Error('blocked');
       },
     };
-    expect(readEnabled(broken)).toBe(true);
+    expect(readEnabled(broken, false)).toBe(true);
     expect(readIntensity(broken)).toBe(DEFAULT_INTENSITY);
     expect(() => writeEnabled(false, broken)).not.toThrow();
     expect(() => writeIntensity(10, broken)).not.toThrow();

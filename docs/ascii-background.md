@@ -55,7 +55,8 @@ from the pool of the current season in Belgium
 | winter, Dec–Feb | snowfall, starfield, aurora, contour-map, moon-phases |
 
 Visitors control it from the Settings panel (gear icon): an "ASCII
-Background" switch (on by default) and an Intensity slider (0–100, default
+Background" switch (on by default, off by default for visitors whose system
+asks for reduced motion, who can opt in) and an Intensity slider (0–100, default
 30, stored as `asciiBackground` / `asciiBackgroundIntensity` in
 localStorage). Opacity is intensity / 100 × 0.6, × 1.5 in dark mode, capped
 at 0.6. Switching off stops the animation entirely.

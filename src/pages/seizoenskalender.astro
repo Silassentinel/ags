@@ -17,11 +17,11 @@ const now = new Date();
 const currentMonth = now.getMonth();
 ---
 
-<BaseLayout pageTitle={pageTitle}>
+<BaseLayout pageTitle={pageTitle} lang="nl">
   <section class="cal-intro">
     <p>Seizoensgroenten & fruit voor <strong>Belgi&euml;</strong> — volle grond / onverwarmde serres.</p>
     <p class="legend"><span class="tag tag-groente has-recipes">vet</span> = er zijn recepten mee — klik om ze te zien.</p>
-    <nav class="month-nav">
+    <nav class="month-nav" aria-label="Maanden">
       {months.map((m, i) => (
         <a href={`#${m.name.toLowerCase()}`} class:list={["month-link", { active: i === currentMonth }]}>
           {m.name.substring(0, 3)}
@@ -187,9 +187,14 @@ const currentMonth = now.getMonth();
 
   .count {
     font-size: 0.75rem;
-    border: 1px solid #888;
+    border: 1px solid #595959;
     padding: 0 5px;
-    color: #888;
+    color: #595959; /* 7:1 on white; #888 was 3.5:1, below AA */
+  }
+
+  :global(.dark) .count {
+    color: #b0b0b0; /* 9:1 on black, 7:1 on the dark card */
+    border-color: #b0b0b0;
   }
 
   .tag-cloud {

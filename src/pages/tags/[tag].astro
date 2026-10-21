@@ -71,7 +71,7 @@ const seasonMonths = seasonMonthsForTag(tag ?? "").map(i => SEASON_MONTHS[i].nam
 
 <BaseLayout pageTitle={tag}>
     <div class="tag-posts">
-        <h1>Posts tagged with {tag}</h1>
+        <h2>Posts tagged with {tag}</h2>
         {seasonMonths.length > 0 && (
             <p class="in-season">
                 In seizoen in België:{" "}

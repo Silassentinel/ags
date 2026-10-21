@@ -4,10 +4,18 @@ import Header from "../components/Header/Header.astro";
 import Footer from "../components/Footer/Footer.astro";
 import ClientScripts from "../components/ui/ClientScripts";
 import AsciiBackground from "../components/Background/AsciiBackground.astro";
-const { pageTitle } = Astro.props;
+
+interface Props {
+    pageTitle: string;
+    /** BCP 47 language of the page's content; "nl" for the Dutch pages. */
+    lang?: string;
+}
+
+const { pageTitle, lang = "en" } = Astro.props;
+const skipLabel = lang.startsWith("nl") ? "Naar de inhoud" : "Skip to content";
 ---
 
-<html lang="en">
+<html lang={lang}>
     <head>
         <meta charset="utf-8" />
         <link rel="icon" type="image/" href="/favicon.ico" />
@@ -16,11 +24,14 @@ const { pageTitle } = Astro.props;
         <title>{pageTitle}</title>
     </head>
     <body>
+        <!-- First focusable element on every page: lets keyboard and screen-reader users jump past the navigation -->
+        <a class="skip-link" href="#main">{skipLabel}</a>
         <!-- Seasonal animated ascii backdrop, behind everything (docs/features/ascii-background/) -->
         <AsciiBackground />
         <Header />
-        <h1 class="brutalist-title">{pageTitle}</h1>
-        <main>
+        <!-- tabindex="-1" so the skip link can move focus here in every browser -->
+        <main id="main" tabindex="-1">
+            <h1 class="brutalist-title">{pageTitle}</h1>
             <slot />
         </main>
         <Footer />

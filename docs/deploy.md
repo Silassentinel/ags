@@ -22,8 +22,11 @@ that repository; this repository only holds the source.
 
 Deploys never overlap: a second push waits for the running deploy.
 
-A separate `test` job runs `npm run fetch:recipes` (so the recipe-dependent
-tests have the real recipes) and `npm run test:ci` on the same push. The
+A separate `test` job installs headless Chromium (`npx playwright install
+--with-deps chromium`, for the accessibility gate in
+`test/ts/Accessibility.test.ts`), runs `npm run fetch:recipes` (so the
+recipe-dependent tests have the real recipes) and `npm run test:ci` on the
+same push. The
 deploy job `needs` it: a red suite blocks the deploy. The suite was fixed on
 2026-10-20 (it had been red on `main`, 21 of 30 suites); locally it is green
 three runs in a row with the two recipe-dependent tests skipped, since they

@@ -65,6 +65,14 @@ describe('Theme Management', () => {
     expect(localStorage.getItem('theme')).toBe('light');
   });
 
+  test('the toggle button reports its pressed state', () => {
+    initTheme();
+    const button = document.getElementById('themeToggle') as HTMLButtonElement;
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+    button.click();
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+  });
+
   test('initTheme tolerates a page without a toggle button', () => {
     document.body.innerHTML = '';
     expect(() => initTheme()).not.toThrow();
