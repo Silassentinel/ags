@@ -40,6 +40,8 @@ The site meets WCAG 2.2 AA for keyboard operation and screen-reader semantics on
 
 ## Open questions
 
-1. **Manual assistive-technology pass**: axe and the keyboard walk catch the mechanical failures; a short run with VoiceOver (iOS/macOS) or NVDA on the live site would confirm announcements read sensibly. Owner's call when.
-2. **Reduced-motion defaults persist**: the Settings panel stores the resolved default on first visit, so a visitor who later turns reduced motion off at system level keeps the features off until they toggle them. Acceptable, or should an unset choice stay unset?
-3. **Pull-request CI**: the gate runs on pushes to `main` only, like the rest of the suite. A `ci.yml` on pull requests is still in the backlog.
+Settled on 2026-10-21 (owner's answers):
+
+1. **Manual assistive-technology pass**: skipped for now; the axe gate and the keyboard walk are the checks. Revisit when wanted.
+2. **Reduced-motion defaults persist**: kept as is. The resolved default becomes the stored choice on first visit, like Chaos Mode; the visitor changes it in Settings.
+3. **Pull-request CI**: later; stays in the backlog.

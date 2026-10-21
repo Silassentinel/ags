@@ -1,6 +1,6 @@
 # Accessibility
 
-_Last updated: 2026-10-20_
+_Last updated: 2026-10-21_
 
 Root: `ags/docs/features/accessibility/` (written in the `features/<name>/` shape used in the Website workspace; move it there and list it in `PROJECT_INDEX.md` if that is where feature docs live).
 

@@ -36,7 +36,7 @@ Not verified here: real screen readers (no assistive technology in this environm
 ## Phasing
 
 - **Phase 1 — audit, fixes, gate** (this change). Done 2026-10-20.
-- **Phase 2 — manual assistive-technology pass** on the live site (owner, VoiceOver or NVDA), fixing what it finds.
+- **Phase 2 — manual assistive-technology pass** on the live site (owner, VoiceOver or NVDA), fixing what it finds. Skipped for now (owner, 2026-10-21); the gate and the keyboard walk are the checks until then.
 - Backlog: a pull-request `ci.yml`; a wider contrast review (every colour pair in both themes, 7:1 where cheap); `aria-expanded` on the repo cards' "read more" flip; Dutch UI strings on Dutch pages.
 
 ## Todo — Phase 1 — done
